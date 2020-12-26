@@ -1,4 +1,4 @@
-#install.packages("taxize")
+# Load packages
 library(taxize)
 library(openxlsx)
 library(ape)
