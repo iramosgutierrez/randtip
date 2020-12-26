@@ -6,7 +6,6 @@ library(stringr)
 library(phytools)
 
 rm(list = setdiff(ls(), lsf.str()))#eliminar todo menos funciones
-#comentario de prueba
 
 #checklist<- read.xlsx("E:/UNI/4. DOCTORADO/4. Regionalization/LISTADOS/IberoBalearic_Checklist_R1.xlsx")
 #checklist$match.name<- gsub(" ","_", checklist$match.name)
