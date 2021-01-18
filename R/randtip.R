@@ -21,71 +21,71 @@ plot(Tree, label.offset = 2)
 nodelabels()
 tiplabels(adj = c(-10, 0.5))
 
-#CREACI?N DE FUNCIONES####
+#CREACION DE FUNCIONES####
 
 
-'%!in%' <- function(x,y)!('%in%'(x,y))  #funci?n opuesta de %in%
+'%!in%' <- function(x,y)!('%in%'(x,y))  #funcion opuesta de %in%
 
 
-#la funci?n phylo.taxonomy da una tabla de familia, orden y clase de cada g?nero dado en el vector de especies.
+# function phylo.taxonomy returns a table with family, order and class for every genus gien in the species vector.
 phylo.taxonomy<- function(species, db="ncbi"){
   message(paste0("Taxonomic information is being looked up in ",db," Taxonomy Database. This may take a while!"))
-  taxa.genera<- word(species, 1, sep="_")[!duplicated(word(species, 1, sep="_"))]     #se extraen los g?neros
-  taxonomy.df<- data.frame("Genus"=taxa.genera, "Family"=NA, "Order"=NA, "Class"=NA)  #se crea la tabla
-  for(i in 1:length(taxa.genera)){    #por cada uno de los g?neros...
+  taxa.genera<- word(species, 1, sep="_")[!duplicated(word(species, 1, sep="_"))]     #genera are extracted
+  taxonomy.df<- data.frame("Genus"=taxa.genera, "Family"=NA, "Order"=NA, "Class"=NA)  #table is created
+  for(i in 1:length(taxa.genera)){    #for every genus...
     tryCatch({
-      search<-classification(as.character(taxa.genera[i]), db = db)[[1]]  #se buscan las categor?as taxon?micas y se guardan en la tabla
+      search<-classification(as.character(taxa.genera[i]), db = db)[[1]]  #taxonomic categories are searched and saved in the table
       fam<-search[search$rank=="family","name"]
       ord<-search[search$rank=="order" ,"name"]
       cla<-search[search$rank=="class" ,"name"]
       taxonomy.df$Family[taxonomy.df$Genus==taxa.genera[i]]<-fam
       taxonomy.df$Order[taxonomy.df$Genus==taxa.genera[i]] <-ord
       taxonomy.df$Class[taxonomy.df$Genus==taxa.genera[i]] <-cla
-    }, error=function(e){                                               #si hay un error se guarda como NA para evitar parones
+    }, error=function(e){                                               #errors are saved as NA to avoid stopping
       taxonomy.df$Family[taxonomy.df$Genus==taxa.genera[i]]<-NA
       taxonomy.df$Order[taxonomy.df$Genus==taxa.genera[i]] <-NA
       taxonomy.df$Class[taxonomy.df$Genus==taxa.genera[i]] <-NA
     })
-    Sys.sleep(0.33)         #taxize solo permite 3 b?squedas por segundo para no colapsar; esto evita que se pare
+    Sys.sleep(0.33)         #taxize allows only 3 searches per second; this avoids collapsing
   }
   return(taxonomy.df)
 }
 # phylo.taxonomy(species=c("Abies_pinsapo", "Pinus_pinaster", "Achyllea_milleifolium"))
 
 
-#la funci?n phyleticity busca qu? tipo de g?nero es el dado, dentro de un ?rbol dado.
+#functionn phyleticity retrieves genus type given a certain tree
 phyleticity<- function(tree, genus){
   if(length(genus)!=1){stop("Only one genus accepted")}
 
-  list<- data.frame(species=tree$tip.label)                                 #lista las especies del ?rbol
-  taxa.vector<- as.vector(list[word(list$species, 1, sep="_")==genus,])     #lista los g?neros  del ?rbol
-  if(length(taxa.vector)==0){                                               #si no aparece el g?nero en el ?rbol
+  list<- data.frame(species=tree$tip.label)                                 #lists trees species
+  taxa.vector<- as.vector(list[word(list$species, 1, sep="_")==genus,])     #lists trees genera
+  if(length(taxa.vector)==0){                                               #if the genus is not in the tree
     type<-"NOT INCLUDED"
     #message(paste0("Genus ", genus, " is ", type, " in your tree"))
   }else{
-    if(length(taxa.vector)==1){                                             #si aparece el g?nero en el ?rbol una sola vez
+    if(length(taxa.vector)==1){                                             #if this genus appears in the tree once
       type<-"SINGLETON GENUS"
       #message(paste0("Genus ", genus, " is a ", type))
-    }else{                                                                 #si aparece el g?nero en el ?rbol m?s de una vez...
+    }else{                                                                 #if this genus appears in the tree more than once..
 
-      MRCA<-findMRCA(tree = tree,tips = taxa.vector)                       #... se busca el MRCA...
-      Desc.Tips<-tree$tip.label[getDescendants(tree, MRCA)][!is.na(tree$tip.label[getDescendants(tree, MRCA)])] #...se buscan sus descendientes...
-      Desc.Genera<-word(Desc.Tips, 1, sep="_")[!duplicated(word(Desc.Tips, 1, sep="_"))] # si todos los descendientes son del mismo g?nero: monof.
+      MRCA<-findMRCA(tree = tree,tips = taxa.vector)                       #...MRCA is searched...
+      Desc.Tips<-tree$tip.label[getDescendants(tree, MRCA)][!is.na(tree$tip.label[getDescendants(tree, MRCA)])] #...descendants are searched...
+      Desc.Genera<-word(Desc.Tips, 1, sep="_")[!duplicated(word(Desc.Tips, 1, sep="_"))] #if all MCRA descendants are fron the same genus: monophyletic.
       if(length(Desc.Genera)==1){
         type<-"MONOPHYLETIC"
         #message(paste0("Genus ", genus, " is ", type))
       }else{
-        Intruder.Tips<-as.vector(Desc.Tips[word(Desc.Tips, 1, sep = "_")!= genus]) #si hay alg?n "intruso" en el grupo...
+        Intruder.Tips<-as.vector(Desc.Tips[word(Desc.Tips, 1, sep = "_")!= genus]) #if there is an intruder...
         Intruder.MRCA<-findMRCA(tree = tree,tips = Intruder.Tips)
-        if(length(Intruder.Tips)==1){type<-"PARAPHYLETIC"                          #(si solo hay un intruso: parafil?tico por singleton)
+        if(length(Intruder.Tips)==1){type<-"PARAPHYLETIC"                          #(and there is only one intruder: paraphyletic by singleton)
         #message(paste0("Genus ", genus, " is ", type))
-        }else{                                                                     # si hay m?s de un intruso...
-          Desc.Intruder.Tips<-tree$tip.label[getDescendants(tree, Intruder.MRCA)][!is.na(tree$tip.label[getDescendants(tree, Intruder.MRCA)])] #MRCA de los intrusos y descendientes
+        }else{                                                                     # if there are more than one intruder...
+          Desc.Intruder.Tips<-tree$tip.label[getDescendants(tree, Intruder.MRCA)][!is.na(tree$tip.label[getDescendants(tree, Intruder.MRCA)])] #descendants and intruders MRCA
 
-          if(length(Desc.Intruder.Tips)==length(Intruder.Tips)&all(sort(Desc.Intruder.Tips)==sort(Intruder.Tips))){        #si estan agrupados: parafil?tico por intruso monofil?tico
+          if(length(Desc.Intruder.Tips)==length(Intruder.Tips)&all(sort(Desc.Intruder.Tips)==sort(Intruder.Tips))){        #intruders grouped: paraphyletic group by monophyletic intruder
             type<-"PARAPHYLETIC"
             # message(paste0("Genus ", genus, " is ", type))
-          } else{                                                                 #si nada de lo anterior ha resultado, solo queda polifil?tico
+          } else{                                                                 #if everything else has failed, it has to be polyphyletic
             type<-"POLYPHYLETIC"
             #message(paste0("Genus ", genus, " is ",type))
           }}}}}
@@ -94,7 +94,7 @@ phyleticity<- function(tree, genus){
 #phyleticity(Tree, "Inventum")
 
 
-#la funci?n phylo.table devuelve una tabla que nutrir? a la funci?n randtip.
+#function phylo.table returns a table which the main function can work with (editable by hand!).
 phylo.table<- function(species, tree=NULL, taxonomy=NULL, genera.phyleticity=NULL){
 
   phylo.df<- data.frame(matrix(nrow = length(species),ncol=10))
@@ -102,12 +102,12 @@ phylo.table<- function(species, tree=NULL, taxonomy=NULL, genera.phyleticity=NUL
                      "relative.species","synonim.genus","sibling.genus")
 
   if(length(species[duplicated(species)])){stop("There are duplicated species")}
-  phylo.df$taxon<-species                                     #se listan las especies en la columna de especies
-  phylo.df$genus<-word(phylo.df$taxon, 1, sep="_")            #se obtienen los g?neros
+  phylo.df$taxon<-species                                     #species listed on the species column
+  phylo.df$genus<-word(phylo.df$taxon, 1, sep="_")            #genera obtention
 
-  taxa.genera<- phylo.df$genus[!duplicated(phylo.df$genus)]   #se listan los g?neros
+  taxa.genera<- phylo.df$genus[!duplicated(phylo.df$genus)]   #genera list
 
-  if(is.null(taxonomy)){  taxonomy<-phylo.taxonomy(species=species) } #si no se aporta una tabla con los datos de taxonom?a, se obtienen
+  if(is.null(taxonomy)){  taxonomy<-phylo.taxonomy(species=species) } #if taxonomy is not given, it is searched for.
 
   for(i in 1:length(taxa.genera)){
     genus<-as.character(taxa.genera[i])
@@ -118,18 +118,18 @@ phylo.table<- function(species, tree=NULL, taxonomy=NULL, genera.phyleticity=NUL
     phylo.df$order[phylo.df$genus==taxa.genera[i]] <-ord
     phylo.df$class[phylo.df$genus==taxa.genera[i]] <-cla
 
-  }    #esto es por si le das una tabla (p. ej. obtenida con la funci?n phylo.taxonomy)
+  }
 
 
 
-  if(is.null(genera.phyleticity)){                 #si no se aporta una tabla con los datos de "fileticidad", se obtiene...
+  if(is.null(genera.phyleticity)){                 #if phyleticity is not given, it is searched for.
     if(is.null(tree)){stop("Tree object required")}
     genera.phyleticity<- data.frame("Genus"=taxa.genera, "Type"=NA)
     for(f in 1:nrow(genera.phyleticity)){
       genera.phyleticity$Type[f]<- phyleticity(tree,  genera.phyleticity$Genus[f])
     }}
 
-  for(i in 1:length(taxa.genera)){         #obtenida antes, o dada desde el principio, se imputan los datos a nuestra tabla.
+  for(i in 1:length(taxa.genera)){         #obtained before, or given, data are imputted to our table.
     genus<-as.character(taxa.genera[i])
     genus.type<-genera.phyleticity$Type[genera.phyleticity$Genus==genus]
     phylo.df$genus.type[phylo.df$genus==genus]<-genus.type
@@ -141,14 +141,14 @@ phylo.table<- function(species, tree=NULL, taxonomy=NULL, genera.phyleticity=NUL
 }
 #df<-phylo.table(species = checklist$match.name, Tree,  genera.phyleticity = tipos_generos, taxonomy = taxonomy)
 
-#esta funci?n sirve para ver si un "label" es un nodo interno
+#this function reveals if a given node at a given tree is an internal node
 is.node<-function(tree, node){
   '%!in%' <- function(x,y)!('%in%'(x,y))
   if(node %!in% tree$edge){stop("Node number is not in your tree")}
   if (length(getDescendants(tree=tree, node = node))>1){return(TRUE)}else{return(FALSE)}
 }
 
-#esta funci?n sirve para ver si un "label" es un tip externo
+#this function reveals if a given node at a given tree is a tip
 is.tip <-function(tree, node){
   '%!in%' <- function(x,y)!('%in%'(x,y))
   if(node %!in% tree$edge){stop("Node number is not in your tree")}
@@ -157,15 +157,15 @@ is.tip <-function(tree, node){
 
 # Function to add tips at random from a given node
 add_into_node <- function(tree,node,new.tip) {
-  new.tip<-gsub(" ", "_",new.tip) #modificaci?n por si se ha puesto los nombres co espacios...
-  tt<-splitTree(tree,split=list(node=node, bp=tree$edge.length[which(tree$edge[,2]==node)])) #se parte el ?rbol por el nodo especificado
+  new.tip<-gsub(" ", "_",new.tip) #modification in case names are separated with blanks
+  tt<-splitTree(tree,split=list(node=node, bp=tree$edge.length[which(tree$edge[,2]==node)])) #tree is splitted at a given node
   if (is.ultrametric(tt[[2]])==TRUE){
-    tt[[2]]<-add.random(tt[[2]],tips=new.tip)   #se a?ade aleatoriamente dentro del arbol cortado
-    new.tree<-paste.tree(tt[[1]],tt[[2]])       #se pegan los ?rboles
+    tt[[2]]<-add.random(tt[[2]],tips=new.tip)   #randomly add into the cut tree
+    new.tree<-paste.tree(tt[[1]],tt[[2]])       #trees are pasted together
     return(new.tree)
   } else
   {
-    warning("Found issue in sticking, forcing ultrametric") #warning por si no es ultram?trico
+    warning("Found issue in sticking, forcing ultrametric")
     tt[[2]]<-force.ultrametric(tt[[2]], method="extend")
     tt[[2]]<-add.random(tt[[2]],tips=new.tip)
     new.tree<-paste.tree(tt[[1]],tt[[2]])
@@ -175,61 +175,61 @@ add_into_node <- function(tree,node,new.tip) {
 
 # Function to add tips at random monophyletic clade
 add_to_monophyletic <- function(tree,new.tip) {
-  new.tip<-gsub(" ", "_",new.tip)       #errores de nombres
-  genus<- word(new.tip, 1, sep="_")     #se otiene el g?nero (previamente tiene que haber sido identificado como MonoF)
-  list<- data.frame(species=tree$tip.label)  #listado de especies dentro del ?rbol
-  taxa.vector<- as.vector(list[word(list$species, 1, sep="_")==genus,]) #especies del ?rbol del g?nero
+  new.tip<-gsub(" ", "_",new.tip)       #modification in case names are separated with blanks
+  genus<- word(new.tip, 1, sep="_")     #genus obtention (it has to be previously checked to be monophyletic)
+  list<- data.frame(species=tree$tip.label)  #species list inside the tree
+  taxa.vector<- as.vector(list[word(list$species, 1, sep="_")==genus,]) #species list inside the tree from the genus
   if(length(taxa.vector)==0){stop(paste0("Genus ", genus, " is not included in yout tree."))}
-  MRCA<-findMRCA(tree = tree,tips = taxa.vector) #MCRA de las especies
-  new.tree<-add_into_node(tree=tree, node = MRCA, new.tip = new.tip)  #se a?ade desde MRCA
+  MRCA<-findMRCA(tree = tree,tips = taxa.vector) #genus MCRA
+  new.tree<-add_into_node(tree=tree, node = MRCA, new.tip = new.tip)  #Added into th tree defined by MCRA
   return(new.tree)}
 #plot(add_to_monophyletic(Tree, "Invent_inventata"))
 
 
-# Function to add tips over a node. Vale para especies o g?neros "hermanos".
+# Function to add tips over a node. Valid for "sibling" species or genera.
 add_over_node<- function(tree, new.tip, node){
-  DF <- data.frame(tree$edge,tree$edge.length,1:length(tree$edge.length)) #datos del arbol
-  EDGES <- DF[which.edge(tree, node),] #especificaciones del nodo dado
-  to_index<-EDGES[,4] #posici?n a indexar
+  DF <- data.frame(tree$edge,tree$edge.length,1:length(tree$edge.length)) #tree data
+  EDGES <- DF[which.edge(tree, node),] # node especifications
+  to_index<-EDGES[,4] #indexing position
 
-  WHERE <- tree$edge[to_index,2]   #posici?n a indexar
-  LENGTH <- tree$edge.length[to_index]   #longitud de rama m?xima
+  WHERE <- tree$edge[to_index,2]   #indexing position
+  LENGTH <- tree$edge.length[to_index]   #maximum branch length
 
   MIN<-0
   MAX<-LENGTH
   POS<-runif(1,MIN,MAX)
 
-  while(POS==MIN | POS==MAX){POS<- runif(1,MIN,MAX)} #encontrar un valor interno
+  while(POS==MIN | POS==MAX){POS<- runif(1,MIN,MAX)} #intermediate value
 
   newtree<-bind.tip(tree, new.tip, edge.length=NULL, where=WHERE, position=POS)
   return(newtree)
 }
 
-### A function to stick species at random within a paraphyletic clade ###
+# A function to stick species at random within a paraphyletic clade
 add_into_paraphyletic_node<- function(tree, new.tip, group.node, intern.node){
 
-  intern.tips<- tree$tip.label[getDescendants(tree, intern.node)][!is.na(tree$tip.label[getDescendants(tree, intern.node)])] #tips del nodo de "intruso"
+  intern.tips<- tree$tip.label[getDescendants(tree, intern.node)][!is.na(tree$tip.label[getDescendants(tree, intern.node)])] #tips in intruder node
 
-  group.tree<-splitTree(tree,split=list(node=group.node,bp=tree$edge.length[which(tree$edge[,2]==group.node)])) #se rompe el ?rbol por el nodo profundo
+  group.tree<-splitTree(tree,split=list(node=group.node,bp=tree$edge.length[which(tree$edge[,2]==group.node)])) #tree is cut at the deep node
 
-  new.intern.node<- findMRCA(tree = group.tree[[2]],tips = intern.tips) #se encuentra en nodo interno en el nuevo arbol
+  new.intern.node<- findMRCA(tree = group.tree[[2]],tips = intern.tips) #node is searched in the new tree
 
-  intern.tree <-splitTree(group.tree[[2]],split=list(node=new.intern.node,bp=group.tree[[2]]$edge.length[which(group.tree[[2]]$edge[,2]==new.intern.node)])) #el arbol cortado se vuelve a romper
+  intern.tree <-splitTree(group.tree[[2]],split=list(node=new.intern.node,bp=group.tree[[2]]$edge.length[which(group.tree[[2]]$edge[,2]==new.intern.node)])) #cut tree is cut again
 
-  intern.tree[[1]]<-add.random(intern.tree[[1]],tips=new.tip) #se a?ade el new tip al ?rbol cortado sin el grupo intruso
+  intern.tree[[1]]<-add.random(intern.tree[[1]],tips=new.tip) #The new tip is added to the cut tree without the intruder group
 
   group.tree[[2]]<-paste.tree( intern.tree[[1]], intern.tree[[2]] )
   group.tree[[2]]$root.edge<-0
-  new.tree<- paste.tree( group.tree[[1]], group.tree[[2]])#se pegan los 3 ?rboles
+  new.tree<- paste.tree( group.tree[[1]], group.tree[[2]]) #3 trees are pasted together
 
 
-  if (is.ultrametric(new.tree)==FALSE){new.tree<-force.ultrametric(new.tree, method="extend")} #se fuerza el ultram?trico
+  if (is.ultrametric(new.tree)==FALSE){new.tree<-force.ultrametric(new.tree, method="extend")}
   return(new.tree)
 }
 
 
 add_to_paraphyletic <- function(tree,new.tip){
-  new.tip<-gsub(" ", "_",new.tip) #lo mismo que con el nodo, pero detectando de manera autom?tica el nodo profundo y el intruso
+  new.tip<-gsub(" ", "_",new.tip) #Same process than paraphyletic node, bt detecting automatically the deep and shallow nodes
   genus<- word(new.tip, 1, sep="_")
   sp.list<- data.frame(species=tree$tip.label)
   taxa.vector<- as.vector(sp.list[word(sp.list$species, 1, sep="_")==genus,])
@@ -265,37 +265,37 @@ add_to_paraphyletic <- function(tree,new.tip){
 polytomy_into_node<- function(tree, new.tip, node){
 
   if(!exists("tree")){stop("Tree object not found")}
-  newtree<-tree #se crea un ?rbol nuevo para ser modificado
+  newtree<-tree #new tree is created to be modified
 
-  DF <- data.frame(newtree$edge,newtree$edge.length,"id"=1:length(newtree$edge.length)) #caracter?sticas del DF
-  EDGES <- DF[which.edge(newtree, node),] #la fila del nodo dado
-  to_index<-EDGES[,4] #posicion a indexar
+  DF <- data.frame(newtree$edge,newtree$edge.length,"id"=1:length(newtree$edge.length)) #DF characteistics
+  EDGES <- DF[which.edge(newtree, node),] #given node row
+  to_index<-EDGES[,4] #indexing position
 
-  WHERE <- newtree$edge[to_index,2]   #posicion a indexar
+  WHERE <- newtree$edge[to_index,2]   #indexing position
 
 
 
-  newtree<-bind.tip(newtree, new.tip, edge.length=NULL, where=WHERE, position=0) #la posicion a indexar; la longitud del nodo es 0
+  newtree<-bind.tip(newtree, new.tip, edge.length=NULL, where=WHERE, position=0) #indexing position; node length is 0
   return(newtree)
 }
 
 polytomy_to_singleton<- function(tree, singleton, species, politomy.insertion=c("long","middle") ){
 
-  newtree<-tree #arbol para ir editando
+  newtree<-tree #tree to be modified
   for(i in 1:length(species)){
-    if(i==1){   #la primera especie del listado se une al singleton
+    if(i==1){   #first species is added to singleton
       sing.node<-which(newtree$tip.label==singleton)
       DF <- data.frame(newtree$edge,newtree$edge.length,"id"=1:length(newtree$edge.length))
       EDGES <- DF[which.edge(newtree, sing.node),]
       to_index<-EDGES[,4]
       WHERE <- newtree$edge[to_index,2]
 
-      if(politomy.insertion=="middle"){position<-EDGES[,3]*0.5}  #se une a la mitad de la rama
-      if(politomy.insertion=="long")  {position<-EDGES[,3]}      # se une al final de la rama
+      if(politomy.insertion=="middle"){position<-EDGES[,3]*0.5}  #bound at the middle of the branch
+      if(politomy.insertion=="long")  {position<-EDGES[,3]}      #bound at the begginin of the branch
 
       newtree<-bind.tip(newtree, tip.label =  species[i], edge.length=NULL, where=WHERE, position=position)
     }else{
-      node<-findMRCA(newtree, tips = c(singleton, species[1:(i-1)])) #el resto de especies se unen al nodo unido de singleton y a?adidas
+      node<-findMRCA(newtree, tips = c(singleton, species[1:(i-1)])) #the rest of the species are added to the node
       newtree<- polytomy_into_node(tree = newtree, new.tip  =  species[i], node = node)
     }}
 
@@ -314,7 +314,7 @@ add_to_singleton<-function(tree, singleton,new.tips){
 
   for(i in 1:length(To_add)){
 
-    if(length(added)==1) {    #similar a la politom?a, pero con longitud de rama aleatoria
+    if(length(added)==1) {    #similar to poltomy, but random branch length
 
       new.tip<-To_add[i]
       added_R<-which(newtree$tip.label==added[1])
@@ -365,7 +365,7 @@ add_to_singleton<-function(tree, singleton,new.tips){
 
 
 
-#para grupos polifil?ticos
+# A function to stick species at random within a polyphyletic clade
 add_to_polyphyletic<-function(tree, species){
   '%!in%' <- function(x,y)!('%in%'(x,y))
   species<-gsub(" ", "_",species)
@@ -375,35 +375,35 @@ add_to_polyphyletic<-function(tree, species){
 
   genus<- species.genus
   list<- data.frame(species=tree$tip.label)
-  taxa.vector<- as.vector(list[word(list$species, 1, sep="_")==genus,]) #especies del g?nero dentr del arbol. Este vector vale para todas las especies a a?adir
-  if(length(taxa.vector)==0){stop(paste0("Genus ", genus, " is no included in your tree."))}
+  taxa.vector<- as.vector(list[word(list$species, 1, sep="_")==genus,]) #genus species within the tree. his vector is ud¡sed for all species to be added
+  if(length(taxa.vector)==0){stop(paste0("Genus ", genus, " is not included in your tree."))}
 
 
   for(p in 1:length(species)){
     sticked.species<- species[p]
-    sticking.species<- sample(taxa.vector, 1) #se selecciona una especie del vector de incluidas (esto conlleva una probabilidad basada en frecuencias dentro de nodos)
-    sticking.tip<- which(new.tree$tip.label==sticking.species) #su valor de tip
+    sticking.species<- sample(taxa.vector, 1) #a species from the vector is chosen (this allows a probability based on frequencies inside each group)
+    sticking.tip<- which(new.tree$tip.label==sticking.species) #tip value
 
-    parent<-new.tree$edge[new.tree$edge[,2]==sticking.tip,1] #cu?l es su ancestro
-    siblings<- new.tree$tip.label[getDescendants(new.tree, parent)][!is.na(new.tree$tip.label[getDescendants(new.tree, parent)])] #descendientes del ancestro
+    parent<-new.tree$edge[new.tree$edge[,2]==sticking.tip,1] #direct ancestor
+    siblings<- new.tree$tip.label[getDescendants(new.tree, parent)][!is.na(new.tree$tip.label[getDescendants(new.tree, parent)])] #ancestor's descendants
 
-    if(length(siblings[word(siblings,1,sep="_")==genus])==1){new.tree<- add_to_singleton(new.tree,sticking.species,new.tips=sticked.species)} #los hemanos son de otro g?nero; es un singleton en otro clado
-    if(length(siblings[word(siblings,1,sep="_")==genus]) >1){#alguno de sus hermanos es cong?nere
-      while(length(word(siblings,1,sep="_")[!duplicated(word(siblings,1,sep="_"))])==1){ #va subiendo de nivel el tip y el parent hasta que no sean del mismo g?nero
+    if(length(siblings[word(siblings,1,sep="_")==genus])==1){new.tree<- add_to_singleton(new.tree,sticking.species,new.tips=sticked.species)} #its siblings are from a different genus; it is a singleton inside another clade
+    if(length(siblings[word(siblings,1,sep="_")==genus]) >1){ #at least one sibling is from the same genus
+      while(length(word(siblings,1,sep="_")[!duplicated(word(siblings,1,sep="_"))])==1){ #tip and parent upstream until they are from different genera
         sticking.tip<-parent
         parent<-new.tree$edge[new.tree$edge[,2]==sticking.tip,1]
         siblings<- new.tree$tip.label[getDescendants(new.tree, parent)][!is.na(new.tree$tip.label[getDescendants(new.tree, parent)])]
       }
 
-      gen.MRCA<- findMRCA(tree = new.tree,tips = siblings[word(siblings, 1, sep="_")==genus]) #nodo MRCA de los hermanos cong?neres; probablemente siempre sea el "sticking tip"; pero podr? ser que no
-      grouped<- new.tree$tip.label[getDescendants(new.tree, gen.MRCA)][!is.na(new.tree$tip.label[getDescendants(new.tree, gen.MRCA)])] #descendientes (no nodos; por eso en !is.na)
-      grouped.gen<- word(grouped,1,sep="_")[!duplicated(word(grouped,1,sep="_"))] #g?nero de los descendientes del MRCA
-      if(length(grouped.gen)==1){new.tree<- add_into_node(new.tree, sticking.tip, sticked.species)} #subgrupo monofil?tico
-      if(length(grouped.gen) >1){ #subgrupo parafil?tico siempre, por la metodolog?a de la b?squeda no puede ser ni polifil?tico ni singleton
+      gen.MRCA<- findMRCA(tree = new.tree,tips = siblings[word(siblings, 1, sep="_")==genus]) #MCRA form same genus siblings; probably always the same as "sticking tip"; but may change
+      grouped<- new.tree$tip.label[getDescendants(new.tree, gen.MRCA)][!is.na(new.tree$tip.label[getDescendants(new.tree, gen.MRCA)])] #non-node descendants
+      grouped.gen<- word(grouped,1,sep="_")[!duplicated(word(grouped,1,sep="_"))] #MRCA descendants
+      if(length(grouped.gen)==1){new.tree<- add_into_node(new.tree, sticking.tip, sticked.species)} #monophyletic subgruoup
+      if(length(grouped.gen) >1){ #always paraphyletic subgroup, it can't be mono or poly
         intruders<-grouped[word(grouped, 1, sep="_")!=genus]
-        if(length(intruders)==1){new.tree<- add_into_node(new.tree, sticking.tip, sticked.species)}else{ #intrusos singletons; a efectos pr?cticos se a?ade como si fuera monofil?tico
+        if(length(intruders)==1){new.tree<- add_into_node(new.tree, sticking.tip, sticked.species)}else{ # singleton intruders; added as monophyletic
           intruders.MRCA<- findMRCA(tree = new.tree,tips = intruders)
-          new.tree<- add_into_paraphyletic_node(new.tree, new.tip=sticked.species, group.node = gen.MRCA, intern.node = intruders.MRCA) #intruso monofiletico; se a?ade como parafil?tico
+          new.tree<- add_into_paraphyletic_node(new.tree, new.tip=sticked.species, group.node = gen.MRCA, intern.node = intruders.MRCA) #monophyletic intruders; added as paraphyletic
 
 
         }}}}
@@ -416,7 +416,7 @@ add_to_polyphyletic<-function(tree, species){
 
 
 
-#PROTOCOLO COMPLETO - FUNCI?N MADRE randtip ####
+#randtip "MOTHER FUNCTION" ####
 
 #tabla<- read.xlsx("E:/UNI/4. DOCTORADO/3. Randtip/phylo.table.xlsx")
 
@@ -449,7 +449,7 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
   taxa.genera<-sample(taxa.genera, length(taxa.genera), replace = F)
   }else{
 
-    species.table$using.taxa <-species.table$taxon  #En casos de politom?a se utilizan los nombres tal cual
+    species.table$using.taxa <-species.table$taxon  #In polytomy cases, names are not changed
 
 
     newtree<- tree
@@ -459,19 +459,19 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
 
     taxa.genera<- word(taxa, 1, sep="_")[!duplicated(word(taxa, 1, sep="_"))]
     taxa.genera<-sample(taxa.genera, length(taxa.genera), replace = F)
-  } #preparaci?n de listado<-using.name
+  } #using name prearation
 
   if(type=="class.polytomy"){
     for(p in 1:length(taxa.genera)){
-      genus<- taxa.genera[p]#se selecciona un genero
+      genus<- taxa.genera[p]#genus selected
 
-      genus.taxa <- taxa[word(taxa, 1, sep="_")==genus] #seleccionamos los taxones del g?nero
-      genus.taxa <- sample(genus.taxa, length(genus.taxa), replace = F) #aleatorizamos el orden
+      genus.taxa <- taxa[word(taxa, 1, sep="_")==genus] #genus taxa are selected
+      genus.taxa <- sample(genus.taxa, length(genus.taxa), replace = F) #rder is randomized
 
-      genus.class<- species.table$class[species.table$genus==genus][!duplicated(species.table$class[species.table$genus==genus])]#identificamos la clase
-      class.genera<- species.table$genus[species.table$class==genus.class]   #encontramos los g?neros de esa clase
-      union.tips<-newtree$tip.label[word(newtree$tip.label, 1, sep="_")%in%class.genera]   #encontramos los tips dentro de la clase
-      if(length(union.tips)==0){message(paste0("ATTENTION: genus ", genus, " was not included as no Class coincidences were found")) #no se encuentra donde juntar
+      genus.class<- species.table$class[species.table$genus==genus][!duplicated(species.table$class[species.table$genus==genus])]#class is identified
+      class.genera<- species.table$genus[species.table$class==genus.class]   #genera within class
+      union.tips<-newtree$tip.label[word(newtree$tip.label, 1, sep="_")%in%class.genera]   #species (tips) within class
+      if(length(union.tips)==0){message(paste0("ATTENTION: genus ", genus, " was not included as no Class coincidences were found")) #nowhere to bind found
         next}else{
           if(length(union.tips)==1){newtree<-polytomy_to_singleton(newtree, union.tips, genus.taxa, politomy.insertion = politomy.insertion)}else{
             for(x in 1:length(genus.taxa)){
@@ -483,8 +483,8 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
     for(p in 1:length(taxa.genera)){
       genus<- taxa.genera[p]
 
-      genus.taxa <- taxa[word(taxa, 1, sep="_")==genus] #seleccionamos los taxones del g?nero
-      genus.taxa <- sample(genus.taxa, length(genus.taxa), replace = F) #aleatorizamos el orden
+      genus.taxa <- taxa[word(taxa, 1, sep="_")==genus] #genus taxa selection
+      genus.taxa <- sample(genus.taxa, length(genus.taxa), replace = F) #order randomized
 
       genus.order<- species.table$order[species.table$genus==genus][!duplicated(species.table$order[species.table$genus==genus])]
       order.genera<- species.table$genus[species.table$order==genus.order]
@@ -509,8 +509,8 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
     for(p in 1:length(taxa.genera)){
       genus<- taxa.genera[p]
 
-      genus.taxa <- taxa[word(taxa, 1, sep="_")==genus] #seleccionamos los taxones del g?nero
-      genus.taxa <- sample(genus.taxa, length(genus.taxa), replace = F) #aleatorizamos el orden
+      genus.taxa <- taxa[word(taxa, 1, sep="_")==genus] #genus taxa selection
+      genus.taxa <- sample(genus.taxa, length(genus.taxa), replace = F) #orde randomized
 
       genus.family<- species.table$family[species.table$genus==genus][!duplicated(species.table$family[species.table$genus==genus])]
       family.genera<- species.table$genus[species.table$family==genus.family]
@@ -549,8 +549,8 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
     for(p in 1:length(taxa.genera)){
       genus<- taxa.genera[p]
 
-      genus.taxa <- taxa[word(taxa, 1, sep="_")==genus] #seleccionamos los taxones del g?nero
-      genus.taxa <- sample(genus.taxa, length(genus.taxa), replace = F) #aleatorizamos el orden
+      genus.taxa <- taxa[word(taxa, 1, sep="_")==genus] #genus taxa selection
+      genus.taxa <- sample(genus.taxa, length(genus.taxa), replace = F) #order randomizd
 
       union.tips<-newtree$tip.label[word(newtree$tip.label, 1, sep="_")==genus]
       if(length(union.tips)==0){
@@ -598,60 +598,60 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
       genus<- taxa.genera[i]
       genus.type<-species.table$genus.type[species.table$genus==genus][!duplicated(species.table$genus.type[species.table$genus==genus])]
 
-      genus.taxa <- taxa[word(taxa, 1, sep="_")==genus] #seleccionamos los taxones del g?nero
-      genus.taxa <- sample(genus.taxa, length(genus.taxa), replace = F) #aleatorizamos el orden
+      genus.taxa <- taxa[word(taxa, 1, sep="_")==genus] #genus taxa selection
+      genus.taxa <- sample(genus.taxa, length(genus.taxa), replace = F) #order randomized
 
-      grouped.taxa<-species.table$using.taxa[!is.na(species.table$relative.species)]#se seleccionan los que no tengan informaci?n de relatives (se juntar?n como grupo MF->monofil?tico)
+      grouped.taxa<-species.table$using.taxa[!is.na(species.table$relative.species)]#tips with no "relatives" information selected (they will be bound as monophyletic)
 
       grouped.taxa<-grouped.taxa[grouped.taxa%in%genus.taxa]
       genus.taxa<-genus.taxa[genus.taxa%!in%grouped.taxa]
 
-      if(length(grouped.taxa)>0){    #si existen "grouped.taxa"
+      if(length(grouped.taxa)>0){    #if "grouped.taxa" exist
         for( j in 1:length(grouped.taxa)){
           grouping.taxa<- species.table$relative.species[species.table$using.taxa==grouped.taxa[j]]
           grouping.taxa<-gsub(" ","",grouping.taxa)
           grouping.taxa<- strsplit(grouping.taxa, split = ",")[[1]]
-          grouping.taxa<-grouping.taxa[grouping.taxa%in%tree$tip.label]#se seleccionan los taxones a agrupar que estan en el ?rbol
+          grouping.taxa<-grouping.taxa[grouping.taxa%in%tree$tip.label] #taxa to be grouped hich are in the tree are selected
           if(length(grouping.taxa)==1){
-            newtree<- add_to_singleton(newtree, singleton = grouping.taxa, new.tips = grouped.taxa[j])  #se a?ade el primero como singleton
+            newtree<- add_to_singleton(newtree, singleton = grouping.taxa, new.tips = grouped.taxa[j])  #first is added as singleton
           } else{
             node<-findMRCA(newtree, tips = grouping.taxa)
-            newtree<- add_into_node(newtree, new.tip = grouped.taxa[j],node = node)} #se a?ade el resto como grupo MF
+            newtree<- add_into_node(newtree, new.tip = grouped.taxa[j],node = node)} #the rest ar added as monophyletic
           rm(j, node, grouping.taxa)}
         next}
 
-      #a partir de aqui se trabaja con genus.taxa; es decir, los no agrupados
+      #Hereon we will work with genus.taxa; i.e., no grouped tips.
       if(genus.type=="MONOPHYLETIC"){
         for( j in 1:length(genus.taxa)){
-          newtree<- add_to_monophyletic(newtree, new.tip = genus.taxa[j])#para el g?nero dado, si es MF, se a?aden los taxones uno a uno como MF
+          newtree<- add_to_monophyletic(newtree, new.tip = genus.taxa[j])#for the given genus, being MP, taxa are added one by one as MP
           rm(j)}}
 
       if(genus.type=="PARAPHYLETIC"){
         for( j in 1:length(genus.taxa)){
-          newtree<- add_to_paraphyletic(newtree, new.tip = genus.taxa[j])#para el g?nero dado, si es PaF, se a?aden los taxones uno a uno como PaF
+          newtree<- add_to_paraphyletic(newtree, new.tip = genus.taxa[j])#for the given genus, being PaP, taxa are added one by one as PaP
           rm(j)}}
 
       if(genus.type=="POLYPHYLETIC"){
         for( j in 1:length(genus.taxa)){
-          newtree<- add_to_polyphyletic(newtree, new.tip = genus.taxa[j])#para el g?nero dado, si es PoF, se a?aden los taxones uno a uno como PoF
+          newtree<- add_to_polyphyletic(newtree, new.tip = genus.taxa[j])#for the given genus, being PoP, taxa are added one by one as PoP
           rm(j)}}
 
-      if(genus.type=="SINGLETON GENUS"){   #para el g?nero dado, si es singleton, se a?aden los taxones de una vez
+      if(genus.type=="SINGLETON GENUS"){   #for the given genus, being singleton, all tips are added in one step
         newtree<- add_to_singleton(newtree, singleton = tree$tip.label[word(tree$tip.label,1,sep="_")== genus], new.tips = genus.taxa)
       }
 
       if(genus.type=="NOT INCLUDED"){
-        genus.synonyms<- species.table$synonim.genus[species.table$genus==genus&!is.na(species.table$synonim.genus)]#primero busca si es sin?nimo...
-        genus.siblings<- species.table$sibling.genus[species.table$genus==genus&!is.na(species.table$sibling.genus)]#... o hermano
+        genus.synonyms<- species.table$synonim.genus[species.table$genus==genus&!is.na(species.table$synonim.genus)]#looking for synonim information...
+        genus.siblings<- species.table$sibling.genus[species.table$genus==genus&!is.na(species.table$sibling.genus)]#... or siblng information
 
         genus.synonyms.tips<-species.table$using.taxa[species.table$genus==genus&!is.na(species.table$synonim.genus)]
         genus.siblings.tips<-species.table$using.taxa[species.table$genus==genus&!is.na(species.table$sibling.genus)]
 
-        genus.taxa.NO.except<-genus.taxa[genus.taxa%!in%c(genus.synonyms.tips,genus.siblings.tips)]#taxones si estas excepciones
+        genus.taxa.NO.except<-genus.taxa[genus.taxa%!in%c(genus.synonyms.tips,genus.siblings.tips)]#taxa without exceptions
 
-        if(length(genus.synonyms)>0){#para g g?neros con excepci?n de sin?nimo
+        if(length(genus.synonyms)>0){#for genera with synonym exceptions
           for(i in 1:length(genus.synonyms.tips)){
-            genus.synonyms.tips[i]<-paste0(genus.synonyms[i], "_",genus.synonyms.tips[i]) #a?ade el g?nero sin?nimo al principio del nombre; es necesario que est? en el ?rbol
+            genus.synonyms.tips[i]<-paste0(genus.synonyms[i], "_",genus.synonyms.tips[i]) #synonym genus pasted to the begginig of the name; must be in the tree
             new.genus<- word(genus.synonyms.tips[i], 1, sep="_")
             new.genus.type<-species.table$genus.type[species.table$genus==new.genus][!duplicated(species.table$genus.type[species.table$genus==new.genus])]
 
@@ -670,18 +670,18 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
                                     replacement = species.table$using.taxa[species.table$genus==genus&!is.na(species.table$synonim.genus)][i],
                                     x =newtree$tip.label )
           }}
-        if(length(genus.siblings)>0){#si las excepciones incluyen hermanos
+        if(length(genus.siblings)>0){#for genera with sibling exceptions
           if(length(genus.siblings[!duplicated(genus.siblings)])>1){stop(paste0("Multiple genus siblings for genus ",genus))}
           new.genus<- genus.siblings[!duplicated(genus.siblings)]
 
           genus.siblings.tips<-sample(genus.siblings.tips, length(genus.siblings.tips), replace = F)
 
           adding.node<- findMRCA(newtree, tips = newtree$tip.label[word(newtree$tip.label, 1, sep="_")==new.genus])
-          newtree<-add_over_node(newtree, new.tip = genus.siblings.tips[1], node=adding.node)#se a?ade sobre el MRCA del g?nero hermano el primer taxon
+          newtree<-add_over_node(newtree, new.tip = genus.siblings.tips[1], node=adding.node)#it is added over the sibling genus MCRA
 
-          newtree<-add_to_singleton(newtree, singleton = genus.siblings.tips[1],new.tips =  genus.siblings.tips[2:length(genus.siblings.tips)])#el resto se a?aden al primero como singleton
+          newtree<-add_to_singleton(newtree, singleton = genus.siblings.tips[1],new.tips =  genus.siblings.tips[2:length(genus.siblings.tips)])#te rest are added to singleton
         }
-        if(length(genus.taxa.NO.except)>0){#para los que no hay excepciones se a?aden aleatoriamente dentro de la familia, orden o clase
+        if(length(genus.taxa.NO.except)>0){#for those wth no exceptions, they will be added randomly within family, order or class
 
           fam<-species.table$family[species.table$using.taxa%in%genus.taxa.NO.except][!duplicated(species.table$family[species.table$using.taxa%in%genus.taxa.NO.except])]
           genera<- species.table$genus[species.table$family==fam]
@@ -712,23 +712,23 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
       print(paste0(i, " out of ", length(taxa.genera), ". Genus ", genus, " (", genus.type,"): ", round(i/length(taxa.genera)*100, 2), " %"))
     }
 
-    #fase 2. las subespecies
-    if(nrow(species.table.dupl)>0){#las especies agrupadas
-      rep.taxa <-species.table.dupl$taxon#se encuentra la especie
-      rep.taxa.species<- species.table.dupl$using.taxa[!duplicated(species.table.dupl$using.taxa)]#especies de las subespecies
+    # phase 2. subspecies
+    if(nrow(species.table.dupl)>0){ #species grouped
+      rep.taxa <-species.table.dupl$taxon #species are found
+      rep.taxa.species<- species.table.dupl$using.taxa[!duplicated(species.table.dupl$using.taxa)]#subspecies' species
 
       for (r in 1:length(rep.taxa.species)){
-        ssps <- rep.taxa[paste0(word(rep.taxa, 1, sep="_"),"_",word(rep.taxa, 2, sep="_"))==rep.taxa.species[r]] #seleccionamos las subespecies de cada especie
-        ssps <- sample(ssps, length(ssps), replace = F) #aleatorizamos el orden
+        ssps <- rep.taxa[paste0(word(rep.taxa, 1, sep="_"),"_",word(rep.taxa, 2, sep="_"))==rep.taxa.species[r]] #subspecies within species are selected
+        ssps <- sample(ssps, length(ssps), replace = F) #order randomized
         sp.to.add<- newtree$tip.label[paste0(word(newtree$tip.label,1, sep="_"), "_", word(newtree$tip.label,2, sep="_"))== rep.taxa.species[r] ]
 
-        newtree<- add_to_singleton(newtree, singleton = sp.to.add, new.tips = ssps)#se a?aden todas a su subespecie hermana como singleton
+        newtree<- add_to_singleton(newtree, singleton = sp.to.add, new.tips = ssps) #subspecies are added to their sister as singleton
 
       }
 
     }
 
-    for(n in 1:nrow(species.table)){  #se devuelven los nombres originales
+    for(n in 1:nrow(species.table)){  #original names are returned
       if(species.table$using.taxa[n]== species.table$taxon[n]){next}
       if(species.table$using.taxa[n]%!in% newtree$tip.label){next}
       if(species.table$using.taxa[n]%in% newtree$tip.label){
