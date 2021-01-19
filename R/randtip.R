@@ -14,8 +14,8 @@ rm(list = setdiff(ls(), lsf.str()))#eliminar todo menos funciones
 #genus.corrections<- read.xlsx("E:/UNI/4. DOCTORADO/4. Regionalization/LISTADOS/Corrections.xlsx")
 #taxonomy<- read.xlsx("E:/UNI/4. DOCTORADO/4. Regionalization/LISTADOS/Taxonomic_categories.xlsx")
 
-Tree<- read.tree("E:/UNI/4. DOCTORADO/3. Randtip/randtip/data/25tree.tre")
-tabla.info<- read.xlsx("E:/UNI/4. DOCTORADO/3. Randtip/randtip/data/phylo.table.xlsx")
+Tree<- read.tree("data/25tree.tre")
+tabla.info<- read.xlsx("data/phylo.table.xlsx")
 
 plot(Tree, label.offset = 2)
 nodelabels()
@@ -362,7 +362,30 @@ polytomy_into_node<- function(tree, new.tip, node){
   return(newtree)
 }
 
-polytomy_to_singleton<- function(tree, singleton, species, politomy.insertion=c("long","middle") ){
+polytomy_over_node<- function(tree, node, species, insertion=c("random","long","middle") ){
+
+  newtree<-tree #tree to be modified
+  for(i in 1:length(species)){
+    if(i==1){   #first species is added to singleton
+
+      DF <- data.frame(newtree$edge,newtree$edge.length,"id"=1:length(newtree$edge.length))
+      EDGES <- DF[which.edge(newtree, node),]
+      to_index<-EDGES[,4]
+      WHERE <- newtree$edge[to_index,2]
+
+      if(insertion=="random"){position<-EDGES[,3]*runif(1, 0, 1)} #bound at a random point of the branch
+      if(insertion=="middle"){position<-EDGES[,3]*0.5}  #bound at the middle of the branch
+      if(insertion=="long")  {position<-EDGES[,3]}      #bound at the beggining of the branch
+
+      newtree<-bind.tip(newtree, tip.label =  species[i], edge.length=NULL, where=WHERE, position=position)
+    }else{
+      node<-getParent(tree = newtree, node=which (newtree$tip.label==species[i-1])) #the rest of the species are added to the node
+      newtree<- polytomy_into_node(tree = newtree, new.tip  =  species[i], node = node)
+    }}
+
+  return(newtree)}
+
+polytomy_to_singleton<- function(tree, singleton, species, insertion=c("long","middle") ){
 
   newtree<-tree #tree to be modified
   for(i in 1:length(species)){
@@ -373,8 +396,9 @@ polytomy_to_singleton<- function(tree, singleton, species, politomy.insertion=c(
       to_index<-EDGES[,4]
       WHERE <- newtree$edge[to_index,2]
 
-      if(politomy.insertion=="middle"){position<-EDGES[,3]*0.5}  #bound at the middle of the branch
-      if(politomy.insertion=="long")  {position<-EDGES[,3]}      #bound at the begginin of the branch
+      if(insertion=="random"){position<-EDGES[,3]*runif(1, 0, 1)} #bound at a random point of the branch
+      if(insertion=="middle"){position<-EDGES[,3]*0.5}  #bound at the middle of the branch
+      if(insertion=="long")  {position<-EDGES[,3]}      #bound at the beggining of the branch
 
       newtree<-bind.tip(newtree, tip.label =  species[i], edge.length=NULL, where=WHERE, position=position)
     }else{
@@ -445,8 +469,150 @@ add_to_singleton<-function(tree, singleton,new.tips){
   return(newtree)
 }
 
+#function to add species at specific branches
+stick.to.branch <- function(tree,edges,new.tip=new.tip,prob=TRUE){
+
+  DF <- data.frame(tree$edge,tree$edge.length)
+
+  if(prob == TRUE) {
+
+    for(i in 1:dim(edges)[1]) {
+
+      tips1 = edges[i,1:2]
+      tips2 = edges[i,3:4]
+
+      tips1.char<- c(as.character(edges[i,1]), as.character(edges[i,2]))
+      tips2.char<- c(as.character(edges[i,3]), as.character(edges[i,4]))
+
+      N1<-findMRCA(tree, tips=tips1.char, "node")
+
+      if(duplicated(tips2.char)[2]==TRUE) {N2<-which(tree$tip.label==tips2.char[1])} else {N2<-findMRCA(tree, tips=tips2.char, "node")}
+
+      if(tree$edge[which.edge(tree, N2),1]==N1) {DF[which.edge(tree, N2),3] -> edges[i,5]} else {
+
+        EDGES <- c(NA,NA)
+        Child=N2
+        getParent(tree,Child) -> Parent
+        EDGES <- rbind(c(Parent,Child))
+
+        while(Parent!=N1) {
+          getDescendants(tree, Parent, curr=NULL)->Desc_Par
+          Desc_Par<-c(Desc_Par[Desc_Par%in%getDescendants(tree, Child, curr=NULL)==FALSE & Desc_Par!=Child],Parent)
+          EDGES<-rbind(EDGES,tree$edge[tree$edge[,1]%in%Desc_Par & tree$edge[,2]!=Child,])
+          Child<-Parent
+          Parent<-getParent(tree,Parent)
+          EDGES <- rbind(EDGES,c(Parent,Child))
+        }
+
+        sum(DF[DF[,1]%in%EDGES[,1]&DF[,2]%in%EDGES[,2],3]) -> edges[i,5]
+
+      }
+    }
+
+    SS <- sample(1:dim(edges)[1],1,replace=FALSE,edges[,5])
+
+    tips1 = edges[SS,1:2]
+    tips2 = edges[SS,3:4]
 
 
+    tips1.char<- c(as.character(edges[SS,1]), as.character(edges[SS,2]))
+    tips2.char<- c(as.character(edges[SS,3]), as.character(edges[SS,4]))
+
+    N1<-findMRCA(tree, tips=tips1.char, "node")
+
+    if(duplicated(tips2.char)[2]==TRUE) {N2<-which(tree$tip.label==tips2.char[1])} else{N2<-findMRCA(tree, tips=tips2.char, "node")}
+
+    EDGES <- c(NA,NA)
+    Child=N2
+    getParent(tree,Child) -> Parent
+    EDGES <- rbind(c(Parent,Child))
+
+    while(Parent!=N1) {
+
+      getDescendants(tree, Parent, curr=NULL)->Desc_Par
+      Desc_Par<-c(Desc_Par[Desc_Par%in%getDescendants(tree, Child, curr=NULL)==FALSE & Desc_Par!=Child],Parent)
+      EDGES<-rbind(EDGES,tree$edge[tree$edge[,1]%in%Desc_Par & tree$edge[,2]!=Child,])
+      Child<-Parent
+      Parent<-getParent(tree,Parent)
+      EDGES <- rbind(EDGES,c(Parent,Child))
+    }
+
+    Lengths <- vector(mode="numeric",length=length(EDGES[,1]))
+
+    for(j in 1:dim(EDGES)[1]){
+      which.edge(tree, EDGES[j,2]) -> Lengths[j]
+    }
+
+    if(length(Lengths)==1){Lengths->to_index} else {sample(Lengths,1,replace=FALSE,DF[Lengths,3])->to_index}
+
+    WHERE = tree$edge[to_index,2]
+
+    tree$edge.length[to_index]->LLL
+
+    MIN=0
+    MAX=LLL
+    runif(1,MIN,MAX)->POS
+
+    while(POS==MIN | POS==MAX){
+      runif(1,MIN,MAX)->POS
+    }
+
+    bind.tip(tree, new.tip, edge.length=NULL, where=WHERE, position=POS)->tree
+
+  } else {
+
+    SS <- sample(1:dim(edges)[1],1)
+
+    tips1 = edges[SS,1:2]
+    tips2 = edges[SS,3:4]
+
+    tips1.char<- c(as.character(edges[SS,1]), as.character(edges[SS,2]))
+    tips2.char<- c(as.character(edges[SS,3]), as.character(edges[SS,4]))
+
+    N1<-findMRCA(tree, tips=tips1.char, "node")
+
+    if(duplicated(tips2.char)[2]==TRUE) {N2<-which(tree$tip.label==tips2.char[1])} else{N2<-findMRCA(tree, tips=tips2.char, "node")}
+
+    EDGES <- c(NA,NA)
+    Child=N2
+    getParent(tree,Child) -> Parent
+    EDGES <- rbind(c(Parent,Child))
+
+    while(Parent!=N1) {
+
+      getDescendants(tree, Parent, curr=NULL)->Desc_Par
+      Desc_Par<-c(Desc_Par[Desc_Par%in%getDescendants(tree, Child, curr=NULL)==FALSE & Desc_Par!=Child],Parent)
+      EDGES<-rbind(EDGES,tree$edge[tree$edge[,1]%in%Desc_Par & tree$edge[,2]!=Child,])
+      Child<-Parent
+      Parent<-getParent(tree,Parent)
+      EDGES <- rbind(EDGES,c(Parent,Child))
+    }
+
+    Lengths <- vector(mode="numeric",length=length(EDGES[,1]))
+
+    for(j in 1:dim(EDGES)[1]){
+      which.edge(tree, EDGES[j,2]) -> Lengths[j]
+    }
+
+    if(length(Lengths)==1){Lengths->to_index} else {sample(Lengths,1)->to_index}
+
+    WHERE = tree$edge[to_index,2]
+
+    tree$edge.length[to_index]->LLL
+
+    MIN=0
+    MAX=LLL
+    runif(1,MIN,MAX)->POS
+
+    while(POS==MIN | POS==MAX){
+      runif(1,MIN,MAX)->POS
+    }
+
+    bind.tip(tree, new.tip, edge.length=NULL, where=WHERE, position=POS)->tree
+
+  }
+  return(tree)
+}
 
 # A function to stick species at random within a polyphyletic clade
 add_to_polyphyletic<-function(tree, species){
@@ -501,10 +667,9 @@ add_to_polyphyletic<-function(tree, species){
 
 #randtip "MOTHER FUNCTION" ####
 
-#tabla<- read.xlsx("E:/UNI/4. DOCTORADO/3. Randtip/phylo.table.xlsx")
 
-
-RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "family.polytomy", "order.polytomy", "class.polytomy"), aggregate.subspecies=TRUE, politomy.insertion="long"){
+RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "family.polytomy", "order.polytomy", "class.polytomy"),
+                   aggregate.subspecies=TRUE, insertion=c("random", "middle","long")){
 
   if(type=="random"){
   species.table$using.taxa<-NA #New column with the name for the first round
@@ -544,137 +709,130 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
     taxa.genera<-sample(taxa.genera, length(taxa.genera), replace = F)
   } #using name preparation
 
-  if(type=="class.polytomy"){
-    for(p in 1:length(taxa.genera)){
-      genus<- taxa.genera[p]#genus selected
+  if(type=="genus.polytomy"){
+    genera<- species.table$genus[!duplicated(species.table$genus)]
 
-      genus.taxa <- taxa[word(taxa, 1, sep="_")==genus] #genus taxa are selected
-      genus.taxa <- sample(genus.taxa, length(genus.taxa), replace = F) #rder is randomized
-
-      genus.class<- species.table$class[species.table$genus==genus][!duplicated(species.table$class[species.table$genus==genus])]#class is identified
-      class.genera<- species.table$genus[species.table$class==genus.class]   #genera within class
-      union.tips<-newtree$tip.label[word(newtree$tip.label, 1, sep="_")%in%class.genera]   #species (tips) within class
-      if(length(union.tips)==0){message(paste0("ATTENTION: genus ", genus, " was not included as no Class coincidences were found")) #nowhere to bind found
-        next}else{
-          if(length(union.tips)==1){newtree<-polytomy_to_singleton(newtree, union.tips, genus.taxa, politomy.insertion = politomy.insertion)}else{
-            for(x in 1:length(genus.taxa)){
-              tip<-genus.taxa[x]
-              newtree<- polytomy_into_node(newtree, tip, node=findMRCA(newtree, tips=union.tips))
-            }}}}}
-
-  if(type=="order.polytomy"){
-    for(p in 1:length(taxa.genera)){
-      genus<- taxa.genera[p]
-
-      genus.taxa <- taxa[word(taxa, 1, sep="_")==genus] #genus taxa selection
-      genus.taxa <- sample(genus.taxa, length(genus.taxa), replace = F) #order randomized
-
-      genus.order<- species.table$order[species.table$genus==genus][!duplicated(species.table$order[species.table$genus==genus])]
-      order.genera<- species.table$genus[species.table$order==genus.order]
-      union.tips<-newtree$tip.label[word(newtree$tip.label, 1, sep="_")%in%order.genera]
+    for(p in 1:length(genera)){
+      genus<- genera[p]
+      genus.taxa<- species.table$taxon[species.table$genus==genus]
+      genus.taxa<- genus.taxa[genus.taxa%!in%tree$tip.label]
+      genus.genera<- species.table$genus[species.table$genus==genus] #this is redundant, but keeps the structure
+      union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%genus.genera]   #species (tips) within class IN ORIGINAL TREE
+      if(length(genus.taxa)==0){next}
       if(length(union.tips)==0){
-        genus.class<- species.table$class[species.table$genus==genus][!duplicated(species.table$class[species.table$genus==genus])]
-        class.genera<- species.table$genus[species.table$class==genus.class]
-        union.tips<-newtree$tip.label[word(newtree$tip.label, 1, sep="_")%in%class.genera]
-        if(length(union.tips)==0){message(paste0("ATTENTION: genus ", genus, " was not included as no Class coincidences were found"))}else{
-          for(x in 1:length(genus.taxa)){
-            tip<-genus.taxa[x]
-            newtree<- polytomy_into_node(newtree, tip, node=findMRCA(newtree, tips=))
-          }}
-      }else{
-        if(length(union.tips)==1){newtree<-polytomy_to_singleton(newtree, union.tips, genus.taxa,politomy.insertion = politomy.insertion)}else{
-          for(x in 1:length(genus.taxa)){
-            tip<-genus.taxa[x]
-            newtree<- polytomy_into_node(newtree, tip, node=findMRCA(newtree, tips=union.tips))
-          }}}}}
+        family<- species.table$family[species.table$genus==genus][!duplicated(species.table$family[species.table$genus==genus])]
+        family.taxa<- species.table$taxon[species.table$family==family]
+        family.taxa<- family.taxa[family.taxa%!in%tree$tip.label]
+        family.genera<- species.table$genus[species.table$family==family]
+        union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%family.genera]   #species (tips) within class IN ORIGINAL TREE
+        if(length(family.taxa)==0){next}
+        if(length(union.tips)==0){
+          order<-species.table$order[species.table$family==family][!duplicated(species.table$order[species.table$family==family])]
+          order.taxa<- species.table$taxon[species.table$order==order]
+          order.taxa<- order.taxa[order.taxa%!in%tree$tip.label]
+          order.genera<- species.table$genus[species.table$order==order]
+          union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%order.genera]   #species (tips) within class IN ORIGINAL TREE
+          if(length(order.taxa)==0){next}
+          if(length(union.tips)==0){
+            class<- species.table$class[species.table$order==order][!duplicated(species.table$class[species.table$order==order])]
+            class.taxa<- species.table$taxon[species.table$class==class]
+            class.taxa<- class.taxa[class.taxa%!in%tree$tip.label]
+            class.genera<- species.table$genus[species.table$class==class]
+            union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%class.genera]   #species (tips) within class IN ORIGINAL TREE
+            if(length(class.taxa)==0){next}
+            if(length(union.tips)==0){message(paste0("ATTENTION: genus ", class.genera, " was not included as no Class coincidences were found"))####JOIN TO UPPER TAXONOMIC LEVEL
+              next}
+            newtree<- polytomy_over_node(tree = newtree, species = class.taxa, node=findMRCA(newtree, tips=union.tips), insertion = insertion)####JOIN TO UPPER TAXONOMIC LEVEL
+            next}
+          if(length(union.tips)==1){node<- which(newtree$tip.label==union.tips)}else{node<-findMRCA(newtree, tips=union.tips)}
+          newtree<- polytomy_over_node(tree = newtree, species = order.taxa, node=node, insertion = insertion)####JOIN TO UPPER TAXONOMIC LEVEL
+          next}
+
+        if(length(union.tips)==1){node<- which(newtree$tip.label==union.tips)}else{node<-findMRCA(newtree, tips=union.tips)}
+        newtree<- polytomy_over_node(tree = newtree, species = family.taxa, node=node, insertion = insertion)####JOIN TO UPPER TAXONOMIC LEVEL
+        next}
+
+      if(length(union.tips)==1){node<- which(newtree$tip.label==union.tips)}else{node<-findMRCA(newtree, tips=union.tips)}
+      newtree<- polytomy_over_node(tree = newtree, species = genus.taxa, node=node, insertion = insertion)
+      }}
 
   if(type=="family.polytomy"){
-    for(p in 1:length(taxa.genera)){
-      genus<- taxa.genera[p]
+    families<- species.table$family[!duplicated(species.table$family)]
 
-      genus.taxa <- taxa[word(taxa, 1, sep="_")==genus] #genus taxa selection
-      genus.taxa <- sample(genus.taxa, length(genus.taxa), replace = F) #orde randomized
-
-      genus.family<- species.table$family[species.table$genus==genus][!duplicated(species.table$family[species.table$genus==genus])]
-      family.genera<- species.table$genus[species.table$family==genus.family]
-
-      union.tips<-newtree$tip.label[word(newtree$tip.label, 1, sep="_")%in%family.genera]
+    for(p in 1:length(families)){
+      family<- families[p]
+      family.taxa<- species.table$taxon[species.table$family==family]
+      family.taxa<- family.taxa[family.taxa%!in%tree$tip.label]
+      family.genera<- species.table$genus[species.table$family==family]
+      union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%family.genera]   #species (tips) within class IN ORIGINAL TREE
+      if(length(family.taxa)==0){next}
       if(length(union.tips)==0){
-        genus.order<- species.table$order[species.table$genus==genus][!duplicated(species.table$order[species.table$genus==genus])]
-        order.genera<- species.table$genus[species.table$order==genus.order]
-        union.tips<-newtree$tip.label[word(newtree$tip.label, 1, sep="_")%in%order.genera]
+        order<-species.table$order[species.table$family==family][!duplicated(species.table$order[species.table$family==family])]
+        order.taxa<- species.table$taxon[species.table$order==order]
+        order.taxa<- order.taxa[order.taxa%!in%tree$tip.label]
+        order.genera<- species.table$genus[species.table$order==order]
+        union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%order.genera]   #species (tips) within class IN ORIGINAL TREE
+        if(length(order.taxa)==0){next}
         if(length(union.tips)==0){
-          genus.class<- species.table$class[species.table$genus==genus][!duplicated(species.table$class[species.table$genus==genus])]
-          class.genera<- species.table$genus[species.table$class==genus.class]
-          union.tips<-newtree$tip.label[word(newtree$tip.label, 1, sep="_")%in%class.genera]
-          if(length(union.tips)==0){message(paste0("ATTENTION: genus ", genus, " was not included as no Class coincidences were found"))}else{
-            if(length(union.tips)==1){newtree<-polytomy_to_singleton(newtree, union.tips, genus.taxa,politomy.insertion = politomy.insertion)}else{
-              for(x in 1:length(genus.taxa)){
-                tip<-genus.taxa[x]
-                newtree<- polytomy_into_node(newtree, tip, node=findMRCA(newtree, tips=))
-              }}}
-        }else{
+          class<- species.table$class[species.table$order==order][!duplicated(species.table$class[species.table$order==order])]
+          class.taxa<- species.table$taxon[species.table$class==class]
+          class.taxa<- class.taxa[class.taxa%!in%tree$tip.label]
+          class.genera<- species.table$genus[species.table$class==class]
+          union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%class.genera]   #species (tips) within class IN ORIGINAL TREE
+          if(length(class.taxa)==0){next}
+          if(length(union.tips)==0){message(paste0("ATTENTION: genus ", class.genera, " was not included as no Class coincidences were found"))####JOIN TO UPPER TAXONOMIC LEVEL
+            next}
+          newtree<- polytomy_over_node(tree = newtree, species = class.taxa, node=findMRCA(newtree, tips=union.tips), insertion = insertion)####JOIN TO UPPER TAXONOMIC LEVEL
+          next}
+        if(length(union.tips)==1){node<- which(newtree$tip.label==union.tips)}else{node<-findMRCA(newtree, tips=union.tips)}
+        newtree<- polytomy_over_node(tree = newtree, species = order.taxa, node=node, insertion = insertion)####JOIN TO UPPER TAXONOMIC LEVEL
+        next}
 
-          if(length(union.tips)==1){newtree<-add_to_singleton(newtree, union.tips, genus.taxa)}else{
-            for(x in 1:length(genus.taxa)){
-              tip<-genus.taxa[x]
-              newtree<- polytomy_into_node(newtree, tip, node=findMRCA(newtree, tips=union.tips))
-            }}}
+      if(length(union.tips)==1){node<- which(newtree$tip.label==union.tips)}else{node<-findMRCA(newtree, tips=union.tips)}
+      newtree<- polytomy_over_node(tree = newtree, species = family.taxa, node=node, insertion = insertion)}}
 
-      }else{
-        if(length(union.tips)==1){newtree<-polytomy_to_singleton(newtree, union.tips, genus.taxa, politomy.insertion = politomy.insertion)}else{
-          for(x in 1:length(genus.taxa)){
-            tip<-genus.taxa[x]
-            newtree<- polytomy_into_node(newtree, tip, node=findMRCA(newtree, tips=union.tips))
-          }}}}}
+  if(type=="order.polytomy"){
+    orders<- species.table$order[!duplicated(species.table$order)]
 
-  if(type=="genus.polytomy"){
-    for(p in 1:length(taxa.genera)){
-      genus<- taxa.genera[p]
-
-      genus.taxa <- taxa[word(taxa, 1, sep="_")==genus] #genus taxa selection
-      genus.taxa <- sample(genus.taxa, length(genus.taxa), replace = F) #order randomizd
-
-      union.tips<-newtree$tip.label[word(newtree$tip.label, 1, sep="_")==genus]
+    for(p in 1:length(orders)){
+      order<-orders[p]
+      order.taxa<- species.table$taxon[species.table$order==order]
+      order.taxa<- order.taxa[order.taxa%!in%tree$tip.label]
+      order.genera<- species.table$genus[species.table$order==order]
+      union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%order.genera]   #species (tips) within class IN ORIGINAL TREE
+      if(length(order.taxa)==0){next}
       if(length(union.tips)==0){
+        class<- species.table$class[species.table$order==order][!duplicated(species.table$class[species.table$order==order])]
+        class.taxa<- species.table$taxon[species.table$class==class]
+        class.taxa<- class.taxa[class.taxa%!in%tree$tip.label]
+        class.genera<- species.table$genus[species.table$class==class]
+        union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%class.genera]   #species (tips) within class IN ORIGINAL TREE
+        if(length(class.taxa)==0){next}
+        if(length(union.tips)==0){message(paste0("ATTENTION: genus ", class.genera, " was not included as no Class coincidences were found"))####JOIN TO UPPER TAXONOMIC LEVEL
+          next}
+        newtree<- polytomy_over_node(tree = newtree, species = class.taxa, node=findMRCA(newtree, tips=union.tips), insertion = insertion)####JOIN TO UPPER TAXONOMIC LEVEL
+        next}
+      if(length(union.tips)==1){node<- which(newtree$tip.label==union.tips)}else{node<-findMRCA(newtree, tips=union.tips)}
+      newtree<- polytomy_over_node(tree = newtree, species = order.taxa, node=node, insertion = insertion)
+      }}
 
-        genus.family<- species.table$family[species.table$genus==genus][!duplicated(species.table$family[species.table$genus==genus])]
-        family.genera<- species.table$genus[species.table$family==genus.family]
+  if(type=="class.polytomy"){
+    classes<- species.table$class[!duplicated(species.table$class)]
 
-        union.tips<-newtree$tip.label[word(newtree$tip.label, 1, sep="_")%in%family.genera]
-        if(length(union.tips)==0){
-          genus.order<- species.table$order[species.table$genus==genus][!duplicated(species.table$order[species.table$genus==genus])]
-          order.genera<- species.table$genus[species.table$order==genus.order]
-          union.tips<-newtree$tip.label[word(newtree$tip.label, 1, sep="_")%in%order.genera]
-          if(length(union.tips)==0){
-            genus.class<- species.table$class[species.table$genus==genus][!duplicated(species.table$class[species.table$genus==genus])]
-            class.genera<- species.table$genus[species.table$class==genus.class]
-            union.tips<-newtree$tip.label[word(newtree$tip.label, 1, sep="_")%in%class.genera]
-            if(length(union.tips)==0){message(paste0("ATTENTION: genus ", genus, " was not included as no Class coincidences were found"))}else{
-              if(length(union.tips)==1){newtree<-polytomy_to_singleton(newtree, union.tips, genus.taxa, politomy.insertion = politomy.insertion)}else{
-                for(x in 1:length(genus.taxa)){
-                  tip<-genus.taxa[x]
-                  newtree<- polytomy_into_node(newtree, tip, node=findMRCA(newtree, tips=))
-                }}}
-          }else{
+ for(p in 1:length(classes)){
+      class<- classes[p]
+      class.taxa<- species.table$taxon[species.table$class==class]
+      class.taxa<- class.taxa[class.taxa%!in%tree$tip.label]
+      class.genera<- species.table$genus[species.table$class==class]
+      union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%class.genera]   #species (tips) within class IN ORIGINAL TREE
+      if(length(class.taxa)==0){next}
+      if(length(union.tips)==0){message(paste0("ATTENTION: genus ", class.genera, " was not included as no Class coincidences were found"))####JOIN TO UPPER TAXONOMIC LEVEL
+        next}
 
-            if(length(union.tips)==1){newtree<-polytomy_to_singleton(newtree, union.tips, genus.taxa, politomy.insertion = politomy.insertion)}else{
-              for(x in 1:length(genus.taxa)){
-                tip<-genus.taxa[x]
-                newtree<- polytomy_into_node(newtree, tip, node=findMRCA(newtree, tips=union.tips))
-              }}}
+       if(length(union.tips)==1){node<- which(newtree$tip.label==union.tips)}else{node<-findMRCA(newtree, tips=union.tips)}
+       newtree<- polytomy_over_node(tree = newtree, species = class.taxa, node=node, insertion = insertion)}}
 
-        }else{
-          if(length(union.tips)==1){newtree<-polytomy_to_singleton(newtree, union.tips, genus.taxa, politomy.insertion = politomy.insertion)}else{
-            for(x in 1:length(genus.taxa)){
-              tip<-genus.taxa[x]
-              newtree<- polytomy_into_node(newtree, tip, node=findMRCA(newtree, tips=union.tips))
-            }}}}else{
-              if(length(union.tips)==1){newtree<-polytomy_to_singleton(newtree, singleton = union.tips,species =  genus.taxa, politomy.insertion = politomy.insertion)}else{
-                for(x in 1:length(genus.taxa)){
-                  tip<-genus.taxa[x]
-                  newtree<- polytomy_into_node(newtree, tip, node=findMRCA(newtree, tips=union.tips))
-                }}}}}
+
 
   if(type=="random"){
     for(i in 1: length(taxa.genera)){        #loop 1
@@ -835,7 +993,9 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
   return(newtree)
 }
 
-plot(RANDTIP(tree=Tree, species.table=tabla.info, aggregate.subspecies=TRUE, type = "class.polytomy")) #, insertion="long"
+plot(RANDTIP(tree=Tree, species.table=tabla.info, aggregate.subspecies=TRUE, type = "genus.polytomy", insertion = "middle")) #, insertion="long"
+plot(RANDTIP(tree=Tree, species.table=tabla.info, aggregate.subspecies=TRUE, type = "genus.polytomy", insertion = "long")) #, insertion="long"
+plot(RANDTIP(tree=Tree, species.table=tabla.info, aggregate.subspecies=TRUE, type = "genus.polytomy")) #, insertion="long"
 plot(RANDTIP(tree=Tree, species.table=tabla.info, aggregate.subspecies=TRUE, type = "random"))
 
 png(paste0("C:/Users/Alumno/Desktop/mierdas/Arbol_prueba3.png"), height = 1500, width = 2500, units = "px")
