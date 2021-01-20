@@ -155,6 +155,71 @@ is.tip <-function(tree, node){
   if (length(getDescendants(tree=tree, node = node))==1){return(TRUE)}else{return(FALSE)}
 }
 
+#modification from phytools "add.random". if prob=TRUE, it remains the same; else a random node is selected without probability vector
+add.random<- function (tree, n = NULL, tips = NULL, edge.length = NULL, order = c("random", "input"), prob=TRUE) {
+  if (!inherits(tree, "phylo"))
+    stop("tree should be an object of class \"phylo\".")
+
+  if(prob==TRUE){randomPosn <- function(tree) {
+    cum.edge <- cumsum(tree$edge.length)
+    index <- tree$edge[, 2]
+    pos <- runif(1) * sum(tree$edge.length)
+    edge <- 1
+    while (pos > cum.edge[edge]) edge <- edge + 1
+    return(list(node = index[edge], posn = cum.edge[edge] - pos))}
+
+  if (is.ultrametric(tree))
+    um <- TRUE
+  else um <- FALSE
+  if (is.null(tips)) {
+    if (is.null(n))
+      n <- 1
+    tips <- paste("t", length(tree$tip) + 1:n, sep = "")
+  }
+  else n <- length(tips)
+  if (is.null(edge.length))
+    if (!um)
+      edge.length <- runif(n = n, min = min(tree$edge.length),
+                           max = max(tree$edge.length))
+  if (order[1] == "random") {
+    o <- sample(1:n)
+    tips <- tips[o]
+    if (!is.null(edge.length))
+      edge.length <- edge.length[o]
+  }
+  for (i in 1:n) {
+    where <- randomPosn(tree)
+    if (is.null(edge.length))
+      tree <- bind.tip(tree, tips[i], where = where$node,
+                       position = where$posn)
+    else tree <- bind.tip(tree, tips[i], where = where$node,
+                          position = where$posn, edge.length = edge.length[i])
+  }
+
+  }else{
+        if(order!="input"){tips<- sample(tips, length(tips), replace = F)}
+
+    for(t in 1: length(tips)){
+    new.tip<- tips[t]
+    DF <- data.frame(tree$edge,tree$edge.length,1:length(tree$edge.length)) #tree data
+    EDGES <- DF[sample(x=1:nrow(DF), size = 1),] # select a random node
+    to_index<-EDGES[,4] #indexing position
+
+    WHERE <- tree$edge[to_index,2]   #indexing position
+    LENGTH <- tree$edge.length[to_index]   #maximum branch length
+
+    MIN<-0
+    MAX<-LENGTH
+    POS<-runif(1,MIN,MAX)
+
+    while(POS==MIN | POS==MAX){POS<- runif(1,MIN,MAX)} #intermediate value
+
+    tree<-bind.tip(tree, new.tip, edge.length=NULL, where=WHERE, position=POS)
+  }}
+  return(tree)
+}
+
+
 # Function to add tips at random from a given node
 add_into_node <- function(tree,node,new.tip) {
   new.tip<-gsub(" ", "_",new.tip) #modification in case names are separated with blanks
@@ -669,7 +734,7 @@ add_to_polyphyletic<-function(tree, species){
 
 
 RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "family.polytomy", "order.polytomy", "class.polytomy"),
-                   aggregate.subspecies=TRUE, insertion=c("random", "middle","long")){
+                   aggregate.subspecies=TRUE, insertion=c("random", "middle","long"), prob=TRUE){
 
   if(type=="random"){
   species.table$using.taxa<-NA #New column with the name for the first round
