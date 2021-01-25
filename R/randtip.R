@@ -98,9 +98,9 @@ phyleticity<- function(tree, genus){
 #function phylo.table returns a table which the main function can work with (editable by hand!).
 phylo.table<- function(species, tree=NULL, taxonomy=NULL, genera.phyleticity=NULL){
 if(is.null(genera.phyleticity)&(!inherits(tree, "phylo"))){   stop("tree should be an object of class \"phylo\".")}
-  phylo.df<- data.frame(matrix(nrow = length(species),ncol=10))
+  phylo.df<- data.frame(matrix(nrow = length(species),ncol=11))
   names(phylo.df)<-c("taxon", "genus", "genus.type", "family", "order", "class", "aggregate.subspecies",
-                     "relative.species","synonim.genus","sibling.genus")
+                     "relative.species","synonim.genus","sibling.genus", "forbidden.branches")
 
   if(length(species[duplicated(species)])){stop("There are duplicated species")}
   phylo.df$taxon<-species                                     #species listed on the species column
@@ -248,7 +248,7 @@ add_into_node_exceptions <- function(tree,node,new.tip, exception.list) {
   tree2<-tt[[2]]
 forbiddentaxa<- Reduce(c,exception.list)
 
-if(all(tree2$tip.label %in% forbiddentaxa)==TRUE){ #in case all groups arein a borbidden clade
+if(all(tree2$tip.label %in% forbiddentaxa)==TRUE){ #in case all groups are in a forbidden clade
  randsp<-sample(tree2$tip.label, 1) #one species is selected
  randgr<-exception.list[[grep(randsp,exception.list ) ]]#its group is selected
  new.tree<- add_over_node(tree, new.tip = new.tip, node = findMRCA(tree, tips = randgr))
@@ -269,8 +269,10 @@ if(all(tree2$tip.label %in% forbiddentaxa)==TRUE){ #in case all groups arein a b
     for(k in 1:length(Group)) {
       ID_tip <- c(ID_tip,which(tree2$tip.label==Group[k])) # Números que R asigna a las especies
     }
-
+    if(is.na(ID_tip)){next}
     ID_tip <- ID_tip[!is.na(ID_tip)]
+
+
 
     KK_Pare_tip <- NA
 
@@ -693,50 +695,7 @@ add_to_polyphyletic<-function(tree, species, polyphyletic.insertion=c("freq", "l
   taxa.vector<- as.vector(list[word(list$species, 1, sep="_")==genus,]) #genus species within the tree. This vector is used for all species to be added
   if(length(taxa.vector)==0){stop(paste0("Genus ", genus, " is not included in your tree."))}
 
-  groups<- rep(list(NA), times=length(taxa.vector))
-  names(groups)<-taxa.vector
-  for( t in 1:length(taxa.vector)){
-    taxon<- taxa.vector[t]
-    taxon.tip<- which(new.tree$tip.label==taxon) #tip value
-    parent<-new.tree$edge[new.tree$edge[,2]==taxon.tip,1] #direct ancestor
-    siblings<- new.tree$tip.label[getDescendants(new.tree, parent)][!is.na(new.tree$tip.label[getDescendants(new.tree, parent)])] #ancestor's descendants
-    if(length(siblings[word(siblings,1,sep="_")==genus])==1){groups[[t]]<- taxon} #its siblings are from a different genus; it is a singleton inside another clade
-    if(length(siblings[word(siblings,1,sep="_")==genus]) >1){ #at least one sibling is from the same genus
-      while(length(word(siblings,1,sep="_")[!duplicated(word(siblings,1,sep="_"))])==1){ #tip and parent upstream until they are from different genera
-        taxon.tip<-parent
-        parent<-new.tree$edge[new.tree$edge[,2]==taxon.tip,1]
-        siblings<- new.tree$tip.label[getDescendants(new.tree, parent)][!is.na(new.tree$tip.label[getDescendants(new.tree, parent)])]
-      }
 
-      gen.MRCA<- findMRCA(tree = new.tree,tips = siblings[word(siblings, 1, sep="_")==genus]) #MCRA form same genus siblings; probably always the same as "sticking tip"; but may change
-      grouped<- new.tree$tip.label[getDescendants(new.tree, gen.MRCA)][!is.na(new.tree$tip.label[getDescendants(new.tree, gen.MRCA)])] #non-node descendants
-      grouped.gen<- word(grouped,1,sep="_")[!duplicated(word(grouped,1,sep="_"))] #MRCA descendants
-      if(length(grouped.gen)==1){groups[[t]]<- grouped}  #monophyletic subgruoup
-      if(length(grouped.gen) >1){ #always paraphyletic subgroup, it can't be mono or poly
-        groups[[t]]<- grouped[word(grouped, 1, sep="_")==genus]}}
-  }
-
-  group.types<-rep(list(NA), times=length(taxa.vector))
-  names(group.types)<-taxa.vector
-  for( t in 1:length(taxa.vector)){
-    taxon<- taxa.vector[t]
-    taxon.tip<- which(new.tree$tip.label==taxon) #tip value
-    parent<-new.tree$edge[new.tree$edge[,2]==taxon.tip,1] #direct ancestor
-    siblings<- new.tree$tip.label[getDescendants(new.tree, parent)][!is.na(new.tree$tip.label[getDescendants(new.tree, parent)])] #ancestor's descendants
-    if(length(siblings[word(siblings,1,sep="_")==genus])==1){group.types[[t]]<- "singleton"} #its siblings are from a different genus; it is a singleton inside another clade
-    if(length(siblings[word(siblings,1,sep="_")==genus]) >1){ #at least one sibling is from the same genus
-      while(length(word(siblings,1,sep="_")[!duplicated(word(siblings,1,sep="_"))])==1){ #tip and parent upstream until they are from different genera
-        taxon.tip<-parent
-        parent<-new.tree$edge[new.tree$edge[,2]==taxon.tip,1]
-        siblings<- new.tree$tip.label[getDescendants(new.tree, parent)][!is.na(new.tree$tip.label[getDescendants(new.tree, parent)])]
-      }
-
-      gen.MRCA<- findMRCA(tree = new.tree,tips = siblings[word(siblings, 1, sep="_")==genus]) #MCRA form same genus siblings; probably always the same as "sticking tip"; but may change
-      grouped<- new.tree$tip.label[getDescendants(new.tree, gen.MRCA)][!is.na(new.tree$tip.label[getDescendants(new.tree, gen.MRCA)])] #non-node descendants
-      grouped.gen<- word(grouped,1,sep="_")[!duplicated(word(grouped,1,sep="_"))] #MRCA descendants
-      if(length(grouped.gen)==1){group.types[[t]]<- "monophyletic"}  #monophyletic subgruoup
-      if(length(grouped.gen) >1){ #always paraphyletic subgroup, it can't be mono or poly
-        group.types[[t]]<- "paraphyletic"} }}
 
   if(polyphyletic.insertion=="freq"){
   for(p in 1:length(species)){
@@ -761,7 +720,7 @@ add_to_polyphyletic<-function(tree, species, polyphyletic.insertion=c("freq", "l
       if(length(grouped.gen)==1){new.tree<- add_into_node(new.tree, sticking.tip, sticked.species)} #monophyletic subgruoup
       if(length(grouped.gen) >1){ #always paraphyletic subgroup, it can't be mono or poly
         intruders<-grouped[word(grouped, 1, sep="_")!=genus]
-        if(length(intruders)==1){new.tree<- add_into_node(new.tree, sticking.tip, sticked.species)}else{ # singleton intruders; added as monophyletic
+        if(length(intruders)==1){new.tree<- add_into_node(new.tree, gen.MRCA, sticked.species)}else{ # singleton intruders; added as monophyletic
           intruders.MRCA<- findMRCA(tree = new.tree,tips = intruders)
           new.tree<- add_into_paraphyletic_node(new.tree, new.tip=sticked.species, group.node = gen.MRCA, intern.node = intruders.MRCA) #monophyletic intruders; added as paraphyletic
 
@@ -769,6 +728,51 @@ add_to_polyphyletic<-function(tree, species, polyphyletic.insertion=c("freq", "l
         }}}}
   }
   if(polyphyletic.insertion=="large"){
+    groups<- rep(list(NA), times=length(taxa.vector))
+    names(groups)<-taxa.vector
+    for( t in 1:length(taxa.vector)){
+      taxon<- taxa.vector[t]
+      taxon.tip<- which(new.tree$tip.label==taxon) #tip value
+      parent<-new.tree$edge[new.tree$edge[,2]==taxon.tip,1] #direct ancestor
+      siblings<- new.tree$tip.label[getDescendants(new.tree, parent)][!is.na(new.tree$tip.label[getDescendants(new.tree, parent)])] #ancestor's descendants
+      if(length(siblings[word(siblings,1,sep="_")==genus])==1){groups[[t]]<- taxon} #its siblings are from a different genus; it is a singleton inside another clade
+      if(length(siblings[word(siblings,1,sep="_")==genus]) >1){ #at least one sibling is from the same genus
+        while(length(word(siblings,1,sep="_")[!duplicated(word(siblings,1,sep="_"))])==1){ #tip and parent upstream until they are from different genera
+          taxon.tip<-parent
+          parent<-new.tree$edge[new.tree$edge[,2]==taxon.tip,1]
+          siblings<- new.tree$tip.label[getDescendants(new.tree, parent)][!is.na(new.tree$tip.label[getDescendants(new.tree, parent)])]
+        }
+
+        gen.MRCA<- findMRCA(tree = new.tree,tips = siblings[word(siblings, 1, sep="_")==genus]) #MCRA form same genus siblings; probably always the same as "sticking tip"; but may change
+        grouped<- new.tree$tip.label[getDescendants(new.tree, gen.MRCA)][!is.na(new.tree$tip.label[getDescendants(new.tree, gen.MRCA)])] #non-node descendants
+        grouped.gen<- word(grouped,1,sep="_")[!duplicated(word(grouped,1,sep="_"))] #MRCA descendants
+        if(length(grouped.gen)==1){groups[[t]]<- grouped}  #monophyletic subgruoup
+        if(length(grouped.gen) >1){ #always paraphyletic subgroup, it can't be mono or poly
+          groups[[t]]<- grouped[word(grouped, 1, sep="_")==genus]}}
+    }
+
+    group.types<-rep(list(NA), times=length(taxa.vector))
+    names(group.types)<-taxa.vector
+    for( t in 1:length(taxa.vector)){
+      taxon<- taxa.vector[t]
+      taxon.tip<- which(new.tree$tip.label==taxon) #tip value
+      parent<-new.tree$edge[new.tree$edge[,2]==taxon.tip,1] #direct ancestor
+      siblings<- new.tree$tip.label[getDescendants(new.tree, parent)][!is.na(new.tree$tip.label[getDescendants(new.tree, parent)])] #ancestor's descendants
+      if(length(siblings[word(siblings,1,sep="_")==genus])==1){group.types[[t]]<- "singleton"} #its siblings are from a different genus; it is a singleton inside another clade
+      if(length(siblings[word(siblings,1,sep="_")==genus]) >1){ #at least one sibling is from the same genus
+        while(length(word(siblings,1,sep="_")[!duplicated(word(siblings,1,sep="_"))])==1){ #tip and parent upstream until they are from different genera
+          taxon.tip<-parent
+          parent<-new.tree$edge[new.tree$edge[,2]==taxon.tip,1]
+          siblings<- new.tree$tip.label[getDescendants(new.tree, parent)][!is.na(new.tree$tip.label[getDescendants(new.tree, parent)])]
+        }
+
+        gen.MRCA<- findMRCA(tree = new.tree,tips = siblings[word(siblings, 1, sep="_")==genus]) #MCRA form same genus siblings; probably always the same as "sticking tip"; but may change
+        grouped<- new.tree$tip.label[getDescendants(new.tree, gen.MRCA)][!is.na(new.tree$tip.label[getDescendants(new.tree, gen.MRCA)])] #non-node descendants
+        grouped.gen<- word(grouped,1,sep="_")[!duplicated(word(grouped,1,sep="_"))] #MRCA descendants
+        if(length(grouped.gen)==1){group.types[[t]]<- "monophyletic"}  #monophyletic subgruoup
+        if(length(grouped.gen) >1){ #always paraphyletic subgroup, it can't be mono or poly
+          group.types[[t]]<- "paraphyletic"} }}
+
     m<-max(as.numeric(lengths(groups)))
     group.types<- group.types[lengths(groups)==m]
     groups<- groups[lengths(groups)==m]
@@ -1027,9 +1031,9 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
           rm(j)}}
 
       if(genus.type=="POLYPHYLETIC"){
-        for( j in 1:length(genus.taxa)){
-          newtree<- add_to_polyphyletic(newtree, new.tip = genus.taxa[j])#for the given genus, being PoP, taxa are added one by one as PoP
-          rm(j)}}
+
+            newtree<- add_to_polyphyletic(newtree, species  = genus.taxa)#for the given genus, being PoP, taxa are added one by one as PoP
+          }
 
       if(genus.type=="SINGLETON GENUS"){   #for the given genus, being singleton, all tips are added in one step
         newtree<- add_to_singleton(newtree, singleton = tree$tip.label[word(tree$tip.label,1,sep="_")== genus], new.tips = genus.taxa)
