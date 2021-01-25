@@ -97,7 +97,7 @@ phyleticity<- function(tree, genus){
 
 #function phylo.table returns a table which the main function can work with (editable by hand!).
 phylo.table<- function(species, tree=NULL, taxonomy=NULL, genera.phyleticity=NULL){
-
+if(is.null(genera.phyleticity)&(!inherits(tree, "phylo"))){   stop("tree should be an object of class \"phylo\".")}
   phylo.df<- data.frame(matrix(nrow = length(species),ncol=10))
   names(phylo.df)<-c("taxon", "genus", "genus.type", "family", "order", "class", "aggregate.subspecies",
                      "relative.species","synonim.genus","sibling.genus")
