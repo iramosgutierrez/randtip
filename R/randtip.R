@@ -717,7 +717,7 @@ add_to_polyphyletic<-function(tree, species, polyphyletic.insertion=c("freq", "l
       gen.MRCA<- findMRCA(tree = new.tree,tips = siblings[word(siblings, 1, sep="_")==genus]) #MCRA form same genus siblings; probably always the same as "sticking tip"; but may change
       grouped<- new.tree$tip.label[getDescendants(new.tree, gen.MRCA)][!is.na(new.tree$tip.label[getDescendants(new.tree, gen.MRCA)])] #non-node descendants
       grouped.gen<- word(grouped,1,sep="_")[!duplicated(word(grouped,1,sep="_"))] #MRCA descendants
-      if(length(grouped.gen)==1){new.tree<- add_into_node(new.tree, sticking.tip, sticked.species)} #monophyletic subgruoup
+      if(length(grouped.gen)==1){new.tree<- add_into_node(new.tree, gen.MRCA, sticked.species)} #monophyletic subgruoup
       if(length(grouped.gen) >1){ #always paraphyletic subgroup, it can't be mono or poly
         intruders<-grouped[word(grouped, 1, sep="_")!=genus]
         if(length(intruders)==1){new.tree<- add_into_node(new.tree, gen.MRCA, sticked.species)}else{ # singleton intruders; added as monophyletic
@@ -1084,23 +1084,25 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
 
           fam<-species.table$family[species.table$using.taxa%in%genus.taxa.NO.except][!duplicated(species.table$family[species.table$using.taxa%in%genus.taxa.NO.except])]
           genera<- species.table$genus[species.table$family==fam]
-          if(length(genera)>0){
-            family.taxa<- newtree$tip.label[word(newtree$tip.label,1, sep="_")%in%genera]
+          family.taxa<- newtree$tip.label[word(newtree$tip.label,1, sep="_")%in%genera]
+          if(length(family.taxa)>0){
             newtree<- add_into_node_exceptions(tree=newtree, node=findMRCA(tree = newtree,tips = family.taxa),new.tip = genus.taxa.NO.except[1], exception.list = forbidden.groups)
             if(length(genus.taxa.NO.except)>1){newtree<- add_to_singleton(tree=newtree, singleton = genus.taxa.NO.except[1],new.tips = genus.taxa.NO.except[2:length(genus.taxa.NO.except)])}
 
           }else{
             ord<-species.table$order[species.table$using.taxa%in%genus.taxa.NO.except][!duplicated(species.table$family[species.table$using.taxa%in%genus.taxa.NO.except])]
             genera<- species.table$genus[species.table$order==ord]
-            if(length(genera)>0){
-              order.taxa<- newtree$tip.label[word(newtree$tip.label,1, sep="_")%in%genera]
+            order.taxa<- newtree$tip.label[word(newtree$tip.label,1, sep="_")%in%genera]
+
+            if(length(order.taxa)>0){
               newtree<- add_into_node_exceptions(tree=newtree, node=findMRCA(tree = newtree,tips = order.taxa),new.tip = genus.taxa.NO.except[1], exception.list = forbidden.groups)
               if(length(genus.taxa.NO.except)>1){newtree<- add_to_singleton(tree=newtree, singleton = genus.taxa.NO.except[1],new.tips = genus.taxa.NO.except[2:length(genus.taxa.NO.except)])}
             }else{
               cla<-species.table$class[species.table$using.taxa%in%genus.taxa.NO.except][!duplicated(species.table$family[species.table$using.taxa%in%genus.taxa.NO.except])]
               genera<- species.table$genus[species.table$class==cla]
-              if(length(genera)>0){
-                class.taxa<- newtree$tip.label[word(newtree$tip.label,1, sep="_")%in%genera]
+              class.taxa<- newtree$tip.label[word(newtree$tip.label,1, sep="_")%in%genera]
+
+              if(length(class.taxa)>0){
                 newtree<- add_into_node_exceptions(tree=newtree, node=findMRCA(tree = newtree,tips = class.taxa),new.tip = genus.taxa.NO.except[1], exception.list = forbidden.groups)
                 if(length(genus.taxa.NO.except)>1){newtree<- add_to_singleton(tree=newtree, singleton = genus.taxa.NO.except[1],new.tips = genus.taxa.NO.except[2:length(genus.taxa.NO.except)])}
               }else{
