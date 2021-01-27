@@ -240,7 +240,7 @@ add_into_node <- function(tree,node,new.tip) {
 
 # Function to add tips at random from a given node WITH FORBIDDEN BRANCHES
 #exception.list<-list(c("Abies_alba","Abies_pinsapo"),c("Achillea_pyrenaica","Achillea_santolinoides","Achillea_chamaemelifolia"))
-add_into_node_exceptions <- function(tree,node,new.tip, exception.list) {
+add_into_node_exceptions_old <- function(tree,node,new.tip, exception.list) {
   new.tip<-gsub(" ", "_",new.tip) #modification in case names are separated with blanks
   tt<-splitTree(tree,split=list(node=node, bp=tree$edge.length[which(tree$edge[,2]==node)])) #tree is splitted at a given node
 
@@ -312,6 +312,84 @@ if(all(tree2$tip.label %in% forbiddentaxa)==TRUE){ #in case all groups are in a 
 
   return(new.tree)}
 
+add_into_node_exceptions <- function(tree,node,new.tip, exception.list) {
+  new.tip<-gsub(" ", "_",new.tip) #modification in case names are separated with blanks
+
+  descs<- getDescendants(tree = tree, node = node)
+  descs.tips<- tree$tip.label[descs]
+  descs.tips<-descs.tips[!is.na(descs.tips)]
+
+  forbiddentaxa<- Reduce(c,exception.list)
+
+  if(all(descs.tips %in% forbiddentaxa)==TRUE){ #in case all groups are in a forbidden clade
+    randsp<-sample(descs.tips, 1) #one species is selected
+    randgr<-exception.list[[grep(randsp,exception.list ) ]]#its group is selected
+    new.tree<- add_over_node(tree, new.tip = new.tip, node = getMRCA( tree, tip = randgr))
+  }else{
+    DF <- data.frame(tree$edge,1:dim(tree$edge)[1],tree$edge.length)
+    colnames(DF) <- c("Parent Node","Child Node","Edge ID","Edge Length")
+
+
+    # Workflow
+
+    List_Edge <- vector(mode="list",length=length(exception.list)) # En esta lista voy a almacenar la identidad de las ramas prohibidas
+
+    for (i in 1:length(exception.list)) {
+
+      Group <- exception.list[[i]]  # Saco el grupo correspondiente
+
+      ID_tip <- NA
+
+      for(k in 1:length(Group)) {
+        ID_tip <- c(ID_tip,which(tree$tip.label==Group[k])) # Números que R asigna a las especies
+
+        }
+      if(!all(is.na(ID_tip))){ID_tip <- ID_tip[!is.na(ID_tip)]}else{next}
+
+
+
+
+      KK_Pare_tip <- NA
+
+      for(j in 1:length(ID_tip)) {  # Con este bucle voy a identificar las ramas terminales del grupo, así como la identidad de los nodos
+        #internos a partir de los cuales vamos a extraer los identificadores de las ramas prohibidas en la aleatorización
+
+        KK_Pare_tip <- c(KK_Pare_tip,getParent(tree, ID_tip[j]))
+
+      }
+
+      KK_Pare_tip <- unique(KK_Pare_tip[!is.na(KK_Pare_tip)])
+
+      List_Edge[[i]] <- DF[DF[,2] <= max(KK_Pare_tip) & DF[,2] > getMRCA(tree,ID_tip) | DF[,2] %in% ID_tip,3] # Si borras el "3" de la línea de código, verás que el trozo de DF que incluye las ramas prohibidas del grupo correspondiente
+
+
+    }
+
+
+    DF_to_stick <- DF[DF[,3] %in% unlist(List_Edge) == FALSE,] # Subset de DF incluyendo sólo las ramas a aleatorizar
+    DF_to_stick <-DF_to_stick[DF_to_stick[,2]%in%descs,]
+
+    to_index <- sample(DF_to_stick[,3],1,prob=DF_to_stick[,4]) # selecciono una rama con probabilidad proporcional a la longitud de las mismas
+
+    WHERE = DF[to_index,2] # Nodo (i.e. rama) en el que voy a insertar la especie (puede ser interno o terminal)
+
+    LENGTH <- tree$edge.length[to_index] # Longitud de la rama seleccionada para la inserción
+
+    MIN=0
+    MAX=LENGTH
+    runif(1,MIN,MAX)->POS # Seleccionamos una posición dentro de la rama a partir de distribución uniforme
+
+    while(POS==MIN | POS==MAX){ # Bucle para asegurarnos que la posición de inserción no coincide con el valor mínimo o máximo de la longitud de la rama
+      runif(1,MIN,MAX)->POS
+    }
+
+    new.tree <- bind.tip(tree, new.tip, edge.length=NULL, where=WHERE, position=POS)
+
+}
+
+  return(new.tree)}
+
+
 
 # Function to add tips at random monophyletic clade
 add_to_monophyletic <- function(tree,new.tip) {
@@ -345,30 +423,10 @@ add_over_node<- function(tree, new.tip, node){
   return(newtree)
 }
 
-# A function to stick species at random within a paraphyletic clade
-add_into_paraphyletic_node<- function(tree, new.tip, group.node, intern.node){
-
-  intern.tips<- tree$tip.label[getDescendants(tree, intern.node)][!is.na(tree$tip.label[getDescendants(tree, intern.node)])] #tips in intruder node
-
-  group.tree<-splitTree(tree,split=list(node=group.node,bp=tree$edge.length[which(tree$edge[,2]==group.node)])) #tree is cut at the deep node
-
-  new.intern.node<- findMRCA(tree = group.tree[[2]],tips = intern.tips) #node is searched in the new tree
-
-  intern.tree <-splitTree(group.tree[[2]],split=list(node=new.intern.node,bp=group.tree[[2]]$edge.length[which(group.tree[[2]]$edge[,2]==new.intern.node)])) #cut tree is cut again
-
-  intern.tree[[1]]<-add.random(intern.tree[[1]],tips=new.tip) #The new tip is added to the cut tree without the intruder group
-
-  group.tree[[2]]<-paste.tree( intern.tree[[1]], intern.tree[[2]] )
-  group.tree[[2]]$root.edge<-0
-  new.tree<- paste.tree( group.tree[[1]], group.tree[[2]]) #3 trees are pasted together
 
 
-  if (is.ultrametric(new.tree)==FALSE){new.tree<-force.ultrametric(new.tree, method="extend")}
-  return(new.tree)
-}
 
-
-add_to_paraphyletic <- function(tree,new.tip){
+add_to_paraphyletic_old <- function(tree,new.tip){
   new.tip<-gsub(" ", "_",new.tip) #Same process than paraphyletic node, bt detecting automatically the deep and shallow nodes
   genus<- word(new.tip, 1, sep="_")
   sp.list<- data.frame(species=tree$tip.label)
@@ -410,8 +468,70 @@ if(length(Intruder.Tips)>1){
 
   return(new.tree)}
 #plot(add_to_paraphyletic(Tree, "Achillea_3_inventatus"))
+add_to_paraphyletic <- function(tree,new.tip, prob=TRUE){
+  new.tip<-gsub(" ", "_",new.tip) #Same process than paraphyletic node, bt detecting automatically the deep and shallow nodes
+  genus<- word(new.tip, 1, sep="_")
+  sp.list<- data.frame(species=tree$tip.label)
+  taxa.vector<- as.vector(sp.list[word(sp.list$species, 1, sep="_")==genus,])
+  if(length(taxa.vector)==0){stop(paste0("Genus ", genus, " is no included in yout tree."))}
+  MRCA<-findMRCA(tree = tree,tips = taxa.vector)
+  descs<-getDescendants(tree, MRCA)
+  Desc.Tips<-tree$tip.label[getDescendants(tree, MRCA)][!is.na(tree$tip.label[getDescendants(tree, MRCA)])]
+  Intruder.Tips<-as.vector(Desc.Tips[word(Desc.Tips, 1, sep = "_")!= genus])
+  if(length(Intruder.Tips)==0){stop(paste0("Genus ", genus, " is not paraphyletic"))}
+  if(length(Intruder.Tips)==1){newtree<-add_into_node( tree = tree, node = MRCA, new.tip = new.tip)}
+  if(length(Intruder.Tips)> 1){
+    intruderMCRA<-findMRCA(tree, tips = Intruder.Tips)
+    intruder.descs<-getDescendants(tree, intruderMCRA)
+    intruder.descs<-intruder.descs[!is.na(intruder.descs)]
+    if( genus %in% word(tree$tip.label[intruder.descs], 1, sep="_")){stop(paste0("Genus ", genus, " is not paraphyletic"))}
 
+    DF <- data.frame(tree$edge,tree$edge.length,1:length(tree$edge.length)) #tree data
+    DF <-DF[DF[,2]%in%descs,]
+    DF <-DF[DF[,2]%!in%intruder.descs,]
+    if(isTRUE(prob)){EDGES <- DF[sample(x=1:nrow(DF), size = 1,prob = DF[,3]),]}else{EDGES <- DF[sample(x=1:nrow(DF), size = 1),]} # select a random node
+    to_index<-EDGES[,4] #indexing position
 
+    WHERE <- tree$edge[to_index,2]   #indexing position
+    LENGTH <- tree$edge.length[to_index]   #maximum branch length
+
+    MIN<-0
+    MAX<-LENGTH
+    POS<-runif(1,MIN,MAX)
+
+    while(POS==MIN | POS==MAX){POS<- runif(1,MIN,MAX)} #intermediate value
+
+    newtree<-bind.tip(tree, new.tip, edge.length=NULL, where=WHERE, position=POS)
+    }
+  return(newtree)
+} #quickest method, without splitting
+
+# A function to stick species at random within a paraphyletic clade
+add_into_paraphyletic_node<- function(tree, new.tip, group.node, intern.node, prob=TRUE){
+
+  intern.tips<- tree$tip.label[getDescendants(tree, intern.node)][!is.na(tree$tip.label[getDescendants(tree, intern.node)])] #tips in intruder node
+  descs<- getDescendants(tree, group.node)
+  intruder.descs<-getDescendants(tree, intern.node)
+
+  DF <- data.frame(tree$edge,tree$edge.length,1:length(tree$edge.length)) #tree data
+  DF <-DF[DF[,2]%in%descs,]
+  DF <-DF[DF[,2]%!in%intruder.descs,]
+  if(isTRUE(prob)){EDGES <- DF[sample(x=1:nrow(DF), size = 1,prob = DF[,3]),]}else{EDGES <- DF[sample(x=1:nrow(DF), size = 1),]}# select a random node
+  to_index<-EDGES[,4] #indexing position
+
+  WHERE <- tree$edge[to_index,2]   #indexing position
+  LENGTH <- tree$edge.length[to_index]   #maximum branch length
+
+  MIN<-0
+  MAX<-LENGTH
+  POS<-runif(1,MIN,MAX)
+
+  while(POS==MIN | POS==MAX){POS<- runif(1,MIN,MAX)} #intermediate value
+
+  newtree<-bind.tip(tree, new.tip, edge.length=NULL, where=WHERE, position=POS)
+
+  return(newtree)
+}
 
 polytomy_into_node<- function(tree, new.tip, node){
 
@@ -816,7 +936,7 @@ add_to_polyphyletic<-function(tree, species, polyphyletic.insertion=c("freq", "l
 
 RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "family.polytomy", "order.polytomy", "class.polytomy"),
                    aggregate.subspecies=TRUE, insertion=c("random", "middle","long"), prob=TRUE){
-
+start<- Sys.time()
   if(type=="random"){
   species.table$using.taxa<-NA #New column with the name for the first round
   for(i in 1:nrow(species.table)){
@@ -840,7 +960,7 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
   taxa <- taxa[taxa%!in%tree$tip.label]
 
   taxa.genera<- word(taxa, 1, sep="_")[!duplicated(word(taxa, 1, sep="_"))]
-  taxa.genera<-sample(taxa.genera, length(taxa.genera), replace = F)
+  #taxa.genera<-sample(taxa.genera, length(taxa.genera), replace = F)
   }else{
 
     species.table$using.taxa <-species.table$taxon  #In polytomy cases, names are not changed
@@ -982,6 +1102,7 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
 
   if(type=="random"){
     for(i in 1: length(taxa.genera)){        #loop 1
+      gen.start<- Sys.time()
       genus<- taxa.genera[i]
       genus.type<-species.table$genus.type[species.table$genus==genus][!duplicated(species.table$genus.type[species.table$genus==genus])]
 
@@ -1014,9 +1135,11 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
       forb.genera<- species.table[species.table$genus.type=="MONOPHYLETIC"|species.table$genus.type=="PARAPHYLETIC","genus"]
       forb.genera<-forb.genera[!duplicated(forb.genera)]
       forbidden.groups<- rep(list(NA),length(forb.genera))
-      for(l in 1:length(forb.genera)){
+
+      if(length(forbidden.groups)>0){
+         for(l in 1:length(forb.genera)){
         forbidden.groups[[l]]<- species.table[species.table$genus==forb.genera[l], "taxon"]
-      }
+      }}
 
 
       #Hereon we will work with genus.taxa; i.e., no grouped tips.
@@ -1109,8 +1232,11 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
                 stop(paste0("Genus ", genus, " has no family, order or class relatives"))}}}
         }
       }
+      gen.end<- Sys.time()
+      print(paste0(i, "/", length(taxa.genera), " (",round(i/length(taxa.genera)*100, 2), " %). Gen. ", genus, " (", genus.type,", ", length(genus.taxa)," tips). ",
 
-      print(paste0(i, " out of ", length(taxa.genera), ". Genus ", genus, " (", genus.type,"): ", round(i/length(taxa.genera)*100, 2), " %"))
+                   round(as.numeric(difftime(gen.end, gen.start, units = "secs")), 2), " sec. out of ",
+                   round(as.numeric(difftime(gen.end, start,     units = "mins")), 2), " mins)"))
     }
 
     # phase 2. subspecies
@@ -1124,7 +1250,7 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
         sp.to.add<- newtree$tip.label[paste0(word(newtree$tip.label,1, sep="_"), "_", word(newtree$tip.label,2, sep="_"))== rep.taxa.species[r] ]
 
         newtree<- add_to_singleton(newtree, singleton = sp.to.add, new.tips = ssps) #subspecies are added to their sister as singleton
-
+        print(paste0(r, " out of ", length(rep.taxa.species), ". Species ", rep.taxa.species[r],  round(i/length(rep.taxa.species)*100, 2), " %"))
       }
 
     }
@@ -1134,6 +1260,7 @@ RANDTIP<- function(tree, species.table, type=c("random", "genus.polytomy", "fami
       if(species.table$using.taxa[n]%!in% newtree$tip.label){next}
       if(species.table$using.taxa[n]%in% newtree$tip.label){
         newtree$tip.label[newtree$tip.label==species.table$using.taxa[n]]<-species.table$taxon[n]
+        print(paste0("name correction: ", n, "/", nrow(species.table), " (", round(n/nrow(species.table)*100, 2), " %)"))
       }}
 
 
