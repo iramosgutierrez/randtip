@@ -1135,10 +1135,12 @@ start<- Sys.time()
       forb.genera<- species.table[species.table$genus.type=="MONOPHYLETIC"|species.table$genus.type=="PARAPHYLETIC","genus"]
       forb.genera<-forb.genera[!duplicated(forb.genera)]
       forbidden.groups<- rep(list(NA),length(forb.genera))
+      treelist<- data.frame("taxon"=tree$tip.label, "genus"=word(tree$tip.label, 1, sep="_"))
+
 
       if(length(forbidden.groups)>0){
          for(l in 1:length(forb.genera)){
-        forbidden.groups[[l]]<- species.table[species.table$genus==forb.genera[l], "taxon"]
+        forbidden.groups[[l]]<- treelist[treelist$genus==forb.genera[l], "taxon"]
       }}
 
 
