@@ -985,7 +985,7 @@ start<- Sys.time()
       genus.taxa<- species.table$taxon[species.table$genus==genus]
       genus.taxa<- genus.taxa[genus.taxa%!in%tree$tip.label]
       genus.genera<- species.table$genus[species.table$genus==genus] #this is redundant, but keeps the structure
-      print(paste0(p, "/", length(genus.taxa), " (",round(i/length(genus.taxa)*100, 2), " %). ",
+      print(paste0(p, "/", length(genera), " (",round(p/length(genera)*100, 2), " %). ",
                    "Adding Gen. ", genus, " (",
                    length(genus.taxa)," tips). "))
       union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%genus.genera]   #species (tips) within class IN ORIGINAL TREE
@@ -1142,6 +1142,79 @@ start<- Sys.time()
 
 
   if(type=="random"){
+    #forbidden.groups
+    forb.genera<- species.table[species.table$genus.type=="MONOPHYLETIC"|species.table$genus.type=="PARAPHYLETIC","genus"]
+    forb.genera<-forb.genera[!duplicated(forb.genera)]
+    forbidden.groups<- rep(list(NA),length(forb.genera))
+    treelist<- data.frame("taxon"=tree$tip.label, "genus"=word(tree$tip.label, 1, sep="_"))
+
+
+    if(length(forbidden.groups)>0){
+      for(l in 1:length(forb.genera)){
+        forbidden.groups[[l]]<- treelist[treelist$genus==forb.genera[l], "taxon"]
+      }}
+
+    poly.genera<- species.table[species.table$genus.type=="POLYPHYLETIC",]
+    poly.genera<-poly.genera$genus[!duplicated(poly.genera$genus)]
+
+    for(p in 1:length(poly.genera)){
+      genus<- poly.genera[p]
+
+      tree_taxa <- (newtree$tip.label)
+      genus_tree_taxa <- tree_taxa[word(tree_taxa, 1, sep="_")==genus]
+      genus_tree_list<- rep(list(NA), times=length(genus_tree_taxa))
+      for(i in 1:length(genus_tree_taxa)){
+
+        sp<-genus_tree_taxa[i]
+        if(i>1 & sp%in% unlist(genus_tree_list)){next}
+        sp.tip<- which(newtree$tip.label==sp) #tip value
+        parent<-newtree$edge[newtree$edge[,2]==sp.tip,1] #direct ancestor
+
+        siblings<- newtree$tip.label[getDescendants(newtree, parent)][!is.na(newtree$tip.label[getDescendants(newtree, parent)])] #ancestor's descendants
+
+        if(length(siblings[word(siblings, 1, sep="_")!=genus])==1){
+          siblings<-siblings[word(siblings, 1, sep="_")==genus]
+        } #if intruders exist
+
+        if(length(siblings[word(siblings, 1, sep="_")!=genus])> 1){
+          intruders<-siblings[word(siblings, 1, sep="_")!=genus]
+          intr.desc.tips<-getDescendants(newtree, getMRCA(newtree, intruders))
+          intr.desc.names<-newtree$tip.label[intr.desc.tips]
+          intr.desc.names<-intr.desc.names[!is.na(intr.desc.names)]
+          if(all(word(intr.desc.names, 1, sep="_")!=genus)){
+            siblings<-siblings[word(siblings, 1, sep="_")==genus]
+          }}
+
+        while(length(word(siblings,1,sep="_")[!duplicated(word(siblings,1,sep="_"))])==1){ #tip and parent upstream until they are from different genera
+          sp.tip<-parent
+          parent<-newtree$edge[newtree$edge[,2]==sp.tip,1]
+          siblings<- newtree$tip.label[getDescendants(newtree, parent)][!is.na(newtree$tip.label[getDescendants(newtree, parent)])]
+
+          if(length(siblings[word(siblings, 1, sep="_")!=genus])==1){
+            siblings<-siblings[word(siblings, 1, sep="_")==genus]
+          } #if intruders exist
+
+          if(length(siblings[word(siblings, 1, sep="_")!=genus])> 1){
+            intruders<-siblings[word(siblings, 1, sep="_")!=genus]
+            intr.desc.tips<-getDescendants(newtree, getMRCA(newtree, intruders))
+            intr.desc.names<-newtree$tip.label[intr.desc.tips]
+            intr.desc.names<-intr.desc.names[!is.na(intr.desc.names)]
+            if(all(word(intr.desc.names, 1, sep="_")!=genus)){
+              siblings<-siblings[word(siblings, 1, sep="_")==genus] }
+          }}
+
+
+
+        descs<- getDescendants(newtree, sp.tip)
+        desctips<-newtree$tip.label[descs]
+        desctips<-desctips[!is.na(desctips)]
+        desctips<-desctips[word(desctips, 1, sep="_")==genus]
+        genus_tree_list[[i]]<-desctips
+      }
+
+      genus_tree_list<-genus_tree_list[!is.na(genus_tree_list[])]
+      genus_tree_list<-genus_tree_list[lengths(genus_tree_list[])>1]
+      forbidden.groups<-c(forbidden.groups, genus_tree_list)}
     for(i in 1: length(taxa.genera)){        #loop 1
       gen.start<- Sys.time()
       genus<- taxa.genera[i]
@@ -1174,17 +1247,6 @@ start<- Sys.time()
           rm(j, node, grouping.taxa)}
         next}
 
-      #forbidden.groups
-      forb.genera<- species.table[species.table$genus.type=="MONOPHYLETIC"|species.table$genus.type=="PARAPHYLETIC","genus"]
-      forb.genera<-forb.genera[!duplicated(forb.genera)]
-      forbidden.groups<- rep(list(NA),length(forb.genera))
-      treelist<- data.frame("taxon"=tree$tip.label, "genus"=word(tree$tip.label, 1, sep="_"))
-
-
-      if(length(forbidden.groups)>0){
-         for(l in 1:length(forb.genera)){
-        forbidden.groups[[l]]<- treelist[treelist$genus==forb.genera[l], "taxon"]
-      }}
 
 
       #Hereon we will work with genus.taxa; i.e., no grouped tips.
