@@ -949,6 +949,7 @@ start<- Sys.time()
     next}
     if(species.table$aggregate.subspecies[i]==1){species.table$using.taxa[i]<-paste0(word(species.table$taxon[i],1, sep="_"), "_",word(species.table$taxon[i],2, sep="_"))}} # the ones specified with a 1 are clustered
 
+  species.table<-species.table[order(species.table$taxon),]
   species.table.dupl <- species.table[ duplicated(species.table$using.taxa),]
   species.table <-      species.table[!duplicated(species.table$using.taxa),]
 
@@ -960,7 +961,7 @@ start<- Sys.time()
   taxa <- taxa[taxa%!in%tree$tip.label]
 
   taxa.genera<- word(taxa, 1, sep="_")[!duplicated(word(taxa, 1, sep="_"))]
-  #taxa.genera<-sample(taxa.genera, length(taxa.genera), replace = F)
+  taxa.genera<-sample(taxa.genera, length(taxa.genera), replace = F)
   }else{
 
     species.table$using.taxa <-species.table$taxon  #In polytomy cases, names are not changed
@@ -979,10 +980,14 @@ start<- Sys.time()
     genera<- species.table$genus[!duplicated(species.table$genus)]
 
     for(p in 1:length(genera)){
+      gen.start<- Sys.time()
       genus<- genera[p]
       genus.taxa<- species.table$taxon[species.table$genus==genus]
       genus.taxa<- genus.taxa[genus.taxa%!in%tree$tip.label]
       genus.genera<- species.table$genus[species.table$genus==genus] #this is redundant, but keeps the structure
+      print(paste0(p, "/", length(genus.taxa), " (",round(i/length(genus.taxa)*100, 2), " %). ",
+                   "Adding Gen. ", genus, " (",
+                   length(genus.taxa)," tips). "))
       union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%genus.genera]   #species (tips) within class IN ORIGINAL TREE
       if(length(genus.taxa)==0){next}
       if(length(union.tips)==0){
@@ -1020,16 +1025,25 @@ start<- Sys.time()
 
       if(length(union.tips)==1){node<- which(newtree$tip.label==union.tips)}else{node<-findMRCA(newtree, tips=union.tips)}
       newtree<- polytomy_over_node(tree = newtree, species = genus.taxa, node=node, insertion = insertion)
+      gen.end<- Sys.time()
+
+      print(paste0("\U2713", " (done in ",
+                   round(as.numeric(difftime(gen.end, gen.start, units = "secs")), 2), " sec. out of ",
+                   round(as.numeric(difftime(gen.end, start,     units = "mins")), 2), " mins)"))
       }}
 
   if(type=="family.polytomy"){
     families<- species.table$family[!duplicated(species.table$family)]
 
     for(p in 1:length(families)){
+      gen.start<- Sys.time()
       family<- families[p]
       family.taxa<- species.table$taxon[species.table$family==family]
       family.taxa<- family.taxa[family.taxa%!in%tree$tip.label]
       family.genera<- species.table$genus[species.table$family==family]
+      print(paste0(p, "/", length(family.taxa), " (",round(i/length(family.taxa)*100, 2), " %). ",
+                   "Adding Fam. ", family, " (",
+                   length(family.taxa)," tips). "))
       union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%family.genera]   #species (tips) within class IN ORIGINAL TREE
       if(length(family.taxa)==0){next}
       if(length(union.tips)==0){
@@ -1055,16 +1069,27 @@ start<- Sys.time()
         next}
 
       if(length(union.tips)==1){node<- which(newtree$tip.label==union.tips)}else{node<-findMRCA(newtree, tips=union.tips)}
-      newtree<- polytomy_over_node(tree = newtree, species = family.taxa, node=node, insertion = insertion)}}
+      newtree<- polytomy_over_node(tree = newtree, species = family.taxa, node=node, insertion = insertion)
+      gen.end<- Sys.time()
+
+      print(paste0("\U2713", " (done in ",
+                   round(as.numeric(difftime(gen.end, gen.start, units = "secs")), 2), " sec. out of ",
+                   round(as.numeric(difftime(gen.end, start,     units = "mins")), 2), " mins)"))}}
 
   if(type=="order.polytomy"){
     orders<- species.table$order[!duplicated(species.table$order)]
 
     for(p in 1:length(orders)){
+      gen.start<- Sys.time()
+
       order<-orders[p]
       order.taxa<- species.table$taxon[species.table$order==order]
       order.taxa<- order.taxa[order.taxa%!in%tree$tip.label]
       order.genera<- species.table$genus[species.table$order==order]
+
+      print(paste0(p, "/", length(order.taxa), " (",round(i/length(order.taxa)*100, 2), " %). ",
+                   "Adding Ord. ", order, " (",
+                   length(order.taxa)," tips). "))
       union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%order.genera]   #species (tips) within class IN ORIGINAL TREE
       if(length(order.taxa)==0){next}
       if(length(union.tips)==0){
@@ -1080,23 +1105,39 @@ start<- Sys.time()
         next}
       if(length(union.tips)==1){node<- which(newtree$tip.label==union.tips)}else{node<-findMRCA(newtree, tips=union.tips)}
       newtree<- polytomy_over_node(tree = newtree, species = order.taxa, node=node, insertion = insertion)
+      gen.end<- Sys.time()
+
+      print(paste0("\U2713", " (done in ",
+                   round(as.numeric(difftime(gen.end, gen.start, units = "secs")), 2), " sec. out of ",
+                   round(as.numeric(difftime(gen.end, start,     units = "mins")), 2), " mins)"))
       }}
 
   if(type=="class.polytomy"){
     classes<- species.table$class[!duplicated(species.table$class)]
 
  for(p in 1:length(classes)){
+   gen.start<- Sys.time()
       class<- classes[p]
       class.taxa<- species.table$taxon[species.table$class==class]
       class.taxa<- class.taxa[class.taxa%!in%tree$tip.label]
       class.genera<- species.table$genus[species.table$class==class]
+
+      print(paste0(p, "/", length(class.taxa), " (",round(i/length(class.taxa)*100, 2), " %). ",
+                   "Adding Class ", class, " (",
+                   length(class.taxa)," tips). "))
       union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%class.genera]   #species (tips) within class IN ORIGINAL TREE
       if(length(class.taxa)==0){next}
       if(length(union.tips)==0){message(paste0("ATTENTION: genus ", class.genera, " was not included as no Class coincidences were found"))####JOIN TO UPPER TAXONOMIC LEVEL
         next}
 
        if(length(union.tips)==1){node<- which(newtree$tip.label==union.tips)}else{node<-findMRCA(newtree, tips=union.tips)}
-       newtree<- polytomy_over_node(tree = newtree, species = class.taxa, node=node, insertion = insertion)}}
+       newtree<- polytomy_over_node(tree = newtree, species = class.taxa, node=node, insertion = insertion)
+       gen.end<- Sys.time()
+
+       print(paste0("\U2713", " (done in ",
+                    round(as.numeric(difftime(gen.end, gen.start, units = "secs")), 2), " sec. out of ",
+                    round(as.numeric(difftime(gen.end, start,     units = "mins")), 2), " mins)"))
+       }}
 
 
 
@@ -1114,7 +1155,9 @@ start<- Sys.time()
       grouped.taxa<-grouped.taxa[grouped.taxa%in%genus.taxa]
       genus.taxa<-genus.taxa[genus.taxa%!in%grouped.taxa]
 
-
+      print(paste0(i, "/", length(taxa.genera), " (",round(i/length(taxa.genera)*100, 2), " %). ",
+                  "Adding Gen. ", genus, " (", genus.type,", ",
+                   length(genus.taxa)," tips). "))
 
 
       if(length(grouped.taxa)>0){    #if "grouped.taxa" exist
@@ -1235,24 +1278,29 @@ start<- Sys.time()
         }
       }
       gen.end<- Sys.time()
-      print(paste0(i, "/", length(taxa.genera), " (",round(i/length(taxa.genera)*100, 2), " %). Gen. ", genus, " (", genus.type,", ", length(genus.taxa)," tips). ",
-
+      print(paste0("\U2713", "( done in ",
                    round(as.numeric(difftime(gen.end, gen.start, units = "secs")), 2), " sec. out of ",
                    round(as.numeric(difftime(gen.end, start,     units = "mins")), 2), " mins)"))
     }
 
     # phase 2. subspecies
     if(nrow(species.table.dupl)>0){ #species grouped
+      start<- Sys.time()
       rep.taxa <-species.table.dupl$taxon #species are found
       rep.taxa.species<- species.table.dupl$using.taxa[!duplicated(species.table.dupl$using.taxa)]#subspecies' species
 
       for (r in 1:length(rep.taxa.species)){
+        sp.start<- Sys.time()
         ssps <- rep.taxa[paste0(word(rep.taxa, 1, sep="_"),"_",word(rep.taxa, 2, sep="_"))==rep.taxa.species[r]] #subspecies within species are selected
         ssps <- sample(ssps, length(ssps), replace = F) #order randomized
         sp.to.add<- newtree$tip.label[paste0(word(newtree$tip.label,1, sep="_"), "_", word(newtree$tip.label,2, sep="_"))== rep.taxa.species[r] ]
+        if(length(sp.to.add)>1){sp.to.add<-sp.to.add[sp.to.add==rep.taxa.species[r]]}
 
         newtree<- add_to_singleton(newtree, singleton = sp.to.add, new.tips = ssps) #subspecies are added to their sister as singleton
-        print(paste0(r, " out of ", length(rep.taxa.species), ". Species ", rep.taxa.species[r],  round(i/length(rep.taxa.species)*100, 2), " %"))
+        sp.end<- Sys.time()
+        print(paste0(r, "/", length(rep.taxa.species), " (", round(r/length(rep.taxa.species)*100, 2), " %): ",  rep.taxa.species[r]," (",
+                     round(as.numeric(difftime(sp.end, sp.start, units = "secs")), 2), " sec. out of ",
+                     round(as.numeric(difftime(sp.end, start,     units = "mins")), 2), " mins)"))
       }
 
     }
@@ -1267,29 +1315,13 @@ start<- Sys.time()
 
 
   }
+
+complete_taxa_list<-c(species.table$taxon, species.table.dupl$taxon)
+complete_taxa_list_in_tree<-complete_taxa_list[complete_taxa_list%in%newtree$tip.label]
+if(length(complete_taxa_list[complete_taxa_list%!in%complete_taxa_list_in_tree])>1){message(paste0("The following taxa were not included in the tree: ", (complete_taxa_list[complete_taxa_list%!in%complete_taxa_list_in_tree])))}
+
+newtree<-keep.tip(newtree, complete_taxa_list_in_tree)
   return(newtree)
 }
 
-plot(RANDTIP(tree=Tree, species.table=tabla.info, aggregate.subspecies=TRUE, type = "genus.polytomy", insertion = "middle")) #, insertion="long"
-plot(RANDTIP(tree=Tree, species.table=tabla.info, aggregate.subspecies=TRUE, type = "genus.polytomy", insertion = "long")) #, insertion="long"
-plot(RANDTIP(tree=Tree, species.table=tabla.info, aggregate.subspecies=TRUE, type = "genus.polytomy")) #, insertion="long"
-plot(RANDTIP(tree=Tree, species.table=tabla.info, aggregate.subspecies=TRUE, type = "random"))
 
-png(paste0("C:/Users/Alumno/Desktop/mierdas/Arbol_prueba3.png"), height = 1500, width = 2500, units = "px")
-plot(prueba)
-dev.off()
-
-sub.species<- checklist[checklist$match.name%!in%GBOTB.extended$tip.label,]
-sub.species<- sub.species[word(sub.species$match.name,1, sep="_")%in%word(Tree$tip.label,1, sep="_"),]
-
-{
-  png(paste0("C:/Users/Alumno/Desktop/mierdas/Arbol_prueba2.png"), height = 1500, width = 2500, units = "px")
-  cut<- Tree$tip.label[word(Tree$tip.label, 1, sep="_")%in%word(sub.species$match.name[50:75], 1, sep="_")]
-  par(mfrow=c(1,2))
-  plot( drop.tip(Tree, Tree$tip.label[-match(cut, Tree$tip.label)]), label.offset = 2)
-  #nodelabels()
-  #tiplabels(adj = c(-10, 0.5))
-  plot(RANDTIP(tree = Tree, species = sub.species[50:75, "match.name"],genera.phyleticity=tipos_generos,aggregate.subspecies = TRUE))
-  #nodelabels()
-  #tiplabels(adj = c(-10, 0.5))
-  dev.off()}
