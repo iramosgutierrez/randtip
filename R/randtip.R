@@ -669,7 +669,6 @@ stick.to.branch <- function(tree,edges,new.tip=new.tip,prob=TRUE){
 
       tips1 = edges[i,1:2]
       tips2 = edges[i,3:4]
-
       tips1.char<- c(as.character(edges[i,1]), as.character(edges[i,2]))
       tips2.char<- c(as.character(edges[i,3]), as.character(edges[i,4]))
 
@@ -815,9 +814,6 @@ add_to_polyphyletic<-function(tree, species, polyphyletic.insertion=c("freq", "l
   list<- data.frame(species=tree$tip.label)
   taxa.vector<- as.vector(list[word(list$species, 1, sep="_")==genus,]) #genus species within the tree. This vector is used for all species to be added
   if(length(taxa.vector)==0){stop(paste0("Genus ", genus, " is not included in your tree."))}
-
-
-
   if(polyphyletic.insertion=="freq"){
   for(p in 1:length(species)){
     sticked.species<- species[p]
@@ -1030,7 +1026,6 @@ start<- Sys.time()
             if(length(class.taxa)==0){next}
             if(length(union.tips)==0){message(paste0("ATTENTION: genus ", class.genera, " was not included as no Class coincidences were found"))####JOIN TO UPPER TAXONOMIC LEVEL
               next}
-
             if(length(union.tips)==1){node<- which(newtree$tip.label==union.tips)
             newtree<- polytomy_over_node(tree = newtree, species = genus.taxa, node=findMRCA(newtree, tips=union.tips), insertion = insertion)####JOIN TO UPPER TAXONOMIC LEVEL
             }
@@ -1118,7 +1113,6 @@ start<- Sys.time()
       gen.start<- Sys.time()
       order<- orders[p]
       order.taxa<- taxa.table$taxon[taxa.table$order==order]
-
 
       order.genera<- species.table$genus[species.table$order==order] #this is redundant, but keeps the structure
       print(paste0(p, "/", length(orders), " (",round(p/length(orders)*100, 2), " %). ",
@@ -1289,7 +1283,6 @@ start<- Sys.time()
                    length(genus.taxa)," tips). "))
 
 
-
       if(length(grouped.taxa)>0){    #if "grouped.taxa" exist
         for( j in 1:length(grouped.taxa)){
           grouping.taxa<- species.table$relative.species[species.table$using.taxa==grouped.taxa[j]]
@@ -1403,20 +1396,17 @@ start<- Sys.time()
     # phase 2. subspecies
     if(nrow(species.table.dupl)>0){ #species grouped
       start<- Sys.time()
-
       rep.taxa <-species.table.dupl$taxon #species are found
       rep.taxa.species<- species.table.dupl$using.taxa[!duplicated(species.table.dupl$using.taxa)]#subspecies' species
 
       for (r in 1:length(rep.taxa.species)){
         sp.start<- Sys.time()
-
         ssps <- rep.taxa[paste0(word(rep.taxa, 1, sep="_"),"_",word(rep.taxa, 2, sep="_"))==rep.taxa.species[r]] #subspecies within species are selected
         ssps <- sample(ssps, length(ssps), replace = F) #order randomized
         sp.to.add<- newtree$tip.label[paste0(word(newtree$tip.label,1, sep="_"), "_", word(newtree$tip.label,2, sep="_"))== rep.taxa.species[r] ]
         if(length(sp.to.add)>1){sp.to.add<-sp.to.add[sp.to.add==rep.taxa.species[r]]}
 
         newtree<- add_to_singleton(newtree, singleton = sp.to.add, new.tips = ssps) #subspecies are added to their sister as singleton
-
         sp.end<- Sys.time()
         print(paste0(r, "/", length(rep.taxa.species), " (", round(r/length(rep.taxa.species)*100, 2), " %): ",  rep.taxa.species[r]," (",
                      round(as.numeric(difftime(sp.end, sp.start, units = "secs")), 2), " sec. out of ",
