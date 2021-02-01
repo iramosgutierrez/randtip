@@ -561,7 +561,8 @@ polytomy_over_node<- function(tree, node, species, insertion=c("random","long","
       to_index<-EDGES[,4]
       WHERE <- newtree$edge[to_index,2]
 
-      position<-EDGES[,3]*runif(1, 0, 1) #bound at a random point of the branch
+
+      if(insertion=="random"){position<-EDGES[,3]*runif(1, 0, 1)} #bound at a random point of the branch
       if(insertion=="middle"){position<-EDGES[,3]*0.5}  #bound at the middle of the branch
       if(insertion=="long")  {position<-EDGES[,3]}      #bound at the beggining of the branch
 
@@ -961,7 +962,7 @@ start<- Sys.time()
   taxa <- taxa[taxa%!in%tree$tip.label]
 
   taxa.genera<- word(taxa, 1, sep="_")[!duplicated(word(taxa, 1, sep="_"))]
-  taxa.genera<-sample(taxa.genera, length(taxa.genera), replace = F)
+  #taxa.genera<-sample(taxa.genera, length(taxa.genera), replace = F)
   }else{
 
     species.table$using.taxa <-species.table$taxon  #In polytomy cases, names are not changed
@@ -1024,12 +1025,12 @@ start<- Sys.time()
           if(length(union.tips)==0){
             class<- taxa.table$class[taxa.table$order==order][!duplicated(taxa.table$class[taxa.table$order==order])]
             class.taxa<- taxa.table$taxon[taxa.table$class==class]
-
             class.genera<- species.table$genus[species.table$class==class]
             union.tips<-tree$tip.label[word(tree$tip.label, 1, sep="_")%in%class.genera]   #species (tips) within class IN ORIGINAL TREE
             if(length(class.taxa)==0){next}
             if(length(union.tips)==0){message(paste0("ATTENTION: genus ", class.genera, " was not included as no Class coincidences were found"))####JOIN TO UPPER TAXONOMIC LEVEL
               next}
+
             if(length(union.tips)==1){node<- which(newtree$tip.label==union.tips)
             newtree<- polytomy_over_node(tree = newtree, species = genus.taxa, node=findMRCA(newtree, tips=union.tips), insertion = insertion)####JOIN TO UPPER TAXONOMIC LEVEL
             }
@@ -1196,7 +1197,6 @@ start<- Sys.time()
     }}
 
 
-
   if(type=="random"){
     #forbidden.groups
     forb.genera<- species.table[species.table$genus.type=="MONOPHYLETIC"|species.table$genus.type=="PARAPHYLETIC","genus"]
@@ -1289,6 +1289,7 @@ start<- Sys.time()
                    length(genus.taxa)," tips). "))
 
 
+
       if(length(grouped.taxa)>0){    #if "grouped.taxa" exist
         for( j in 1:length(grouped.taxa)){
           grouping.taxa<- species.table$relative.species[species.table$using.taxa==grouped.taxa[j]]
@@ -1302,8 +1303,6 @@ start<- Sys.time()
             newtree<- add_into_node(newtree, new.tip = grouped.taxa[j],node = node)} #the rest ar added as monophyletic
           rm(j, node, grouping.taxa)}
         next}
-
-
 
       #Hereon we will work with genus.taxa; i.e., no grouped tips.
       if(genus.type=="MONOPHYLETIC"){
@@ -1404,17 +1403,20 @@ start<- Sys.time()
     # phase 2. subspecies
     if(nrow(species.table.dupl)>0){ #species grouped
       start<- Sys.time()
+
       rep.taxa <-species.table.dupl$taxon #species are found
       rep.taxa.species<- species.table.dupl$using.taxa[!duplicated(species.table.dupl$using.taxa)]#subspecies' species
 
       for (r in 1:length(rep.taxa.species)){
         sp.start<- Sys.time()
+
         ssps <- rep.taxa[paste0(word(rep.taxa, 1, sep="_"),"_",word(rep.taxa, 2, sep="_"))==rep.taxa.species[r]] #subspecies within species are selected
         ssps <- sample(ssps, length(ssps), replace = F) #order randomized
         sp.to.add<- newtree$tip.label[paste0(word(newtree$tip.label,1, sep="_"), "_", word(newtree$tip.label,2, sep="_"))== rep.taxa.species[r] ]
         if(length(sp.to.add)>1){sp.to.add<-sp.to.add[sp.to.add==rep.taxa.species[r]]}
 
         newtree<- add_to_singleton(newtree, singleton = sp.to.add, new.tips = ssps) #subspecies are added to their sister as singleton
+
         sp.end<- Sys.time()
         print(paste0(r, "/", length(rep.taxa.species), " (", round(r/length(rep.taxa.species)*100, 2), " %): ",  rep.taxa.species[r]," (",
                      round(as.numeric(difftime(sp.end, sp.start, units = "secs")), 2), " sec. out of ",
@@ -1441,5 +1443,3 @@ if(length(complete_taxa_list[complete_taxa_list%!in%complete_taxa_list_in_tree])
 newtree<-keep.tip(newtree, complete_taxa_list_in_tree)
   return(newtree)
 }
-
-
