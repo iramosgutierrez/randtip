@@ -1,3 +1,7 @@
 ^randtip\.Rproj$
 ^\.Rproj\.user$
 ^\.httr-oauth$
+^LICENSE\.md$
+^data-raw$
+^.*ipynb.*$
+
