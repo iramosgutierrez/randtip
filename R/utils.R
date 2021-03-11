@@ -154,3 +154,8 @@ firstword<- function(string, sep="_"){
   word<- stringr::word(string, 1, sep=sep)
   return(word)
 }
+
+notNA <- function(x){
+  vect<- x[!is.na(x)]
+  return(vect)
+}
