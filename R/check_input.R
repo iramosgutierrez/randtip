@@ -27,7 +27,7 @@ check.input<- function(DF1, tree){
   for(i in 1:nrow(DF)){
     if(DF$PUT.status[i]=="PUT"){
       tax<-DF$taxon[i]
-      sim.search<-tree.taxa[stringsim(tree.taxa,tax)>0.8]
+      sim.search<-tree.taxa[stringdist::stringsim(tree.taxa,tax)>0.8]
       if(length(sim.search)>0){
         sim.search<-paste0(sim.search, collapse = " / ")
         DF$Name.simmilarity[i]<- sim.search}
