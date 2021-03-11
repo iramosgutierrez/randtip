@@ -25,7 +25,7 @@ build.input<- function(species,find.MDCC=TRUE, MDCC.rank="family",db="ncbi", mod
 
   DF1$taxon<- species
 
-  DF1$genus<- word(species, 1, sep="_")
+  DF1$genus<- stringr::word(species, 1, sep="_")
 
 
 
@@ -36,13 +36,13 @@ build.input<- function(species,find.MDCC=TRUE, MDCC.rank="family",db="ncbi", mod
 
     DF2$taxon<- tree$tip.label
 
-    DF2$genus<- word(tree$tip.label, 1, sep="_")
+    DF2$genus<- stringr::word(tree$tip.label, 1, sep="_")
   }
 
 
   if(isTRUE(find.MDCC)){
-    if(mode=="phylomatic"){genera<- unique(c(word(species, 1, sep="_"), word(tree$tip.label, 1, sep="_")))}else{
-      genera<- unique(word(species, 1, sep="_"))}
+    if(mode=="phylomatic"){genera<- unique(c(stringr::word(species, 1, sep="_"), stringr::word(tree$tip.label, 1, sep="_")))}else{
+      genera<- unique(stringr::word(species, 1, sep="_"))}
 
     for(i in 1:length(genera)){
       tryCatch({
