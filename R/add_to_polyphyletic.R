@@ -27,14 +27,17 @@ add.to.polyphyletic <- function(tree, new.tip, polyphyletic.insertion = "freq", 
     if(polyphyletic.insertion == "freq"){
         for(sticked.species in new.tip){
 
+
             # Choose a species at random
             # Allows a probability based on frequencies inside each group
+            new.tree.sp <- new.tree$tip.label
+
             sticking.species<- sample(taxa.vector, 1)
             sticking.tip <- which(new.tree.sp == sticking.species)
 
             par.sib <- get.parent.siblings(new.tree, sticking.tip)
 
-            siblings.genus <- stringr::word(par.sib$siblings, 1, sep = "_")
+            siblings.genus <- randtip::firstword(par.sib$siblings)
 
             if(sum(siblings.genus == genus) == 1){
                 # Siblings are from a different genus
@@ -125,3 +128,4 @@ add.to.polyphyletic <- function(tree, new.tip, polyphyletic.insertion = "freq", 
     return(new.tree)
 
 }
+load_all()
