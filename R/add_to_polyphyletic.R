@@ -128,4 +128,3 @@ add.to.polyphyletic <- function(tree, new.tip, polyphyletic.insertion = "freq", 
     return(new.tree)
 
 }
-load_all()
