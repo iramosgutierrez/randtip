@@ -18,7 +18,7 @@ add.to.paraphyletic <- function(tree, new.tip, prob = TRUE, intern.node = NULL,
   if(is.null(group.node) && is.null(intern.node)){
 
   new.tip <- gsub(" ", "_", new.tip)
-  genus <- randtip::firstword(new.tip)
+  genus <- firstword(new.tip)
 
   taxa.vector<- sp.genus.in.tree(tree, genus)
   if(length(taxa.vector) == 0){
@@ -48,7 +48,7 @@ add.to.paraphyletic <- function(tree, new.tip, prob = TRUE, intern.node = NULL,
       intruder.descs <- phytools::getDescendants(tree, intruder.mrca)
       intruder.desc.names<- tree$tip.label[intruder.descs]
       intruder.desc.names <- randtip::notNA(intruder.desc.names)
-      if(any(randtip::firstword(intruder.desc.names)==genus)){
+      if(any(firstword(intruder.desc.names)==genus)){
         stop(paste0("Genus ", genus,
                     " is not paraphyletic. It is polyphyletic."))
       }
