@@ -6,12 +6,12 @@ add.to.monophyletic <- function(tree, new.tip){
 
   new.tip <- gsub(" ", "_", new.tip)
 
-  genus <- stringr::word(new.tip, 1, sep = "_")
+  genus <- randtip::firstword(new.tip)
 
   sp <- tree$tip.label
-  taxa.vector <- sp[stringr::word(sp, 1, sep="_")==genus]
+  taxa.vector <- sp[randtip::firstword(sp)==genus]
   if(length(taxa.vector) == 0){
-      stop(paste0("Genus ", genus, " is not included in yout tree."))
+      stop(paste0("Genus ", genus, " is not included in your tree."))
   }
 
   mrca <- phytools::findMRCA(tree = tree, tips = taxa.vector)
