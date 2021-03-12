@@ -125,4 +125,3 @@ add.to.polyphyletic <- function(tree, new.tip, polyphyletic.insertion = "freq", 
     return(new.tree)
 
 }
-plot(add.to.polyphyletic(tree=tree25, new.tip = new.tip, polyphyletic.insertion = "freq", prob = T))
