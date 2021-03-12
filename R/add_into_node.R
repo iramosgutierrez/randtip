@@ -6,7 +6,7 @@
 #'                        "Achillea_chamaemelifolia"))
 
 
-add.into.node <- function(tree, node, new.tip, exception.list = NULL, prob){
+add.into.node <- function(tree, node, new.tip, exception.list = NULL, prob=T){
 
   new.tip <- gsub(" ", "_", new.tip)
 
