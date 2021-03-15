@@ -12,7 +12,7 @@ polytomy.over.node<- function(tree, node, new.tip,
     if (i==1) {
       to.index <- get.index(new.tree, node = node)
       bind.where <- new.tree$edge[to.index, 2]
-      position<- get.position(tree=new.tree, node = 31, insertion = insertion)
+      position<- get.position(tree=new.tree, node = bind.where, insertion = insertion)
       new.tree <- phytools::bind.tip(new.tree,
                                      new.tip[i],
                                      edge.length = NULL,
