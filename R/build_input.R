@@ -41,8 +41,8 @@ build.input<- function(species,find.MDCC=TRUE, MDCC.rank="family",db="ncbi", mod
 
 
   if(isTRUE(find.MDCC)){
-    if(mode=="phylomatic"){genera<- unique(c(stringr::word(species, 1, sep="_"), stringr::word(tree$tip.label, 1, sep="_")))}else{
-      genera<- unique(stringr::word(species, 1, sep="_"))}
+    if(mode=="phylomatic"){genera<- unique(c(randtip::firstword(species), randtip::firstword(tree$tip.label)))}else{
+      genera<- unique(randtip::firstword(species))}
 
     for(i in 1:length(genera)){
       tryCatch({
