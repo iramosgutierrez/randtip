@@ -108,14 +108,14 @@ get.grouped <- function(tree, siblings.genera, genus, tip){
 
     par.sib <- par.sib.diff.genera(tree, siblings.genera, tip)
     siblings <- par.sib$siblings
-    siblings.genera <- stringr::word(siblings, 1, sep = "_")
+    siblings.genera <- randtip::firstword(siblings)
     gen.mrca <- phytools::findMRCA(tree = tree,
                                   tips = siblings[siblings.genera == genus])
     gen.mrca.desc <- phytools::getDescendants(tree, gen.mrca)
     # Non-node descendants
     grouped <- tree$tip.label[gen.mrca.desc][!is.na(gen.mrca.desc)]
     # MRCA descendants
-    grouped.gen <- stringr::word(grouped, 1, sep = "_")
+    grouped.gen <- randtip::firstword(grouped)
 
     return(list(grouped = grouped,
                 grouped.gen = grouped.gen,
