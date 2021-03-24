@@ -61,7 +61,7 @@ add.to.paraphyletic <- function(tree, new.tip, prob = TRUE, intern.node = NULL,
 
     df <- data.frame("parent.node"=tree$edge[,1],"child.node"= tree$edge[,2],"length"=tree$edge.length, "id" =1:length(tree$edge.length))
     df <- df[df[,2] %in% descs,]
-    df <- df[!(df[,2] %in% intruder.descs),]
+    if(exists("intruder.descs")){df <- df[!(df[,2] %in% intruder.descs),]}
     if(prob == TRUE){
       to.index <- randtip::get.index(tree, how = "sample_prob", df = df)
     }else{
