@@ -151,14 +151,14 @@ randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
         ssps <- sample(ssps, length(ssps))
         genus.tree <- stringr::word(tree$tip.label, 1, sep = "_")
         sp.tree <-    stringr::word(tree$tip.label, 2, sep= "_")
-        sp.to.add <- new.tree$tip.label[rep.taxa.species[i]== paste0(genus.tree, "_", sp.tree)]
+        sp.to.add <- tree$tip.label[rep.taxa.species[i]== paste0(genus.tree, "_", sp.tree)]
         if(length(sp.to.add) > 1){
             sp.to.add <- sp.to.add[sp.to.add == rep.taxa.species[i]]
         }
-        if(isFALSE(rep.taxa.species[i]%in%new.tree$tip.label)){stop("Species ", rep.taxa.species[i], " is not in the tree")}
+        if(isFALSE(rep.taxa.species[i]%in%tree$tip.label)){stop("Species ", rep.taxa.species[i], " is not in the tree")}
 
         # Add subspecies as singleton
-        new.tree <- add.to.singleton(new.tree, singleton = sp.to.add,
+        new.tree <- add.to.singleton(tree, singleton = sp.to.add,
                                      new.tips = ssps)
         sp.end<- Sys.time()
 #        if(verbose){
@@ -403,7 +403,7 @@ rand.list <- function(tree, DF1,
 
         # Phase 2 - subspecies
         if(nrow(DF1.dupl)>0){
-            new.tree <- randtip.subsp(new.tree, DF1.dupl, verbose)
+            new.tree <- randtip.subsp(tree = new.tree, DF1.dupl, verbose)
         }
 
         new.tree <- get.original.names(new.tree, DF1)
