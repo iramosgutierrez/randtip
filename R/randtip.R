@@ -378,10 +378,17 @@ rand.list <- function(tree, DF1,
                   MDCC.inTree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
 
                   if(length(MDCC.inTree)>1){
-                    for(sp in MDCC.taxa){
+
+                      sp<- genus.taxa[1]
                       MDCC.MRCA<- ape::getMRCA(new.tree, tip = MDCC.inTree)
                       new.tree<- add.into.node(tree = new.tree, new.tip = sp,
                                                node = MDCC.MRCA, prob , exception.list = forbidden.groups)
+                      if(length(genus.taxa)>1){
+                        new.tree<-add.to.singleton(new.tree, singleton = genus.taxa[1], new.tips = genus.taxa[-1])
+                      }
+
+
+
                     }}
 
                   if(length(MDCC.inTree)==1){
