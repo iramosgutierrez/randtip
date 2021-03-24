@@ -18,7 +18,7 @@ add.to.paraphyletic <- function(tree, new.tip, prob = TRUE, intern.node = NULL,
   if(is.null(group.node) && is.null(intern.node)){
 
   new.tip <- gsub(" ", "_", new.tip)
-  genus <- firstword(new.tip)
+  genus <- randtip::firstword(new.tip)
 
   taxa.vector<- sp.genus.in.tree(tree, genus)
   if(length(taxa.vector) == 0){
@@ -59,7 +59,7 @@ add.to.paraphyletic <- function(tree, new.tip, prob = TRUE, intern.node = NULL,
     }
 
 
-    df <- data.frame("parent.node"=tree$edge[,1],"child.node"= tree$edge[,2],"length"=tree$edge.length, "id" =1:length(edge.length))
+    df <- data.frame("parent.node"=tree$edge[,1],"child.node"= tree$edge[,2],"length"=tree$edge.length, "id" =1:length(tree$edge.length))
     df <- df[df[,2] %in% descs,]
     df <- df[!(df[,2] %in% intruder.descs),]
     if(prob == TRUE){
@@ -71,7 +71,7 @@ add.to.paraphyletic <- function(tree, new.tip, prob = TRUE, intern.node = NULL,
 
 
     tip.pos <- randtip::bind.tip.pos(pos.min = 0,
-                            pos.max = edge.length[to.index])
+                            pos.max = tree$edge.length[to.index])
 
     new.tree <- phytools::bind.tip(tree, new.tip, edge.length = NULL,
                                    where = where, position = tip.pos)
