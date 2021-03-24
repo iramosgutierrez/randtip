@@ -1,62 +1,62 @@
 get.taxa.to.use <- function(DF1, aggregate.subspecies=TRUE){
-    
+
   if(isTRUE(aggregate.subspecies)){DF1[is.na(DF1$aggregate.subspecies),"aggregate.subspecies"]<-"1"}else{
                                    DF1[is.na(DF1$aggregate.subspecies),"aggregate.subspecies"]<-"0"}
-    
-  DF1$using.taxa <- NA  
-    
-    for(i in 1:nrow(DF1)){          
+
+  DF1$using.taxa <- NA
+
+    for(i in 1:nrow(DF1)){
         taxon <- DF1$taxon[i]
         genus.name <- stringr::word(DF1$taxon[i],1, sep = "_")
         sp.name <-    stringr::word(DF1$taxon[i],2, sep = "_")
         if(DF1$aggregate.subspecies[i]=="1"){
-                DF1$using.taxa[i] <- paste0(genus.name, "_", sp.name) }                                                       
-            
+                DF1$using.taxa[i] <- paste0(genus.name, "_", sp.name) }
+
         if(DF1$aggregate.subspecies[i]=="0"){
                 DF1$using.taxa[i] <- taxon}
-            
+
         # Identified with 0 are not clustered. 1 are clustered
    }
 
     return(DF1$using.taxa)
-    
+
 }
 
 get.forbidden.groups <- function(tree, DF1){
   #forbidden.groups
   genus.types <- DF1$phyleticity
-  mono_or_para <- (genus.types == "Monophyletic") | 
+  mono_or_para <- (genus.types == "Monophyletic") |
     (genus.types =="Paraphyletic")
   forb.genera <- DF1[mono_or_para, "genus"]
   forb.genera <- forb.genera[!duplicated(forb.genera)]
   forbidden.groups<- rep(list(NA),length(forb.genera))
-  treelist <- data.frame("taxon" = tree$tip.label, 
+  treelist <- data.frame("taxon" = tree$tip.label,
                          "genus" = randtip::firstword(tree$tip.label))
-  
+
   if(length(forbidden.groups) > 0){
     for(i in 1:length(forb.genera)){
-      forbidden.groups[[i]] <- treelist[treelist$genus == forb.genera[i], 
+      forbidden.groups[[i]] <- treelist[treelist$genus == forb.genera[i],
                                         "taxon"]
     }
   }
-  
+
   if(any(DF1$phyleticity=="Polyphyletic")){
     poly.genera <- DF1[DF1$phyleticity == "Polyphyletic",]
     poly.genera <- unique(poly.genera$genus)
-    
+
     tree.taxa <- tree$tip.label
     genera <- randtip::firstword(tree.taxa)
-    for(genus in poly.genera){            
+    for(genus in poly.genera){
       genus.tree.taxa <- tree.taxa[genera == genus]
       genus.tree.list<- rep(list(NA), times = length(genus.tree.taxa))
-      
+
       for(i in 1:length(genus.tree.taxa)){
         sp <- genus.tree.taxa[i]
         if(sp %in% unlist(genus.tree.list)) next
-        
-        sp.tip<- which(tree$tip.label==sp) 
+
+        sp.tip<- which(tree$tip.label==sp)
         par.sib <- get.parent.siblings(tree, sp.tip)
-        
+
         siblings <- par.sib$siblings
         siblings.genera <- randtip::firstword(siblings)
         if(sum(siblings.genera != genus) == 1){
@@ -67,22 +67,22 @@ get.forbidden.groups <- function(tree, DF1){
           intr.desc.tips <- phytools::getDescendants(tree, intr.mrca)
           intr.desc.names <- tree$tip.label[intr.desc.tips]
           intr.desc.names <- randtip::notNA(intr.desc.names)
-          
+
           intr.genera <- randtip::firstword(intr.desc.names)
           if(all(intr.genera != genus)){
             siblings <- siblings[siblings.genera == genus]
           }
         }
-        
+
         siblings.genera <- randtip::firstword(siblings)
-        while(length(unique(siblings.genera)) == 1){ 
+        while(length(unique(siblings.genera)) == 1){
           #tip and parent upstream until they are from different genera
           sp.tip <- parent
           parent <- tree$edge[tree$edge[,2]==sp.tip,1]
           parent.desc <- phytools::getDescendants(tree, parent)
           siblings <- tree$tip.label[parent.desc]
           siblings <- randtip::notNA(siblings)
-          
+
           siblings.genus <- randtip::firstword(siblings)
           if(length(siblings[siblings.genus != genus]) == 1){
             siblings <- siblings[siblings.genus == genus]
@@ -94,52 +94,52 @@ get.forbidden.groups <- function(tree, DF1){
             intr.desc.names <- randtip::notNA(intr.desc.names)
             intr.desc.genus <- randtip::firstword(intr.desc.names)
             if(all(intr.desc.genus != genus)){
-              
-              siblings <- siblings[siblings.genus == genus] 
+
+              siblings <- siblings[siblings.genus == genus]
             }
           }
         }
-        
+
         descs<- phytools::getDescendants(tree, sp.tip)
         desctips<-tree$tip.label[descs]
         desctips<-desctips[!is.na(desctips)]
         desctips<-desctips[randtip::firstword(desctips) == genus]
         genus.tree.list[[i]]<-desctips
       }
-      
+
       genus.tree.list<-genus.tree.list[!is.na(genus.tree.list[])]
       genus.tree.list<-genus.tree.list[lengths(genus.tree.list[])>1]
       forbidden.groups<-c(forbidden.groups, genus.tree.list)
     }
-    
-    
+
+
   }
-  
+
   return(forbidden.groups)
 }
 
 get.original.names <- function(new.tree, species.table, verbose = FALSE){
-    
-    for(n in 1:nrow(species.table)){ 
+
+    for(n in 1:nrow(species.table)){
         tip.label <- new.tree$tip.label
         if(species.table$using.taxa[n] == species.table$taxon[n]) next
         if(species.table$using.taxa[n] %in% new.tree$tip.label){
             correct.tip.loc <- new.tree$tip.label == species.table$using.taxa[n]
             new.tree$tip.label[correct.tip.loc] <- species.table$taxon[n]
             if(verbose){
-                print(paste0("name correction: ", n, "/", 
-                             nrow(species.table), " (", 
-                             round(n/nrow(species.table)*100, 2), " %)"))    
+                print(paste0("name correction: ", n, "/",
+                             nrow(species.table), " (",
+                             round(n/nrow(species.table)*100, 2), " %)"))
             }
         }
     }
-    
+
     return(new.tree)
 }
 
 randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
-    
-    rep.taxa <- DF1.dupl$taxon 
+
+    rep.taxa <- DF1.dupl$taxon
     rep.taxa.species <- unique(DF1.dupl$using.taxa)
 
     for(i in 1:length(rep.taxa.species)){
@@ -147,26 +147,26 @@ randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
         # Select subspecies
         genus <- stringr::word(rep.taxa, 1, sep = "_")
         sp <- stringr::word(rep.taxa, 2, sep= "_")
-        ssps <- rep.taxa[paste0(genus, "_", sp) == rep.taxa.species[i]] 
-        ssps <- sample(ssps, length(ssps)) 
+        ssps <- rep.taxa[paste0(genus, "_", sp) == rep.taxa.species[i]]
+        ssps <- sample(ssps, length(ssps))
         genus.tree <- stringr::word(new.tree$tip.label, 1, sep = "_")
         sp.tree <-    stringr::word(new.tree$tip.label, 2, sep= "_")
         sp.to.add <- new.tree$tip.label[rep.taxa.species[i]== paste0(genus.tree, "_", sp.tree)]
         if(length(sp.to.add) > 1){
             sp.to.add <- sp.to.add[sp.to.add == rep.taxa.species[i]]
-        }  
+        }
         if(isFALSE(rep.taxa.species[i]%in%new.tree$tip.label)){stop("Species ", rep.taxa.species[i], " is not in the tree")}
 
         # Add subspecies as singleton
-        new.tree <- add.to.singleton(new.tree, singleton = sp.to.add, 
-                                     new.tips = ssps) 
+        new.tree <- add.to.singleton(new.tree, singleton = sp.to.add,
+                                     new.tips = ssps)
         sp.end<- Sys.time()
 #        if(verbose){
-#            print(paste0(i, "/", length(rep.taxa.species), " (", 
-#                         round(i/length(rep.taxa.species)*100, 2), " %): ",  
+#            print(paste0(i, "/", length(rep.taxa.species), " (",
+#                         round(i/length(rep.taxa.species)*100, 2), " %): ",
 #                         rep.taxa.species[i]," (",
 #                         round(as.numeric(difftime(sp.end, sp.start, units = "secs")), 2), " sec. out of ",
-#                         round(as.numeric(difftime(sp.end, start,     units = "mins")), 2), " mins)"))    
+#                         round(as.numeric(difftime(sp.end, start,     units = "mins")), 2), " mins)"))
 #        }
     }
     return(new.tree)
@@ -174,11 +174,11 @@ randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
 
 
 
-add.polytomy.types <- function(tree, taxa.table, species.table, type_arg, 
+add.polytomy.types <- function(tree, taxa.table, species.table, type_arg,
                                insertion, taxa.genera = NULL){
     taxa.lvls <- c("genus", "family", "order", "class")
     taxa.lvl <- stringr::str_extract(type_arg, "\\w+")
-    
+
     if(taxa.lvl == "genus"){
         taxa.lvl.col <- taxa.genera
     }else{
@@ -189,57 +189,57 @@ add.polytomy.types <- function(tree, taxa.table, species.table, type_arg,
     for(p in 1:length(taxa)){
         taxon <- taxa[p]
         tree <- unfold.polytomy.types(tree, taxa.table, species.table,
-                                      taxa.lvl, insertion, 
+                                      taxa.lvl, insertion,
                                       taxa.subset = taxon)
 
     }
-    
+
     return(tree)
 }
 
-unfold.polytomy.types <- function(tree, taxa.table, species.table, 
+unfold.polytomy.types <- function(tree, taxa.table, species.table,
                                   taxa.lvl, insertion, taxa.subset){
-    
+
     taxa.lvls <- c("genus", "family", "order", "class")
-       
+
     taxa.tbl.match <- taxa.table[[taxa.lvl]] == taxa.subset
     #this is redundant, but keeps the structure
     taxa <- taxa.table$taxon[taxa.tbl.match]
-    taxa.genera <- species.table$genus[species.table[[taxa.lvl]] == taxa.subset] 
+    taxa.genera <- species.table$genus[species.table[[taxa.lvl]] == taxa.subset]
     #print(paste0(p, "/", length(genera), " (",round(p/length(genera)*100, 2), " %). ",
     #           "Adding Gen. ", genus, " (",
     #           length(genus.taxa)," tips). "))
     #species (tips) within class IN ORIGINAL TREE
     tip.genera <- stringr::word(tree$tip.label, 1, sep = "_")
-    union.tips <- tree$tip.label[tip.genera %in% taxa.genera]   
+    union.tips <- tree$tip.label[tip.genera %in% taxa.genera]
 
     if(length(taxa) == 0) return(tree)
 
     if(length(union.tips) == 1){
       node <- which(tree$tip.label == union.tips)
-      tree <- polytomy.over.node(tree = tree, species = taxa, 
+      tree <- polytomy.over.node(tree = tree, species = taxa,
                                  node = node, insertion = insertion)
       return(tree)
     }
     if(length(union.tips)> 1){
       node <- phytools::findMRCA(tree, tips = union.tips)
-      tree <- polytomy.over.node(tree = tree, species = taxa, 
-                                 node = node, 
+      tree <- polytomy.over.node(tree = tree, species = taxa,
+                                 node = node,
                                  insertion = insertion)
       return(tree)
     }
     if(length(union.tips) == 0){
         if(taxa.lvl == "class"){
             ####JOIN TO UPPER TAXONOMIC LEVEL
-            message(paste0("ATTENTION: genus ", taxa.genera, 
+            message(paste0("ATTENTION: genus ", taxa.genera,
                            " was not included as no Class coincidences were found"))
             return(tree)
         }
         taxa.lvl.next <- taxa.lvls[which(taxa.lvls == taxa.lvl) + 1]
         taxa.subset <- taxa.table[[taxa.lvl.next]][taxa.tbl.match]
         taxa.subset <- taxa.subset[!duplicated(taxa.subset)]
-        
-        return(unfold.polytomy.types(tree, taxa.table, species.table, 
+
+        return(unfold.polytomy.types(tree, taxa.table, species.table,
                                      taxa.lvl.next, insertion, taxa.subset))
     }
 }
@@ -248,19 +248,19 @@ unfold.polytomy.types <- function(tree, taxa.table, species.table,
 
 #' randtip "MOTHER FUNCTION"
 #' @export
-rand.list <- function(tree, DF1, 
+rand.list <- function(tree, DF1,
                     type = "random",
-                    aggregate.subspecies = TRUE, 
-                    insertion = "random", 
+                    aggregate.subspecies = TRUE,
+                    insertion = "random",
                     prob = TRUE, verbose = FALSE, polyphyletic.insertion="freq"){
-    
+
     start<- Sys.time()
-    
+
     new.tree <- tree
     DF1.dupl <- NULL
     DF1$taxon <- gsub(" ", "_", DF1$taxon)
-    
-    if(type=="random"){        
+
+    if(type=="random"){
         DF1$using.taxa <- get.taxa.to.use(DF1, aggregate.subspecies)
         DF1 <- DF1[order(DF1$using.taxa),]
         is.duplicated <- duplicated(DF1$using.taxa)
@@ -271,145 +271,145 @@ rand.list <- function(tree, DF1,
         taxa <- taxa[!(taxa %in% tree$tip.label)]
         taxa.genera <- randtip::firstword(taxa)
         taxa.genera <- unique(taxa.genera)
-        
+
         forbidden.groups <- get.forbidden.groups(new.tree, DF1)
-        
+
         for(i in 1: length(taxa.genera)){        #loop 1
             gen.start<- Sys.time()
-            
-            
+
+
             genus <- taxa.genera[i]
             genus.match <- DF1$genus==genus
             genus.type <- DF1$phyleticity[genus.match]
             genus.type <- unique(genus.type)
 
-            genus.taxa <- taxa[randtip::firstword(taxa) == genus] 
-            genus.taxa <- sample(genus.taxa, length(genus.taxa)) 
+            genus.taxa <- taxa[randtip::firstword(taxa) == genus]
+            genus.taxa <- sample(genus.taxa, length(genus.taxa))
             # Tips with no "relatives" information selected (they will be bound as monophyletic)
             grouped.taxa <- DF1$using.taxa[!is.na(DF1$relative.species)]
             grouped.taxa <- grouped.taxa[grouped.taxa %in% genus.taxa]
             genus.taxa <- genus.taxa[!(genus.taxa %in% grouped.taxa)]
 
             if(verbose){
-              print(paste0(i, "/", length(taxa.genera), 
+              print(paste0(i, "/", length(taxa.genera),
                            " (",round(i/length(taxa.genera)*100, 2), " %). ",
                            "Adding Gen. ", genus, " (", genus.type,", ",
                            length(genus.taxa)," tips). "))
             }
-            
-            if(length(grouped.taxa) > 0){   
+
+            if(length(grouped.taxa) > 0){
                 for(j in 1:length(grouped.taxa)){
                     grouped.taxa.loc <- (DF1$using.taxa == grouped.taxa[j])
                     grouping.taxa <- DF1$relative.species[grouped.taxa.loc]
                     grouping.taxa <- gsub(" ","", grouping.taxa)
-                    grouping.taxa <- stringr::str_split(grouping.taxa, 
+                    grouping.taxa <- stringr::str_split(grouping.taxa,
                                                         pattern = ",")[[1]]
                     # Select taxa to be grouped
-                    grouping.taxa <- grouping.taxa[grouping.taxa %in% tree$tip.label] 
+                    grouping.taxa <- grouping.taxa[grouping.taxa %in% tree$tip.label]
                     # First added as singleton. The rest added as monophyletic
                     if(length(grouping.taxa)==1){
-                        new.tree <- add.to.singleton(new.tree, singleton = grouping.taxa, 
-                                                    new.tips = grouped.taxa[j])  
+                        new.tree <- add.to.singleton(new.tree, singleton = grouping.taxa,
+                                                    new.tips = grouped.taxa[j])
                     }else{
                         node <- phytools::findMRCA(new.tree, tips = grouping.taxa)
                         new.tree <- add.into.node(new.tree, new.tip = grouped.taxa[j],
-                                                  node = node)} 
+                                                  node = node)}
                 }
                 next
             }
 
             if(genus.type=="Monophyletic"){
                 for( j in 1:length(genus.taxa)){
-                    new.tree <- add.to.monophyletic(new.tree, 
+                    new.tree <- add.to.monophyletic(new.tree,
                                                     new.tip = genus.taxa[j])
                 }
             }else if(genus.type=="Paraphyletic"){#ALGUN ERROR EN PARAPHYLETIC!!!!
                 for( j in 1:length(genus.taxa)){
-                    new.tree <- add.to.paraphyletic(tree = new.tree, 
+                    new.tree <- add.to.paraphyletic(tree = new.tree,
                                                     new.tip = genus.taxa[j], prob)
                 }
             }else if(genus.type=="Polyphyletic"){
-                new.tree<- add.to.polyphyletic(tree = new.tree, new.tip = genus.taxa, 
+                new.tree<- add.to.polyphyletic(tree = new.tree, new.tip = genus.taxa,
                                                polyphyletic.insertion, prob)
-            }else if(genus.type=="Singleton genus"){   
+            }else if(genus.type=="Singleton genus"){
                 # All tips added in one step
                 genus.match <- (randtip::firstword(tree$tip.label) == genus)
-                new.tree <- add.to.singleton(new.tree, 
-                                             singleton = tree$tip.label[genus.match], 
+                new.tree <- add.to.singleton(new.tree,
+                                             singleton = tree$tip.label[genus.match],
                                              new.tips = genus.taxa)
             }else if(genus.type == "Not included"){
-              
+
               otherMDCC.DF<- DF1[!is.na(DF1$other.MDCC)&DF1$genus==genus,]
               MDCC.DF     <- DF1[ is.na(DF1$other.MDCC)&DF1$genus==genus,]
-              
+
               if(nrow(otherMDCC.DF)>0){
                 other.MDCCs<-   unique(otherMDCC.DF$other.MDCC)
-                
+
                 for(other.MDCC in other.MDCCs){
                   other.MDCC.taxa<-  DF1$taxon[ !is.na(DF1$other.MDCC)& DF1$other.MDCC==other.MDCC]
                   other.MDCC.genera<-DF1$genus[ !is.na(DF1$other.MDCC)& DF1$other.MDCC==other.MDCC]
                   other.MDCC.inTree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%other.MDCC.genera]
-                  
+
                   if(length(other.MDCC.inTree)>1){
                      for(sp in other.MDCC.taxa){
                     other.MDCC.MRCA<- ape::getMRCA(new.tree, tip = other.MDCC.inTree)
                     new.tree<- add.into.node(tree = new.tree, new.tip = sp,
                                              node = other.MDCC.MRCA, prob )
                   }}
-                  
+
                   if(length(other.MDCC.inTree)==1){
                     new.tree<- add.to.singleton(new.tree, singleton =other.MDCC.inTree, new.tips =other.MDCC.taxa)
                   }
-                  
+
                   if(length(other.MDCC.inTree)==0){
                     MDCC.DF<-rbind(MDCC.DF, otherMDCC.DF[otherMDCC.DF$other.MDCC==other.MDCC,])
-                   }}} 
-              
-              
+                   }}}
+
+
               if(nrow(MDCC.DF)>0){
-                
+
                 MDCCs<-   unique(MDCC.DF$MDCC)
-                
+
                 for(MDCC in MDCCs){
                   MDCC.taxa<-  DF1$taxon[ !is.na(DF1$MDCC)& DF1$MDCC==MDCC]
                   MDCC.genera<-DF1$genus[ !is.na(DF1$MDCC)& DF1$MDCC==MDCC]
                   MDCC.inTree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
-                  
+
                   if(length(MDCC.inTree)>1){
                     for(sp in MDCC.taxa){
                       MDCC.MRCA<- ape::getMRCA(new.tree, tip = MDCC.inTree)
                       new.tree<- add.into.node(tree = new.tree, new.tip = sp,
                                                node = MDCC.MRCA, prob )
                     }}
-                  
+
                   if(length(MDCC.inTree)==1){
                     new.tree<- add.to.singleton(new.tree, singleton =MDCC.inTree, new.tips =MDCC.taxa)
                   }
-                  
-                  if(length(other.MDCC.inTree)==0){
+
+                  if(length(MDCC.inTree)==0){
                     stop("Tips ", paste0(MDCC.taxa, collapse = ", ") ," could not be added as its MDCC was not in represented in the tree")
                   }}
-              }      
+              }
             }
             gen.end <- Sys.time()
             if(verbose){
                 print(paste0("\U2713", "( done in ",
                            round(as.numeric(difftime(gen.end, gen.start, units = "secs")), 2), " sec. out of ",
-                           round(as.numeric(difftime(gen.end, start,     units = "mins")), 2), " mins)"))    
+                           round(as.numeric(difftime(gen.end, start,     units = "mins")), 2), " mins)"))
             }
-            
+
         }
 
         # Phase 2 - subspecies
-        if(nrow(DF1.dupl)>0){ 
+        if(nrow(DF1.dupl)>0){
             new.tree <- randtip.subsp(new.tree, species.table.dupl, verbose)
         }
 
-        new.tree <- get.original.names(new.tree, species.table)        
-        
+        new.tree <- get.original.names(new.tree, species.table)
+
     }else{
         #In polytomy cases, names are not changed
-        species.table$using.taxa <- species.table$taxon 
+        species.table$using.taxa <- species.table$taxon
 
         taxa.table <- species.table[!duplicated(species.table$using.taxa),]
         taxa.table$using.taxa <- gsub(" ", "_", taxa.table$using.taxa)
@@ -417,18 +417,18 @@ rand.list <- function(tree, DF1,
 
         taxa.genera <- taxa.table$genus
         taxa.genera <- sample(taxa.genera, length(taxa.genera))
-        
-        new.tree <- add.polytomy.types(new.tree, taxa.table, species.table, 
+
+        new.tree <- add.polytomy.types(new.tree, taxa.table, species.table,
                                        type, insertion, taxa.genera)
 
-    }    
+    }
 
     if(!is.null(species.table.dupl)){
         complete.taxa.list <- c(species.table$taxon, species.table.dupl$taxon)
     }else{
         complete.taxa.list <- species.table$taxon
     }
-    
+
     complete.taxa.list.in.tree <- complete.taxa.list[complete.taxa.list %in% new.tree$tip.label]
     not.included <- complete.taxa.list[!(complete.taxa.list %in% complete.taxa.list.in.tree)]
     if(length(not.included) > 1){
@@ -436,7 +436,8 @@ rand.list <- function(tree, DF1,
     }
 
     new.tree <- ape::keep.tip(new.tree, complete.taxa.list.in.tree)
-    
+
     return(new.tree)
 }
+
 
