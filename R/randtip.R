@@ -149,8 +149,8 @@ randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
         sp <- stringr::word(rep.taxa, 2, sep= "_")
         ssps <- rep.taxa[paste0(genus, "_", sp) == rep.taxa.species[i]]
         ssps <- sample(ssps, length(ssps))
-        genus.tree <- stringr::word(new.tree$tip.label, 1, sep = "_")
-        sp.tree <-    stringr::word(new.tree$tip.label, 2, sep= "_")
+        genus.tree <- stringr::word(tree$tip.label, 1, sep = "_")
+        sp.tree <-    stringr::word(tree$tip.label, 2, sep= "_")
         sp.to.add <- new.tree$tip.label[rep.taxa.species[i]== paste0(genus.tree, "_", sp.tree)]
         if(length(sp.to.add) > 1){
             sp.to.add <- sp.to.add[sp.to.add == rep.taxa.species[i]]
