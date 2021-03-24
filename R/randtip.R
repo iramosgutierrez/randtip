@@ -253,7 +253,8 @@ rand.list <- function(tree, DF1,
                     type = "random",
                     aggregate.subspecies = TRUE,
                     insertion = "random",
-                    prob = TRUE, verbose = FALSE, polyphyletic.insertion="freq"){
+                    prob = TRUE, verbose = FALSE, polyphyletic.insertion="freq",
+                    trim=TRUE){
 
     start<- Sys.time()
 
@@ -268,16 +269,17 @@ rand.list <- function(tree, DF1,
         DF1.dupl <- DF1[ is.duplicated,]
         DF1 <-      DF1[!is.duplicated,]
 
+
         taxa <- DF1$using.taxa
         taxa <- taxa[!(taxa %in% tree$tip.label)]
         taxa.genera <- randtip::firstword(taxa)
         taxa.genera <- unique(taxa.genera)
 
-        forbidden.groups <- get.forbidden.groups(new.tree, DF1)
+
 
         for(i in 1: length(taxa.genera)){        #loop 1
             gen.start<- Sys.time()
-
+            forbidden.groups <- get.forbidden.groups(new.tree, DF1)
 
             genus <- taxa.genera[i]
             genus.match <- DF1$genus==genus
@@ -321,8 +323,7 @@ rand.list <- function(tree, DF1,
 
             if(genus.type=="Monophyletic"){
                 for( j in 1:length(genus.taxa)){
-                    new.tree <- add.to.monophyletic(new.tree,
-                                                    new.tip = genus.taxa[j])
+                  new.tree<-add.to.monophyletic(tree = new.tree, new.tip = genus.taxa[j])
                 }
             }else if(genus.type=="Paraphyletic"){#ALGUN ERROR EN PARAPHYLETIC!!!!
                 for( j in 1:length(genus.taxa)){
@@ -355,7 +356,7 @@ rand.list <- function(tree, DF1,
                      for(sp in other.MDCC.taxa){
                     other.MDCC.MRCA<- ape::getMRCA(new.tree, tip = other.MDCC.inTree)
                     new.tree<- add.into.node(tree = new.tree, new.tip = sp,
-                                             node = other.MDCC.MRCA, prob )
+                                             node = other.MDCC.MRCA, prob , exception.list = forbidden.groups)
                   }}
 
                   if(length(other.MDCC.inTree)==1){
@@ -380,7 +381,7 @@ rand.list <- function(tree, DF1,
                     for(sp in MDCC.taxa){
                       MDCC.MRCA<- ape::getMRCA(new.tree, tip = MDCC.inTree)
                       new.tree<- add.into.node(tree = new.tree, new.tip = sp,
-                                               node = MDCC.MRCA, prob )
+                                               node = MDCC.MRCA, prob , exception.list = forbidden.groups)
                     }}
 
                   if(length(MDCC.inTree)==1){
@@ -436,7 +437,7 @@ rand.list <- function(tree, DF1,
         message(paste0("The following taxa were not included in the tree: ", not.included))
     }
 
-    new.tree <- ape::keep.tip(new.tree, complete.taxa.list.in.tree)
+    if(isTRUE(trim)){new.tree <- ape::keep.tip(new.tree, complete.taxa.list.in.tree)}
 
     return(new.tree)
 }
