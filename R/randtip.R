@@ -118,23 +118,23 @@ get.forbidden.groups <- function(tree, DF1){
   return(forbidden.groups)
 }
 
-get.original.names <- function(new.tree, species.table, verbose = FALSE){
+get.original.names <- function(tree, DF1, verbose = FALSE){
 
-    for(n in 1:nrow(species.table)){
-        tip.label <- new.tree$tip.label
-        if(species.table$using.taxa[n] == species.table$taxon[n]) next
-        if(species.table$using.taxa[n] %in% new.tree$tip.label){
-            correct.tip.loc <- new.tree$tip.label == species.table$using.taxa[n]
-            new.tree$tip.label[correct.tip.loc] <- species.table$taxon[n]
+    for(n in 1:nrow(DF1)){
+        tip.label <- tree$tip.label
+        if(DF1$using.taxa[n] == DF1$taxon[n]) next
+        if(DF1$using.taxa[n] %in% tree$tip.label){
+            correct.tip.loc <- tree$tip.label == DF1$using.taxa[n]
+            tree$tip.label[correct.tip.loc] <- DF1$taxon[n]
             if(verbose){
                 print(paste0("name correction: ", n, "/",
-                             nrow(species.table), " (",
-                             round(n/nrow(species.table)*100, 2), " %)"))
+                             nrow(DF1), " (",
+                             round(n/nrow(DF1)*100, 2), " %)"))
             }
         }
     }
 
-    return(new.tree)
+    return(tree)
 }
 
 randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
@@ -171,6 +171,7 @@ randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
     }
     return(new.tree)
 }
+
 
 
 
@@ -402,16 +403,16 @@ rand.list <- function(tree, DF1,
 
         # Phase 2 - subspecies
         if(nrow(DF1.dupl)>0){
-            new.tree <- randtip.subsp(new.tree, species.table.dupl, verbose)
+            new.tree <- randtip.subsp(new.tree, DF1.dupl, verbose)
         }
 
-        new.tree <- get.original.names(new.tree, species.table)
+        new.tree <- get.original.names(new.tree, DF1)
 
     }else{
         #In polytomy cases, names are not changed
-        species.table$using.taxa <- species.table$taxon
+        DF1$using.taxa <- DF1$taxon
 
-        taxa.table <- species.table[!duplicated(species.table$using.taxa),]
+        taxa.table <- DF1[!duplicated(DF1$using.taxa),]
         taxa.table$using.taxa <- gsub(" ", "_", taxa.table$using.taxa)
         taxa.table <- taxa.table[!(taxa.table$using.taxa %in% tree$tip.label),]
 
@@ -423,10 +424,10 @@ rand.list <- function(tree, DF1,
 
     }
 
-    if(!is.null(species.table.dupl)){
-        complete.taxa.list <- c(species.table$taxon, species.table.dupl$taxon)
+    if(!is.null(DF1.dupl)){
+        complete.taxa.list <- c(DF1$taxon, DF1.dupl$taxon)
     }else{
-        complete.taxa.list <- species.table$taxon
+        complete.taxa.list <- DF1$taxon
     }
 
     complete.taxa.list.in.tree <- complete.taxa.list[complete.taxa.list %in% new.tree$tip.label]
