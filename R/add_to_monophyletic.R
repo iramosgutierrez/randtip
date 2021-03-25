@@ -8,13 +8,13 @@ add.to.monophyletic <- function(tree, new.tip){
 
   genus <- randtip::firstword(new.tip)
 
-  sp <- tree$tip.label
+  sp <- new.tree$tip.label
   taxa.vector <- sp[randtip::firstword(sp)==genus]
   if(length(taxa.vector) == 0){
       stop(paste0("Genus ", genus, " is not included in your tree."))
   }
 
   mrca <- phytools::findMRCA(tree = new.tree, tips = taxa.vector)
-  new.tree <- add.into.node(tree = new.tree, node = mrca, new.tip = new.tip)
+  new.tree <- add.into.node(tree = new.tree, node = mrca, new.tip = new.tip, prob )
   return(new.tree)
 }
