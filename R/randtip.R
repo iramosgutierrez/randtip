@@ -78,7 +78,7 @@ get.forbidden.groups <- function(tree, DF1){
         siblings.genera <- randtip::firstword(siblings)
         while(length(unique(siblings.genera)) == 1){
           #tip and parent upstream until they are from different genera
-          sp.tip <- parent
+          if(exists("parent")){sp.tip <- parent}
           parent <- tree$edge[tree$edge[,2]==sp.tip,1]
           parent.desc <- phytools::getDescendants(tree, parent)
           siblings <- tree$tip.label[parent.desc]
