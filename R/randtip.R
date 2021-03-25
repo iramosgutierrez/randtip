@@ -334,8 +334,8 @@ rand.list <- function(tree, DF1,
                         new.tree <- add.into.node(new.tree, new.tip = grouped.taxa[j],
                                                   node = node)}
                 }
-                next
-            }
+                }
+
 
             if(genus.type=="Monophyletic"){
                 for( j in 1:length(genus.taxa)){
