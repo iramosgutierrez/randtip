@@ -399,7 +399,7 @@ rand.list <- function(tree, DF1,
                     stop("Tips ", paste0(MDCC.taxa, collapse = ", ") ," could not be added as its MDCC was not in represented in the tree")
                   }}
               }
-            }
+
             gen.end <- Sys.time()
             if(verbose){
                 print(paste0("\U2713", "( done in ",
