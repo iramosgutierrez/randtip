@@ -27,8 +27,9 @@ get.forbidden.groups <- function(tree, DF1){
   genus.types <- DF1$phyleticity
   mono_or_para <- (genus.types == "Monophyletic") |
     (genus.types =="Paraphyletic")
+
   forb.genera <- DF1[mono_or_para, "genus"]
-  forb.genera <- forb.genera[!duplicated(forb.genera)]
+  forb.genera <- unique(forb.genera)
   forbidden.groups<- rep(list(NA),length(forb.genera))
   treelist <- data.frame("taxon" = tree$tip.label,
                          "genus" = randtip::firstword(tree$tip.label))
@@ -114,6 +115,21 @@ get.forbidden.groups <- function(tree, DF1){
 
 
   }
+
+  if(any(DF1$phyleticity=="Singleton genus")){
+    sing.genera <- DF1[DF1$phyleticity=="Singleton genus", "genus"]
+    sing.genera<- unique(sing.genera)
+    sing.groups<- rep(list(NA),length(sing.genera))
+
+    for(i in 1:length(sing.genera)){
+      sing.taxa <- treelist[treelist$genus == sing.genera[i], "taxon"]
+      if(length(sing.taxa)>1){sing.groups[[i]]<-sing.taxa}else{sing.groups[[i]]<-NA}
+    }
+
+    sing.groups<- randtip::notNA(sing.groups)
+    forbidden.groups<- c(forbidden.groups, sing.groups)
+  }
+
 
   return(forbidden.groups)
 }
