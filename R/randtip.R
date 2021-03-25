@@ -339,7 +339,7 @@ rand.list <- function(tree, DF1,
 
             if(genus.type=="Monophyletic"){
                 for( j in 1:length(genus.taxa)){
-                  new.tree<-add.to.monophyletic(tree = new.tree, new.tip = genus.taxa[j])
+                  new.tree<-add.to.monophyletic(tree = new.tree, new.tip = genus.taxa[j], prob)
                 }
             }else if(genus.type=="Paraphyletic"){#ALGUN ERROR EN PARAPHYLETIC!!!!
                 for( j in 1:length(genus.taxa)){

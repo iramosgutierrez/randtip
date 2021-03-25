@@ -2,7 +2,7 @@
 #' @export
 #' @examples
 #' #plot(add_to_monophyletic(Tree, "Invent_inventata"))
-add.to.monophyletic <- function(tree, new.tip){
+add.to.monophyletic <- function(tree, new.tip, prob=T){
   new.tree<- tree
   new.tip <- gsub(" ", "_", new.tip)
 
@@ -15,6 +15,6 @@ add.to.monophyletic <- function(tree, new.tip){
   }
 
   mrca <- phytools::findMRCA(tree = new.tree, tips = taxa.vector)
-  new.tree <- add.into.node(tree = new.tree, node = mrca, new.tip = new.tip )
+  new.tree <- add.into.node(tree = new.tree, node = mrca, new.tip = new.tip, prob )
   return(new.tree)
 }
