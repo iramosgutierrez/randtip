@@ -49,67 +49,24 @@ get.forbidden.groups <- function(tree, DF1){
     genera <- randtip::firstword(tree.taxa)
     for(genus in poly.genera){
       genus.tree.taxa <- tree.taxa[genera == genus]
-      genus.tree.list<- rep(list(NA), times = length(genus.tree.taxa))
+      genus.tree.mrca<- phytools::findMRCA(tree=tree, tips = genus.tree.taxa)
+      genus.tree.mrca.descs<- phytools::getDescendants(tree=tree, node=genus.tree.mrca)
 
-      for(i in 1:length(genus.tree.taxa)){
-        sp <- genus.tree.taxa[i]
-        if(sp %in% unlist(genus.tree.list)) next
+      genus.tree.list<- rep(list(NA), times = length(genus.tree.mrca.descs))
 
-        sp.tip<- which(tree$tip.label==sp)
-        par.sib <- get.parent.siblings(tree, sp.tip)
-
-        siblings <- par.sib$siblings
-        siblings.genera <- randtip::firstword(siblings)
-        if(sum(siblings.genera != genus) == 1){
-          siblings <- siblings[siblings.genera == genus]
-        }else if(sum(siblings.genera != genus) > 1){
-          intruders <- siblings[siblings.genera != genus]
-          intr.mrca <- ape::getMRCA(tree, intruders)
-          intr.desc.tips <- phytools::getDescendants(tree, intr.mrca)
-          intr.desc.names <- tree$tip.label[intr.desc.tips]
-          intr.desc.names <- randtip::notNA(intr.desc.names)
-
-          intr.genera <- randtip::firstword(intr.desc.names)
-          if(all(intr.genera != genus)){
-            siblings <- siblings[siblings.genera == genus]
-          }
+      for(i in 1:length(genus.tree.mrca.descs)){
+        node<- genus.tree.mrca.descs[i]
+        if(randtip::is.tip(tree, node)){next}
+        node.descs<- phytools::getDescendants(tree=tree, node=node)
+        tip.descs <- randtip::notNA(tree$tip.label[node.descs])
+        tip.descs.gen<- unique(randtip::firstword(tip.descs))
+        if(length(tip.descs.gen)==1){
+          genus.tree.list[[i]]<-tip.descs
         }
-
-        siblings.genera <- randtip::firstword(siblings)
-        while(length(unique(siblings.genera)) == 1){
-          #tip and parent upstream until they are from different genera
-          if(exists("parent")){sp.tip <- parent}
-          parent <- tree$edge[tree$edge[,2]==sp.tip,1]
-          parent.desc <- phytools::getDescendants(tree, parent)
-          siblings <- tree$tip.label[parent.desc]
-          siblings <- randtip::notNA(siblings)
-
-          siblings.genus <- randtip::firstword(siblings)
-          if(length(siblings[siblings.genus != genus]) == 1){
-            siblings <- siblings[siblings.genus == genus]
-          }else if(length(siblings[siblings.genus != genus]) > 1){
-            intruders <- siblings[siblings.genus != genus]
-            intr.mrca <- ape::getMRCA(tree, intruders)
-            intr.desc.tips <- phytools::getDescendants(tree, intr.mrca)
-            intr.desc.names <- tree$tip.label[intr.desc.tips]
-            intr.desc.names <- randtip::notNA(intr.desc.names)
-            intr.desc.genus <- randtip::firstword(intr.desc.names)
-            if(all(intr.desc.genus != genus)){
-
-              siblings <- siblings[siblings.genus == genus]
-            }
-          }
-        }
-
-        descs<- phytools::getDescendants(tree, sp.tip)
-        desctips<-tree$tip.label[descs]
-        desctips<-desctips[!is.na(desctips)]
-        desctips<-desctips[randtip::firstword(desctips) == genus]
-        genus.tree.list[[i]]<-desctips
       }
 
+
       genus.tree.list<-genus.tree.list[!is.na(genus.tree.list[])]
-      genus.tree.list<-genus.tree.list[lengths(genus.tree.list[])>1]
       forbidden.groups<-c(forbidden.groups, genus.tree.list)
     }
 
