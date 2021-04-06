@@ -63,7 +63,7 @@ get.forbidden.groups <- function(tree, DF1){
         if(length(tip.descs.gen)==1){
           genus.tree.list[[i]]<-tip.descs
         }
-<<<<<<< HEAD
+
 
         siblings.genera <- randtip::firstword(siblings)
         while(length(unique(siblings.genera)) == 1){
@@ -98,8 +98,7 @@ get.forbidden.groups <- function(tree, DF1){
         desctips<-desctips[!is.na(desctips)]
         desctips<-desctips[randtip::firstword(desctips) == genus]
         genus.tree.list[[i]]<-desctips
-=======
->>>>>>> 459b87f1a7ce21c743c76da168993d3e46c0a038
+
       }
 
 
