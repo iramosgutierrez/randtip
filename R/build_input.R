@@ -1,7 +1,7 @@
 #' Function to create DF1 given a species vector(column)
 #' @export
 
-build.input<- function(species,find.MDCC=TRUE, MDCC.rank="family",db="ncbi", mode="list",tree){
+build.input<- function(species, tree, find.MDCC=TRUE, db="ncbi", mode="list"){
 
 
   if(is.data.frame(species)){
@@ -12,8 +12,8 @@ build.input<- function(species,find.MDCC=TRUE, MDCC.rank="family",db="ncbi", mod
   if (!inherits(tree, "phylo")) { stop("tree should be an object of class \"phylo\".")}
 
 
-  names_df <- c("taxon", "genus", "phyleticity",  "MDCC", "other.MDCC", "aggregate.subspecies",
-                "relative.species","synonim.genus","sibling.genus", "forbidden.branches")
+  names_df <- c("taxon", "genus", "tribe", "subfamily", "family", "order", "class",
+                "aggregate.subspecies","relative.species", "forbidden.branches")
 
   DF1<- as.data.frame(matrix(nrow = length(species), ncol = length(names_df)))
   names(DF1)<- names_df
@@ -25,14 +25,14 @@ build.input<- function(species,find.MDCC=TRUE, MDCC.rank="family",db="ncbi", mod
 
   DF1$taxon<- species
 
-  DF1$genus<- stringr::word(species, 1, sep="_")
+  DF1$genus<- randtip::firstword(species)
 
 
 
   if(mode=="phylomatic"){
 
-    DF2<- as.data.frame(matrix(nrow = length(tree$tip.label), ncol = 3))
-    names(DF2)<- c("taxon","genus", "MDCC")
+    DF2<- as.data.frame(matrix(nrow = length(tree$tip.label), ncol = 7))
+    names(DF2)<- c("taxon", "genus", "tribe", "subfamily", "family", "order", "class")
 
     DF2$taxon<- tree$tip.label
 
@@ -40,25 +40,36 @@ build.input<- function(species,find.MDCC=TRUE, MDCC.rank="family",db="ncbi", mod
   }
 
 
-  if(isTRUE(find.MDCC)){
-    if(mode=="phylomatic"){genera<- unique(c(randtip::firstword(species), randtip::firstword(tree$tip.label)))}else{
+  if(mode=="phylomatic"){genera<- unique(c(randtip::firstword(species), randtip::firstword(tree$tip.label)))}else{
       genera<- unique(randtip::firstword(species))}
+
+  searching.categories<- c("tribe", "subfamily", "family", "order", "class")
 
     for(i in 1:length(genera)){
       tryCatch({
         search <- taxize::classification(as.character(genera[i]), db = db)[[1]]
-        MDCC<-search[which(search$rank==MDCC.rank), "name"]
-        DF1$MDCC[DF1$genus==genera[i]]<- MDCC
-        if(mode=="phylomatic"){DF2$MDCC[DF2$genus==genera[i]]<- MDCC}
+
+        for(cat in searching.categories){
+          if(length(search[which(search$rank==cat), "name"])==0){DF1[DF1$genus==genera[i], cat]<-NA}else{
+          DF1[DF1$genus==genera[i], cat]<- search[which(search$rank==cat), "name"]}
+        }
+
+        if(mode=="phylomatic"){
+          for(cat in searching.categories){
+            if(length(search[which(search$rank==cat), "name"])==0){DF2[DF2$genus==genera[i], cat]<-NA}else{
+              DF2[DF2$genus==genera[i], cat]<- search[which(search$rank==cat), "name"]}
+          }}
+
+
       }, error=function(e){
         # Assign NA to fetching errors
-        DF1[DF1$genus==genera[i], "MDCC"] <- NA
-        if(mode=="phylomatic"){DF2[DF2$genus==genera[i], "MDCC"] <- NA}
+        DF1[DF1$genus==genera[i], searching.categories] <- NA
+        if(mode=="phylomatic"){DF2[DF2$genus==genera[i], searching.categories] <- NA}
       })
 
       # Avoid ip blocks. Taxize allows only 3 searches per second.
       Sys.sleep(0.33)
-    }}
+    }
 
 
   #search for genera phyletic statuses
