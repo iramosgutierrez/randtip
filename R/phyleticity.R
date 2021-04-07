@@ -57,7 +57,7 @@ phyleticity<- function(tree, genus){
 
 
 
-MDCC.phyleticity<-function(DF1, tree, MDCC.info=list("level"=NA, "MDCC"=NA)){
+MDCC.phyleticity<-function(DF1, tree, MDCC.info=list("level"=NA, "MDCC"=NA), trim=T){
 
 
   level<- MDCC.info$level
@@ -65,13 +65,13 @@ MDCC.phyleticity<-function(DF1, tree, MDCC.info=list("level"=NA, "MDCC"=NA)){
   DF1<-DF1[!is.na(DF1[,level]),]
 
    tips<- tree$tip.label[randtip::firstword(tree$tip.label)%in%DF1$genus]
-   trimmed.tree<- ape::keep.tip(phy =tree, tip = tips)
+   if(isTRUE(trim)){tree<- ape::keep.tip(phy =tree, tip = tips)}
 
    species<- DF1[which(DF1[,level]==MDCC),]
    MDCC.genera<- unique(species$genus)
 
-   genera.in.tree<-MDCC.genera[MDCC.genera%in%randtip::firstword(trimmed.tree$tip.label)]
-   spp.in.tree<- trimmed.tree$tip.label[randtip::firstword(trimmed.tree$tip.label)%in%genera.in.tree]
+   genera.in.tree<-MDCC.genera[MDCC.genera%in%randtip::firstword(tree$tip.label)]
+   spp.in.tree<- tree$tip.label[randtip::firstword(tree$tip.label)%in%genera.in.tree]
 
    if(length(spp.in.tree)==0){MDCC.type<-"Not included"
    return(MDCC.type) }
@@ -79,9 +79,9 @@ MDCC.phyleticity<-function(DF1, tree, MDCC.info=list("level"=NA, "MDCC"=NA)){
    if(length(spp.in.tree)==1){MDCC.type<-"Singleton MDCC"
    return(MDCC.type) }
 
-  sp.mrca<- phytools::findMRCA(trimmed.tree, tips = spp.in.tree)
-  descs.num<- phytools::getDescendants(trimmed.tree,sp.mrca)
-  descs.name<-randtip::notNA(trimmed.tree$tip.label[descs.num])
+  sp.mrca<- phytools::findMRCA(tree, tips = spp.in.tree)
+  descs.num<- phytools::getDescendants(tree,sp.mrca)
+  descs.name<-randtip::notNA(tree$tip.label[descs.num])
 
 
 
@@ -94,9 +94,9 @@ MDCC.phyleticity<-function(DF1, tree, MDCC.info=list("level"=NA, "MDCC"=NA)){
    if(length(intruders)==1){MDCC.type<-"Paraphyletic"
    return(MDCC.type) }
 
-   intruders.mrca<- ape::getMRCA(phy = trimmed.tree, tip = intruders)
-   intruders.descs.num<- phytools::getDescendants(trimmed.tree,intruders.mrca)
-   intruders.descs.name<-randtip::notNA(trimmed.tree$tip.label[intruders.descs.num])
+   intruders.mrca<- ape::getMRCA(phy = tree, tip = intruders)
+   intruders.descs.num<- phytools::getDescendants(tree,intruders.mrca)
+   intruders.descs.name<-randtip::notNA(tree$tip.label[intruders.descs.num])
 
    if(!any(randtip::firstword(intruders.descs.name)%in%MDCC.genera)){MDCC.type<-"Paraphyletic"
    return(MDCC.type) }else{
