@@ -9,11 +9,10 @@ check.input<- function(DF1, tree){
   DF1.taxa<-DF1$taxon
   tree.taxa<- tree$tip.label
 
-  DF<- DF1[,c("taxon","genus", "phyleticity","MDCC","other.MDCC")]
+  DF<- DF1[,c("taxon","genus", "tribe","subfamily","family", "order", "class")]
   DF$PUT.status<- NA
   DF$Name.simmilarity<- NA
-  DF$Using.MDCC<- NA
-  DF$Level.MDCC<- NA
+
 
 
 
@@ -41,38 +40,25 @@ check.input<- function(DF1, tree){
 
 
 
+  DF$genus_phyletic.status<-NA
+  DF$tribe_phyletic.status<-NA
+  DF$subfamily_phyletic.status<-NA
+  DF$family_phyletic.status<-NA
+  DF$order_phyletic.status<-NA
+  DF$class_phyletic.status<-NA
+
 
   #3th:
-  genera<- unique(DF1$genus)
-  for(i in 1:length(genera)){
-    genus<- genera[i]
-    if(unique(DF$phyleticity[DF$genus==genus])!="Not included"){
-      DF$Level.MDCC[DF$genus==genus]<-"genus"
-      DF$Using.MDCC[DF$genus==genus]<- genus
-    }}
+levels<-c("genus", "tribe","subfamily","family", "order", "class")
+  for (level in levels){
+    groups<- unique(DF1[,level])
 
+    for(group in groups){
+      type<- randtip::MDCC.phyleticity(DF1, tree, MDCC.info = list("level"= level, "MDCC"= group))
+    DF[which(DF[,level]==group), paste0(level,"_phyletic.status")]<-type
+      }
 
-  for(i in which(is.na(DF$Using.MDCC)) ){
-
-    other.MDCC<- DF$other.MDCC[i]
-    commonMDCC<- DF$MDCC[i]
-
-    if(!is.na(other.MDCC) & length(DF[DF$other.MDCC==other.MDCC,])>1){
-      DF$Level.MDCC[i]<-"other.MDCC"
-      DF$Using.MDCC[i]<- other.MDCC
-    }else{
-      if(is.na(commonMDCC)){stop("At least one MDCC must be defined for genus ", DF$genus[i])}
-      DF$Level.MDCC[i]<-"MDCC"
-      DF$Using.MDCC[i]<- commonMDCC
-    }
   }
-
-
-  #DF[which(DF$PUT.status!="PUT"),"Level.MDCC"]<- "-"
-  #DF[which(DF$PUT.status!="PUT"),"Using.MDCC"]<-"-"
-
-
-
 
   return(DF)
 }
