@@ -1,12 +1,15 @@
 #' Function to plot tree cut from MDCC
 #' @export
-plotTree.MDCC<- function(tree, DF1, MDCC, DF2=NULL){
+plotTree.MDCC<- function(tree, DF1, MDCC.info=list("level"=NA, "MDCC"=NA), DF2=NULL){
 
-  spss<- DF1[c(which(MDCC==DF1$MDCC), which(MDCC==DF1$other.MDCC), which(MDCC==DF1$genus)),]
-  if(!is.null(DF2)){spss2<- DF2[which(MDCC==DF2$MDCC),]}
+  level<-MDCC.info$level
+  MDCC<- MDCC.info$MDCC
+
+  spss<- DF1[which(DF1[,level]==MDCC),]
+  if(!is.null(DF2)){spss2<- DF2[which(DF2[,level]==MDCC),]}
   genera<- unique(spss$genus)
   if(!is.null(DF2)){genera<- unique(c(spss$genus, spss2$genus)) }
-  cut.list<- tree$tip.label[stringr::word(tree$tip.label, 1, sep="_")%in% genera]
+  cut.list<- tree$tip.label[randtip::firstword(tree$tip.label)%in% genera]
   if(length(cut.list)==0){stop("Specified MDCC is not reflected in the tree!")}
   if(length(cut.list)==1){stop("Specified MDCC is related to just 1 tree tip!")}
   cut.node<- ape::getMRCA(tree, tip =cut.list )
@@ -18,13 +21,16 @@ plotTree.MDCC<- function(tree, DF1, MDCC, DF2=NULL){
 
 #' Function to obtain tree cut from MDCC
 #' @export
-cutTree.MDCC<- function(tree, DF1, MDCC, DF2=NULL){
+cutTree.MDCC<- function(tree, DF1, MDCC.info=list("level"=NA, "MDCC"=NA), DF2=NULL){
 
-  spss<- DF1[c(which(MDCC==DF1$MDCC), which(MDCC==DF1$other.MDCC), which(MDCC==DF1$genus)),]
-  if(!is.null(DF2)){spss2<- DF2[which(MDCC==DF2$MDCC),]}
+  level<-MDCC.info$level
+  MDCC<- MDCC.info$MDCC
+
+  spss<- DF1[which(DF1[,level]==MDCC),]
+  if(!is.null(DF2)){spss2<- DF2[which(DF2[,level]==MDCC),]}
   genera<- unique(spss$genus)
   if(!is.null(DF2)){genera<- unique(c(spss$genus, spss2$genus)) }
-  cut.list<- tree$tip.label[stringr::word(tree$tip.label, 1, sep="_")%in% genera]
+  cut.list<- tree$tip.label[randtip::firstword(tree$tip.label)%in% genera]
   if(length(cut.list)==0){stop("Specified MDCC is not reflected in the tree!")}
   if(length(cut.list)==1){stop("Specified MDCC is related to just 1 tree tip!")}
   cut.node<- ape::getMRCA(tree, tip =cut.list )
