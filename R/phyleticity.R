@@ -54,3 +54,51 @@ phyleticity<- function(tree, genus){
 
     return(genus.type)
 }
+
+
+
+MDCC.phyleticity<-function(DF1, tree, MDCC.info=list("level"=NA, "MDCC"=NA)){
+
+  level<- MDCC.info$level
+  MDCC <- MDCC.info$MDCC
+
+
+   tips<- tree$tip.label[randtip::firstword(tree$tip.label)%in%DF1$genus]
+   trimmed.tree<- ape::keep.tip(phy =tree, tip = tips)
+
+   species<- DF1[which(DF1[,level]==MDCC),]
+   MDCC.genera<- unique(species$genus)
+
+   genera.in.tree<-MDCC.genera[MDCC.genera%in%randtip::firstword(trimmed.tree$tip.label)]
+   spp.in.tree<- trimmed.tree$tip.label[randtip::firstword(trimmed.tree$tip.label)%in%genera.in.tree]
+
+   if(length(spp.in.tree)==1){MDCC.type<-"Singleton MDCC"
+   return(MDCC.type) }
+
+  sp.mrca<- phytools::findMRCA(trimmed.tree, tips = spp.in.tree)
+  descs.num<- phytools::getDescendants(trimmed.tree,sp.mrca)
+  descs.name<-randtip::notNA(trimmed.tree$tip.label[descs.num])
+
+
+
+
+ if(all(randtip::firstword(descs.name)%in%MDCC.genera)){MDCC.type<-"Monophyletic"
+ return(MDCC.type) }else{
+
+   intruders<-descs.name[!(randtip::firstword(descs.name)%in%MDCC.genera)]
+
+   if(length(intruders)==1){MDCC.type<-"Paraphyletic"
+   return(MDCC.type) }
+
+   intruders.mrca<- ape::getMRCA(phy = trimmed.tree, tip = intruders)
+   intruders.descs.num<- phytools::getDescendants(trimmed.tree,intruders.mrca)
+   intruders.descs.name<-randtip::notNA(trimmed.tree$tip.label[intruders.descs.num])
+
+   if(!any(randtip::firstword(intruders.descs.name)%in%MDCC.genera)){MDCC.type<-"Paraphyletic"
+   return(MDCC.type) }else{
+     MDCC.type<-"Polyphyletic"
+     return(MDCC.type)}
+
+
+ }
+}
