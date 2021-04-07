@@ -60,6 +60,10 @@ levels<-c("genus", "tribe","subfamily","family", "order", "class")
 
   }
 
+DF<-DF[,c("taxon", "PUT.status", "Name.simmilarity","genus", "genus_phyletic.status",
+      "tribe" , "tribe_phyletic.status", "subfamily","subfamily_phyletic.status",
+      "family","family_phyletic.status", "order","order_phyletic.status",
+      "class","class_phyletic.status")]
   return(DF)
 }
 
