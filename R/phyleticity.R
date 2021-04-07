@@ -72,6 +72,9 @@ MDCC.phyleticity<-function(DF1, tree, MDCC.info=list("level"=NA, "MDCC"=NA)){
    genera.in.tree<-MDCC.genera[MDCC.genera%in%randtip::firstword(trimmed.tree$tip.label)]
    spp.in.tree<- trimmed.tree$tip.label[randtip::firstword(trimmed.tree$tip.label)%in%genera.in.tree]
 
+   if(length(spp.in.tree)==0){MDCC.type<-"Not included"
+   return(MDCC.type) }
+
    if(length(spp.in.tree)==1){MDCC.type<-"Singleton MDCC"
    return(MDCC.type) }
 
