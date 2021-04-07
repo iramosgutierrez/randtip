@@ -72,17 +72,6 @@ build.input<- function(species, tree, find.MDCC=TRUE, db="ncbi", mode="list"){
     }
 
 
-  #search for genera phyletic statuses
-
-  genera<- unique(DF1$genus)
-  for(i in 1:length(genera)){
-    genus<- genera[i]
-    phyleticity<-randtip::phyleticity(tree = tree, genus=genus)
-    DF1[DF1$genus==genus,]$phyleticity<- phyleticity
-    rm(genus, phyleticity)
-  }
-
-
   if(mode=="phylomatic"){return(list("DF1"=DF1, "DF2"=DF2))}else{return(DF1)}
 }
 
