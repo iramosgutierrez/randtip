@@ -59,9 +59,10 @@ phyleticity<- function(tree, genus){
 
 MDCC.phyleticity<-function(DF1, tree, MDCC.info=list("level"=NA, "MDCC"=NA)){
 
+
   level<- MDCC.info$level
   MDCC <- MDCC.info$MDCC
-
+  DF1<-DF1[!is.na(DF1[,level]),]
 
    tips<- tree$tip.label[randtip::firstword(tree$tip.label)%in%DF1$genus]
    trimmed.tree<- ape::keep.tip(phy =tree, tip = tips)
