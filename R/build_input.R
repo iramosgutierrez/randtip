@@ -47,7 +47,7 @@ build.input<- function(species, tree, find.MDCC=TRUE, db="ncbi", mode="list"){
 
     for(i in 1:length(genera)){
       tryCatch({
-        search <- taxize::classification(as.character(genera[i]), db = db)[[1]]
+        search <- suppressMessages(taxize::classification(as.character(genera[i]), db = db))[[1]]
 
         for(cat in searching.categories){
           if(length(search[which(search$rank==cat), "name"])==0){DF1[DF1$genus==genera[i], cat]<-NA}else{
