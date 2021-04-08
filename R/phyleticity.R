@@ -64,11 +64,11 @@ MDCC.phyleticity<-function(DF1, tree, MDCC.info=list("level"=NA, "MDCC"=NA), tri
   MDCC <- MDCC.info$MDCC
   DF1<-DF1[!is.na(DF1[,level]),]
 
-   tips<- tree$tip.label[randtip::firstword(tree$tip.label)%in%DF1$genus]
+   tips<- tree$tip.label[randtip::firstword(tree$tip.label)%in%randtip::firstword(DF1$taxon)]
    if(isTRUE(trim)){tree<- ape::keep.tip(phy =tree, tip = tips)}
 
    species<- DF1[which(DF1[,level]==MDCC),]
-   MDCC.genera<- unique(species$genus)
+   MDCC.genera<- unique(randtip::firstword(species$taxon))
 
    genera.in.tree<-MDCC.genera[MDCC.genera%in%randtip::firstword(tree$tip.label)]
    spp.in.tree<- tree$tip.label[randtip::firstword(tree$tip.label)%in%genera.in.tree]
