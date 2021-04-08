@@ -254,6 +254,33 @@ unfold.polytomy.types <- function(tree, taxa.table, species.table,
     }
 }
 
+usingMDCCfinder<- function(DF1, taxon, tree){
+
+  levels<- c("genus","tribe","subfamily","family","order","class")
+  MDCC.vect<- vector(mode="character", length = length(taxon))
+  MDCC.lev.vect<- vector(mode="character", length = length(taxon))
+
+
+  for(v in 1:length(taxon)){
+  i<- which(DF1$taxon==taxon[v])
+  MDCC<-NA
+  MDCC.levels<-NA
+  for(level in levels){
+      if(is.na(MDCC)){
+        MDCC<-DF1[i, level]
+        phyleticity<-randtip::MDCC.phyleticity(DF1, tree = tree,
+                     MDCC.info = list(level=level, MDCC= MDCC))
+        if(phyleticity=="Not included"){MDCC<-NA}
+        lev<-level
+      }else{next}
+    }
+      MDCC.vect[v]<-MDCC
+      MDCC.lev.vect[v]<-lev
+    }
+
+  return(list(MDCC=MDCC.vect,MDCC.levels=MDCC.lev.vect) )
+}
+
 
 
 #' randtip "MOTHER FUNCTION"
@@ -267,6 +294,7 @@ rand.list <- function(tree, DF1,
 
     start<- Sys.time()
 
+    tree$tip.label <- gsub(" ", "_", tree$tip.label)
     new.tree <- tree
     DF1.dupl <- NULL
     DF1$taxon <- gsub(" ", "_", DF1$taxon)
@@ -278,29 +306,29 @@ rand.list <- function(tree, DF1,
         DF1.dupl <- DF1[ is.duplicated,]
         DF1 <-      DF1[!is.duplicated,]
 
+        DF1$using.MDCC <- usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree)[[1]]
+        DF1$using.MDCC.lev <- usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree)[[2]]
 
         taxa <- DF1$using.taxa
         taxa <- taxa[!(taxa %in% tree$tip.label)]
-        taxa.genera <- randtip::firstword(taxa)
-        taxa.genera <- unique(taxa.genera)
+        taxa.MDCC <- DF1$using.MDCC[DF1$using.taxa%in%taxa]
+        taxa.MDCC <- unique(taxa.MDCC)
 
 
 
-        for(i in 1: length(taxa.genera)){        #loop 1
+        for(i in 1: length(taxa.MDCC)){        #loop 1
             gen.start<- Sys.time()
             forbidden.groups <- get.forbidden.groups(new.tree, DF1)
 
-            genus <- taxa.genera[i]
-            genus.match <- DF1$genus==genus
-            genus.type <- DF1$phyleticity[genus.match]
-            genus.type <- unique(genus.type)
+            MDCC <- taxa.MDCC[i]
+            level<- unique(DF1$using.MDCC.lev[DF1$using.MDCC==MDCC])
+            genus.match <- DF1$using.MDCC==MDCC
+            genus.type <- randtip::MDCC.phyleticity(DF1 = DF1, tree = new.tree,
+                          MDCC.info = list(level=level, MDCC=MDCC), trim=F)
 
-            genus.taxa <- taxa[randtip::firstword(taxa) == genus]
-            genus.taxa <- sample(genus.taxa, length(genus.taxa))
-            # Tips with no "relatives" information selected (they will be bound as monophyletic)
-            grouped.taxa <- DF1$using.taxa[!is.na(DF1$relative.species)]
-            grouped.taxa <- grouped.taxa[grouped.taxa %in% genus.taxa]
-            genus.taxa <- genus.taxa[!(genus.taxa %in% grouped.taxa)]
+            MDCC.taxa <- DF1$using.taxa[DF1$using.MDCC == MDCC]
+            MDCC.taxa <- sample(MDCC.taxa, length(MDCC.taxa))
+
 
             if(verbose){
               print(paste0(i, "/", length(taxa.genera),
@@ -309,25 +337,7 @@ rand.list <- function(tree, DF1,
                            length(genus.taxa)," tips). "))
             }
 
-            if(length(grouped.taxa) > 0){
-                for(j in 1:length(grouped.taxa)){
-                    grouped.taxa.loc <- (DF1$using.taxa == grouped.taxa[j])
-                    grouping.taxa <- DF1$relative.species[grouped.taxa.loc]
-                    grouping.taxa <- gsub(" ","", grouping.taxa)
-                    grouping.taxa <- stringr::str_split(grouping.taxa,
-                                                        pattern = ",")[[1]]
-                    # Select taxa to be grouped
-                    grouping.taxa <- grouping.taxa[grouping.taxa %in% tree$tip.label]
-                    # First added as singleton. The rest added as monophyletic
-                    if(length(grouping.taxa)==1){
-                        new.tree <- add.to.singleton(new.tree, singleton = grouping.taxa,
-                                                    new.tips = grouped.taxa[j])
-                    }else{
-                        node <- phytools::findMRCA(new.tree, tips = grouping.taxa)
-                        new.tree <- add.into.node(new.tree, new.tip = grouped.taxa[j],
-                                                  node = node)}
-                }
-                }
+
 
 
             if(genus.type=="Monophyletic"){
