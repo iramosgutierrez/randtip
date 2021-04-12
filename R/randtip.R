@@ -127,6 +127,24 @@ get.forbidden.groups <- function(tree, DF1){
   return(forbidden.groups)
 }
 
+get.forbidden.nodes <- function (tree, nodes){
+  forbidden.nodes<- rep(NA, times= length(nodes))
+
+  for(i in seq_along(nodes)){
+    node <- nodes[i]
+    descs<- phytools::getDescendants(tree, node)
+    descs<-randtip::notNA (tree$tip.label[descs])
+    siblings<- randtip::get.parent.siblings(tree, node)$siblings
+    new<- siblings[!(siblings%in%descs)]
+
+    if(randtip::firstword(new) %in% randtip::firstword(descs)){forbidden.nodes[i]<-FALSE}
+
+
+    }
+
+  }
+
+
 get.original.names <- function(tree, DF1, verbose = FALSE){
 
     for(n in 1:nrow(DF1)){
@@ -306,122 +324,75 @@ rand.list <- function(tree, DF1,
         DF1.dupl <- DF1[ is.duplicated,]
         DF1 <-      DF1[!is.duplicated,]
 
-        DF1$using.MDCC <- usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree)[[1]]
+        DF1$using.MDCC     <- usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree)[[1]]
         DF1$using.MDCC.lev <- usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree)[[2]]
 
         taxa <- DF1$using.taxa
         taxa <- taxa[!(taxa %in% tree$tip.label)]
-        taxa.MDCC <- DF1$using.MDCC[DF1$using.taxa%in%taxa]
-        taxa.MDCC <- unique(taxa.MDCC)
+        taxa.genera <- randtip::firstword(taxa)
+        taxa.genera <- unique(taxa.genera)
 
 
 
-        for(i in 1: length(taxa.MDCC)){        #loop 1
+        for(i in 1: length(taxa.genera)){        #loop 1
             gen.start<- Sys.time()
             forbidden.groups <- get.forbidden.groups(new.tree, DF1)
 
-            MDCC <- taxa.MDCC[i]
-            level<- unique(DF1$using.MDCC.lev[DF1$using.MDCC==MDCC])
+            genus <- taxa.genera[i]
+            MDCC<-  unique(DF1$using.MDCC    [randtip::firstword(DF1$using.taxa)==genus])
+            level<- unique(DF1$using.MDCC.lev[randtip::firstword(DF1$using.taxa)==genus])
+
             genus.match <- DF1$using.MDCC==MDCC
-            genus.type <- randtip::MDCC.phyleticity(DF1 = DF1, tree = new.tree,
+            MDCC.type <- randtip::MDCC.phyleticity(DF1 = DF1, tree = new.tree,
                           MDCC.info = list(level=level, MDCC=MDCC), trim=F)
 
-            MDCC.taxa <- DF1$using.taxa[DF1$using.MDCC == MDCC]
-            MDCC.taxa <- sample(MDCC.taxa, length(MDCC.taxa))
+            genus.taxa <- DF1$using.taxa[randtip::firstword(DF1$using.taxa)==genus]
+            genus.taxa <- sample(genus.taxa, length(genus.taxa))
 
 
             if(verbose){
               print(paste0(i, "/", length(taxa.genera),
                            " (",round(i/length(taxa.genera)*100, 2), " %). ",
-                           "Adding Gen. ", genus, " (", genus.type,", ",
-                           length(genus.taxa)," tips). "))
-            }
+                           "Adding ", genus, " (", MDCC.type,", ",
+                           length(taxa.genera)," tips).")) }
 
 
 
 
-            if(genus.type=="Monophyletic"){
+            if(level=="genus"){
+            if(MDCC.type=="Monophyletic"){
                 for( j in 1:length(genus.taxa)){
                   new.tree<-add.to.monophyletic(tree = new.tree, new.tip = genus.taxa[j], prob)
-                }
-            }else if(genus.type=="Paraphyletic"){#ALGUN ERROR EN PARAPHYLETIC!!!!
+                  }
+            }else if(MDCC.type=="Paraphyletic"){#ALGUN ERROR EN PARAPHYLETIC!!!!
                 for( j in 1:length(genus.taxa)){
                     new.tree <- add.to.paraphyletic(tree = new.tree,
                                                     new.tip = genus.taxa[j], prob)
                 }
-            }else if(genus.type=="Polyphyletic"){
+            }else if(MDCC.type=="Polyphyletic"){
                 new.tree<- add.to.polyphyletic(tree = new.tree, new.tip = genus.taxa,
                                                polyphyletic.insertion, prob)
-            }else if(genus.type=="Singleton genus"){
+            }else if(MDCC.type=="Singleton genus"){
                 # All tips added in one step
-                genus.match <- (randtip::firstword(tree$tip.label) == genus)
+                singleton <- tree$tip.label[(randtip::firstword(tree$tip.label) == genus)]
                 new.tree <- add.to.singleton(new.tree,
-                                             singleton = tree$tip.label[genus.match],
-                                             new.tips = genus.taxa)
-            }else if(genus.type == "Not included"){
+                                             singleton = singleton,
+                                             new.tips = MDCC.taxa)
+            }}else{
 
-              otherMDCC.DF<- DF1[!is.na(DF1$other.MDCC)&DF1$genus==genus,]
-              MDCC.DF     <- DF1[ is.na(DF1$other.MDCC)&DF1$genus==genus,]
+              MDCC.taxa<- DF1$taxon[DF1[,level]==MDCC]
+              MDCC.genera<- unique(randtip::firstword(MDCC.taxa))
+              MDCC.intree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
 
-              if(nrow(otherMDCC.DF)>0){
-                other.MDCCs<-   unique(otherMDCC.DF$other.MDCC)
+              MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
+              ###por aquiii
+              nodes<-phytools::getDescendants(new.tree, MDCC.mrca)
 
-                for(other.MDCC in other.MDCCs){
-                  other.MDCC.taxa<-  DF1$taxon[ !is.na(DF1$other.MDCC)& DF1$other.MDCC==other.MDCC]
-                  other.MDCC.genera<-DF1$genus[ !is.na(DF1$other.MDCC)& DF1$other.MDCC==other.MDCC]
-                  other.MDCC.inTree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%other.MDCC.genera]
-
-                  if(length(other.MDCC.inTree)>1){
-                     for(sp in other.MDCC.taxa){
-                    other.MDCC.MRCA<- ape::getMRCA(new.tree, tip = other.MDCC.inTree)
-                    new.tree<- add.into.node(tree = new.tree, new.tip = sp,
-                                             node = other.MDCC.MRCA, prob , exception.list = forbidden.groups)
-                  }}
-
-                  if(length(other.MDCC.inTree)==1){
-                    new.tree<- add.to.singleton(new.tree, singleton =other.MDCC.inTree, new.tips =other.MDCC.taxa)
-                  }
-
-                  if(length(other.MDCC.inTree)==0){
-                    MDCC.DF<-rbind(MDCC.DF, otherMDCC.DF[otherMDCC.DF$other.MDCC==other.MDCC,])
-                   }}}
-
-
-              if(nrow(MDCC.DF)>0){
-
-                MDCCs<-   unique(MDCC.DF$MDCC)
-
-                for(MDCC in MDCCs){
-                  MDCC.taxa<-  DF1$taxon[ !is.na(DF1$MDCC)& DF1$MDCC==MDCC]
-                  MDCC.genera<-DF1$genus[ !is.na(DF1$MDCC)& DF1$MDCC==MDCC]
-                  MDCC.inTree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
-
-                  if(length(MDCC.inTree)>1){
-
-                      sp<- genus.taxa[1]
-                      MDCC.MRCA<- ape::getMRCA(new.tree, tip = MDCC.inTree)
-                      new.tree<- add.into.node(tree = new.tree, new.tip = sp,
-                                               node = MDCC.MRCA, prob , exception.list = forbidden.groups)
-                      if(length(genus.taxa)>1){
-                        new.tree<-add.to.singleton(new.tree, singleton = genus.taxa[1], new.tips = genus.taxa[-1])
-                      }
-
-
-
-                    }}
-
-                  if(length(MDCC.inTree)==1){
-                    new.tree<- add.to.singleton(new.tree, singleton =MDCC.inTree, new.tips =MDCC.taxa)
-                  }
-
-                  if(length(MDCC.inTree)==0){
-                    stop("Tips ", paste0(MDCC.taxa, collapse = ", ") ," could not be added as its MDCC was not in represented in the tree")
-                  }}
-              }
+            }
 
             gen.end <- Sys.time()
             if(verbose){
-                print(paste0("\U2713", "( done in ",
+                print(paste0("\U2713", " (done in ",
                            round(as.numeric(difftime(gen.end, gen.start, units = "secs")), 2), " sec. out of ",
                            round(as.numeric(difftime(gen.end, start,     units = "mins")), 2), " mins)"))
             }
