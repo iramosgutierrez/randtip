@@ -396,7 +396,6 @@ rand.list <- function(tree, DF1,
 
         for(i in 1: length(taxa.genera)){        #loop 1
             gen.start<- Sys.time()
-            forbidden.groups <- get.forbidden.groups(new.tree, DF1)
 
             genus <- taxa.genera[i]
             MDCC<-  unique(DF1$using.MDCC    [randtip::firstword(DF1$using.taxa)==genus])
