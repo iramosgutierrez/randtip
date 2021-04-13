@@ -357,7 +357,7 @@ usingMDCCfinder<- function(DF1, taxon, tree, verbose=F){
       MDCC.lev.vect[v]<-lev
 
       if(verbose){
-        if(v %in% seq(0, length(taxon), 10)){
+        if(v %in% c(seq(0, length(taxon), 10), length(taxon))){
           print(paste0("Searching MDCCs. ", round((v/length(taxon)*100),2), " % completed."))
         }
 
