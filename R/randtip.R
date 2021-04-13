@@ -358,7 +358,7 @@ usingMDCCfinder<- function(DF1, taxon, tree, verbose=F){
 
       if(verbose){
         if(v %in% c(seq(0, length(taxon), 10), length(taxon))){
-          cat(paste0("Searching MDCCs. ", round((v/length(taxon)*100),2), " % completed."))
+          cat(paste0("Searching MDCCs. ", round((v/length(taxon)*100),2), " % completed.\n"))
         }
 
       }
@@ -437,7 +437,7 @@ rand.list <- function(tree, DF1,
               cat(paste0(i, "/", length(taxa.genera),
                            " (",round(i/length(taxa.genera)*100, 2), " %). ",
                            "Adding ", genus, " to ", MDCC ," (", MDCC.type,", ",
-                           length(taxa.genera)," tips).")) }
+                           length(taxa.genera)," tips).\n")) }
 
 
 
@@ -480,7 +480,7 @@ rand.list <- function(tree, DF1,
             if(verbose){
                 cat(paste0("\U2713", " (done in ",
                            round(as.numeric(difftime(gen.end, gen.start, units = "secs")), 2), " sec. out of ",
-                           round(as.numeric(difftime(gen.end, start,     units = "mins")), 2), " mins)"))
+                           round(as.numeric(difftime(gen.end, start,     units = "mins")), 2), " mins\n)"))
             }
 
         }
