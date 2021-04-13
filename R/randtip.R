@@ -225,27 +225,28 @@ get.original.names <- function(tree, DF1, verbose = FALSE){
 }
 
 randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
-
+    new.tree<-tree
     rep.taxa <- DF1.dupl$taxon
     rep.taxa.species <- unique(DF1.dupl$using.taxa)
+
+    genus <- stringr::word(rep.taxa, 1, sep = "_")
+    sp <- stringr::word(rep.taxa, 2, sep= "_")
 
     for(i in 1:length(rep.taxa.species)){
         sp.start<- Sys.time()
         # Select subspecies
-        genus <- stringr::word(rep.taxa, 1, sep = "_")
-        sp <- stringr::word(rep.taxa, 2, sep= "_")
         ssps <- rep.taxa[paste0(genus, "_", sp) == rep.taxa.species[i]]
         ssps <- sample(ssps, length(ssps))
-        genus.tree <- stringr::word(tree$tip.label, 1, sep = "_")
-        sp.tree <-    stringr::word(tree$tip.label, 2, sep= "_")
-        sp.to.add <- tree$tip.label[rep.taxa.species[i]== paste0(genus.tree, "_", sp.tree)]
+        genus.tree <- stringr::word(new.tree$tip.label, 1, sep = "_")
+        sp.tree <-    stringr::word(new.tree$tip.label, 2, sep= "_")
+        sp.to.add <- new.tree$tip.label[rep.taxa.species[i]== paste0(genus.tree, "_", sp.tree)]
         if(length(sp.to.add) > 1){
             sp.to.add <- sp.to.add[sp.to.add == rep.taxa.species[i]]
         }
-        if(isFALSE(rep.taxa.species[i]%in%tree$tip.label)){stop("Species ", rep.taxa.species[i], " is not in the tree")}
+        if(!(rep.taxa.species[i]%in%new.tree$tip.label)){stop("Species ", rep.taxa.species[i], " is not in the tree")}
 
         # Add subspecies as singleton
-        new.tree <- add.to.singleton(tree, singleton = sp.to.add,
+        new.tree <- add.to.singleton(new.tree, singleton = sp.to.add,
                                      new.tips = ssps)
         sp.end<- Sys.time()
 #        if(verbose){
@@ -405,7 +406,7 @@ rand.list <- function(tree, DF1,
             MDCC.type <- randtip::MDCC.phyleticity(DF1 = DF1, tree = new.tree,
                           MDCC.info = list(level=level, MDCC=MDCC), trim=F)
 
-            genus.taxa <- DF1$using.taxa[randtip::firstword(DF1$using.taxa)==genus]
+            genus.taxa <- taxa[randtip::firstword(taxa)==genus]
             genus.taxa <- sample(genus.taxa, length(genus.taxa))
 
 
