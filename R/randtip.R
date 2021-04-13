@@ -200,7 +200,8 @@ get.permitted.nodes <- function (tree, node){
 
 
   permitted.nodes[is.na(permitted.nodes)]<-TRUE
-  return(nodes[(permitted.nodes)==TRUE])
+
+  if(length(nodes[(permitted.nodes)==TRUE])>0){return(nodes[(permitted.nodes)==TRUE])}else{return(node)}
   }
 
 
@@ -412,7 +413,7 @@ rand.list <- function(tree, DF1,
             if(verbose){
               print(paste0(i, "/", length(taxa.genera),
                            " (",round(i/length(taxa.genera)*100, 2), " %). ",
-                           "Adding ", genus, " (", MDCC.type,", ",
+                           "Adding ", genus, " to ", MDCC ," (", MDCC.type,", ",
                            length(taxa.genera)," tips).")) }
 
 
@@ -444,8 +445,7 @@ rand.list <- function(tree, DF1,
               MDCC.intree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
 
               MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
-              ###por aquiii
-              nodes<-phytools::getDescendants(new.tree, MDCC.mrca)
+              get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
 
             }
 
