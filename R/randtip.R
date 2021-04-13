@@ -333,7 +333,7 @@ unfold.polytomy.types <- function(tree, taxa.table, species.table,
     }
 }
 
-usingMDCCfinder<- function(DF1, taxon, tree){
+usingMDCCfinder<- function(DF1, taxon, tree, verbose=F){
 
   levels<- c("genus","tribe","subfamily","family","order","class")
   MDCC.vect<- vector(mode="character", length = length(taxon))
@@ -355,6 +355,13 @@ usingMDCCfinder<- function(DF1, taxon, tree){
     }
       MDCC.vect[v]<-MDCC
       MDCC.lev.vect[v]<-lev
+
+      if(verbose){
+        if(v %in% seq(0, length(taxon), 10)){
+          print(paste0("Searching MDCCs. ", round((v/length(taxon)*100),2), " % completed."))
+        }
+
+      }
     }
 
   return(list(MDCC=MDCC.vect,MDCC.levels=MDCC.lev.vect) )
@@ -378,11 +385,19 @@ rand.list <- function(tree, DF1,
     DF1.dupl <- NULL
     DF1$taxon <- gsub(" ", "_", DF1$taxon)
 
+
+
+
     if(trim){
-      trimming.genera<- randtip::firstword(DF1$taxon)
-      trimming.genera<- unique(trimming.genera)
-      trimming.species<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%trimming.genera]
-      new.tree <- ape::keep.tip(new.tree, trimming.species)}
+      trimming.species<- rep(NA, 1)
+      for(using.mdcc in unique(DF1$using.MDCC)){
+        spp.df<-DF1[DF1$using.MDCC==using.mdcc,]
+        using.level<- unique(spp.df$using.MDCC.lev)
+
+        mdcc.genera<-randtip::firstword(DF1$taxon[DF1[,using.level]==using.mdcc])
+        mdcc.species<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%mdcc.genera]
+      }
+        new.tree <- ape::keep.tip(new.tree, mdcc.species)}
 
     if(type=="random"){
         DF1$using.taxa <- get.taxa.to.use(DF1, aggregate.subspecies)
@@ -391,8 +406,10 @@ rand.list <- function(tree, DF1,
         DF1.dupl <- DF1[ is.duplicated,]
         DF1 <-      DF1[!is.duplicated,]
 
-        DF1$using.MDCC     <- usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree)[[1]]
-        DF1$using.MDCC.lev <- usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree)[[2]]
+        DF1_search<- usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree, verbose)
+        DF1$using.MDCC     <- DF1_search[[1]]
+        DF1$using.MDCC.lev <- DF1_search[[2]]
+
 
         taxa <- DF1$using.taxa
         taxa <- taxa[!(taxa %in% tree$tip.label)]
