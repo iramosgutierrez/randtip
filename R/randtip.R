@@ -445,8 +445,12 @@ rand.list <- function(tree, DF1,
               MDCC.intree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
 
               MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
-              get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
+              permitted.nodes<-get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
+              if(length(permitted.nodes)>1){sample(x = permitted.nodes, size = 1, replace = F)}
 
+              new.tree <- randtip::add.over.node(new.tree, new.tip = genus.taxa[1], node = permitted.nodes)
+              new.tree <- randtip::add.to.singleton(tree = new.tree,singleton = genus.taxa[1],
+                                        new.tips = genus.taxa[2:length(genus.taxa)] )
             }
 
             gen.end <- Sys.time()
