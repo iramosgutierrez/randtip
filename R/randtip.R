@@ -385,7 +385,9 @@ rand.list <- function(tree, DF1,
     DF1.dupl <- NULL
     DF1$taxon <- gsub(" ", "_", DF1$taxon)
 
-
+    DF1_search<- usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree, verbose)
+    DF1$using.MDCC     <- DF1_search[[1]]
+    DF1$using.MDCC.lev <- DF1_search[[2]]
 
 
     if(trim){
@@ -396,8 +398,10 @@ rand.list <- function(tree, DF1,
 
         mdcc.genera<-randtip::firstword(DF1$taxon[DF1[,using.level]==using.mdcc])
         mdcc.species<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%mdcc.genera]
+        trimming.species<- c(trimming.species, mdcc.species)
       }
-        new.tree <- ape::keep.tip(new.tree, mdcc.species)}
+        trimming.species<- randtip::notNA(trimming.species)
+        new.tree <- ape::keep.tip(new.tree, trimming.species)}
 
     if(type=="random"){
         DF1$using.taxa <- get.taxa.to.use(DF1, aggregate.subspecies)
@@ -405,10 +409,6 @@ rand.list <- function(tree, DF1,
         is.duplicated <- duplicated(DF1$using.taxa)
         DF1.dupl <- DF1[ is.duplicated,]
         DF1 <-      DF1[!is.duplicated,]
-
-        DF1_search<- usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree, verbose)
-        DF1$using.MDCC     <- DF1_search[[1]]
-        DF1$using.MDCC.lev <- DF1_search[[2]]
 
 
         taxa <- DF1$using.taxa
