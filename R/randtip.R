@@ -378,6 +378,12 @@ rand.list <- function(tree, DF1,
     DF1.dupl <- NULL
     DF1$taxon <- gsub(" ", "_", DF1$taxon)
 
+    if(trim){
+      trimming.genera<- randtip::firstword(DF1$taxon)
+      trimming.genera<- unique(trimming.genera)
+      trimming.species<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%trimming.genera]
+      new.tree <- ape::keep.tip(new.tree, trimming.species)}
+
     if(type=="random"){
         DF1$using.taxa <- get.taxa.to.use(DF1, aggregate.subspecies)
         DF1 <- DF1[order(DF1$using.taxa),]
@@ -432,13 +438,13 @@ rand.list <- function(tree, DF1,
             }else if(MDCC.type=="Polyphyletic"){
                 new.tree<- add.to.polyphyletic(tree = new.tree, new.tip = genus.taxa,
                                                polyphyletic.insertion, prob)
-            }else if(MDCC.type=="Singleton genus"){
+            }else if(MDCC.type=="Singleton MDCC"){
                 # All tips added in one step
                 singleton <- tree$tip.label[(randtip::firstword(tree$tip.label) == genus)]
-                new.tree <- add.to.singleton(new.tree,
+                new.tree <- add.to.singleton(tree = new.tree,
                                              singleton = singleton,
-                                             new.tips = MDCC.taxa)
-            }}else{
+                                             new.tips = genus.taxa)}
+            }else{
 
               MDCC.taxa<- DF1$taxon[DF1[,level]==MDCC]
               MDCC.genera<- unique(randtip::firstword(MDCC.taxa))
@@ -494,10 +500,12 @@ rand.list <- function(tree, DF1,
     complete.taxa.list.in.tree <- complete.taxa.list[complete.taxa.list %in% new.tree$tip.label]
     not.included <- complete.taxa.list[!(complete.taxa.list %in% complete.taxa.list.in.tree)]
     if(length(not.included) > 1){
-        message(paste0("The following taxa were not included in the tree: ", not.included))
-    }
+        message("The following taxa were not included in the tree: ", not.included, "\n")}
 
     if(isTRUE(trim)){new.tree <- ape::keep.tip(new.tree, complete.taxa.list.in.tree)}
+
+
+
 
     return(new.tree)
 }
