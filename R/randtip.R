@@ -404,8 +404,8 @@ rand.list <- function(tree, DF1,
         trimming.species<- randtip::notNA(trimming.species)
         new.tree <- ape::keep.tip(new.tree, trimming.species)}
 
-    if(isTRUE(agg.ssp)){DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"0"}else{DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"0"}
-    if(type=="random"){DF1$rand.type[is.na(DF1$rand.type)]<-"0"}else{DF1$rand.type[is.na(DF1$rand.type)]<-"0"}
+    if(isTRUE(agg.ssp)){DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"0"}else{DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"1"}
+    if(type=="random"){DF1$rand.type[is.na(DF1$rand.type)]<-"0"}else{DF1$rand.type[is.na(DF1$rand.type)]<-"1"}
 
       {
         DF1$using.taxa <- get.taxa.to.use(DF1, aggregate.subspecies)
@@ -496,7 +496,9 @@ rand.list <- function(tree, DF1,
 
         new.tree <- get.original.names(new.tree, DF1)
 
-    }else{
+    }
+    #Polytomies
+    {
         #In polytomy cases, names are not changed
         DF1$using.taxa <- DF1$taxon
 
