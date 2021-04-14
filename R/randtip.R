@@ -430,7 +430,7 @@ rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
             MDCC  <- unique(DF1.rand$using.MDCC    [randtip::firstword(DF1.rand$using.taxa)==genus])
             level <- unique(DF1.rand$using.MDCC.lev[randtip::firstword(DF1.rand$using.taxa)==genus])
 if(length(MDCC)>1){stop("Several MDCCs recognised for genus ", genus, ". Please correct your DF1")}
-            genus.match <- DF1$using.MDCC==MDCC
+            #genus.match <- DF1$using.MDCC==MDCC
             MDCC.type <- randtip::MDCC.phyleticity(DF1 = DF1.rand, tree = new.tree,
                           MDCC.info = list(level=level, MDCC=MDCC), trim=F)
 
@@ -461,7 +461,7 @@ if(length(MDCC)>1){stop("Several MDCCs recognised for genus ", genus, ". Please 
               poly.ins<- unique(DF1.rand$poly.ins[DF1.rand$using.taxa %in% genus.taxa])
 if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genus ", genus, ". Please correct your DF1")}
                 new.tree<- add.to.polyphyletic(tree = new.tree, new.tip = genus.taxa,
-                                polyphyletic.insertion =poly.ins, prob)
+                                               poly.ins =poly.ins, prob)
             }else if(MDCC.type=="Singleton MDCC"){
                 # All tips added in one step
                 singleton <- tree$tip.label[(randtip::firstword(tree$tip.label) == genus)]
