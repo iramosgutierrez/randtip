@@ -1,18 +1,14 @@
-get.taxa.to.use <- function(DF1, aggregate.subspecies=TRUE){
-
-  if(isTRUE(aggregate.subspecies)){DF1[is.na(DF1$aggregate.subspecies),"aggregate.subspecies"]<-"1"}else{
-                                   DF1[is.na(DF1$aggregate.subspecies),"aggregate.subspecies"]<-"0"}
-
+get.taxa.to.use <- function(DF1){
   DF1$using.taxa <- NA
 
     for(i in 1:nrow(DF1)){
         taxon <- DF1$taxon[i]
         genus.name <- stringr::word(DF1$taxon[i],1, sep = "_")
         sp.name <-    stringr::word(DF1$taxon[i],2, sep = "_")
-        if(DF1$aggregate.subspecies[i]=="1"){
+        if(DF1$agg.ssp[i]=="1"){
                 DF1$using.taxa[i] <- paste0(genus.name, "_", sp.name) }
 
-        if(DF1$aggregate.subspecies[i]=="0"){
+        if(DF1$agg.ssp[i]=="0"){
                 DF1$using.taxa[i] <- taxon}
 
         # Identified with 0 are not clustered. 1 are clustered
@@ -406,31 +402,37 @@ rand.list <- function(tree, DF1,
 
     if(isTRUE(agg.ssp)){DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"0"}else{DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"1"}
     if(type=="random"){DF1$rand.type[is.na(DF1$rand.type)]<-"0"}else{DF1$rand.type[is.na(DF1$rand.type)]<-"1"}
-
-      {
-        DF1$using.taxa <- get.taxa.to.use(DF1, aggregate.subspecies)
-        DF1 <- DF1[order(DF1$using.taxa),]
-        is.duplicated <- duplicated(DF1$using.taxa)
-        DF1.dupl <- DF1[ is.duplicated,]
-        DF1 <-      DF1[!is.duplicated,]
+    {DF1$poly.ins[is.na(DF1$poly.ins)]<-poly.ins}
 
 
-        taxa <- DF1$using.taxa
+    DF1.poly <- DF1[DF1$rand.type=="1",]
+    DF1.rand <- DF1[DF1$rand.type=="0",]
+
+    DF1.rand$using.taxa <- get.taxa.to.use(DF1.rand)
+    DF1.rand <- DF1.rand[order(DF1.rand$using.taxa),]
+    is.duplicated <- duplicated(DF1.rand$using.taxa)
+    DF1.dupl <- DF1.rand[ is.duplicated,]
+    DF1.rand <- DF1.rand[!is.duplicated,]
+
+
+    #Phase 1. Random insertions, non-aggregated
+    if(nrow(DF1.rand)>0){
+        taxa <- DF1.rand$using.taxa
         taxa <- taxa[!(taxa %in% tree$tip.label)]
         taxa.genera <- randtip::firstword(taxa)
         taxa.genera <- unique(taxa.genera)
 
 
 
-        for(i in 1: length(taxa.genera)){        #loop 1
+        for(i in 1:length(taxa.genera)){        #loop 1
             gen.start<- Sys.time()
 
             genus <- taxa.genera[i]
-            MDCC<-  unique(DF1$using.MDCC    [randtip::firstword(DF1$using.taxa)==genus])
-            level<- unique(DF1$using.MDCC.lev[randtip::firstword(DF1$using.taxa)==genus])
-
+            MDCC  <- unique(DF1.rand$using.MDCC    [randtip::firstword(DF1.rand$using.taxa)==genus])
+            level <- unique(DF1.rand$using.MDCC.lev[randtip::firstword(DF1.rand$using.taxa)==genus])
+if(length(MDCC)>1){stop("Several MDCCs recognised for genus ", genus, ". Please correct your DF1")}
             genus.match <- DF1$using.MDCC==MDCC
-            MDCC.type <- randtip::MDCC.phyleticity(DF1 = DF1, tree = new.tree,
+            MDCC.type <- randtip::MDCC.phyleticity(DF1 = DF1.rand, tree = new.tree,
                           MDCC.info = list(level=level, MDCC=MDCC), trim=F)
 
             genus.taxa <- taxa[randtip::firstword(taxa)==genus]
@@ -457,8 +459,10 @@ rand.list <- function(tree, DF1,
                                                     new.tip = genus.taxa[j], prob)
                 }
             }else if(MDCC.type=="Polyphyletic"){
+              poly.ins<- unique(DF1.rand$poly.ins[DF1$using.taxa %in% genus.taxa])
+if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genus ", genus, ". Please correct your DF1")}
                 new.tree<- add.to.polyphyletic(tree = new.tree, new.tip = genus.taxa,
-                                               polyphyletic.insertion, prob)
+                                polyphyletic.insertion =poly.ins, prob)
             }else if(MDCC.type=="Singleton MDCC"){
                 # All tips added in one step
                 singleton <- tree$tip.label[(randtip::firstword(tree$tip.label) == genus)]
@@ -488,15 +492,16 @@ rand.list <- function(tree, DF1,
             }
 
         }
-
-        # Phase 2 - subspecies
+      }
+    #Phase 2 - Random insertions, aggregated subspecies
         if(nrow(DF1.dupl)>0){
             new.tree <- randtip.subsp(tree = new.tree, DF1.dupl, verbose)
-        }
+            }
 
-        new.tree <- get.original.names(new.tree, DF1)
 
-    }
+    new.tree <- get.original.names(new.tree, DF1)
+
+
     #Polytomies
     {
         #In polytomy cases, names are not changed
@@ -534,6 +539,4 @@ rand.list <- function(tree, DF1,
 }
 
 
-options=list(aggregate.subspecies = TRUE,
-        insertion = "random",
-        prob = TRUE,  polyphyletic.insertion="freq")
+
