@@ -204,7 +204,6 @@ get.permitted.nodes <- function (tree, node){
   if(length(nodes[(permitted.nodes)==TRUE])>0){return(nodes[(permitted.nodes)==TRUE])}else{return(node)}
   }
 
-
 get.original.names <- function(tree, DF1, verbose = FALSE){
 
     for(n in 1:nrow(DF1)){
@@ -259,9 +258,6 @@ randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
     }
     return(new.tree)
 }
-
-
-
 
 add.polytomy.types <- function(tree, taxa.table, species.table, type_arg,
                                insertion, taxa.genera = NULL){
@@ -374,16 +370,21 @@ usingMDCCfinder<- function(DF1, taxon, tree, verbose=F){
 rand.list <- function(tree, DF1,
                     type = "random",
                     aggregate.subspecies = TRUE,
-                    insertion = "random",
-                    prob = TRUE, verbose = FALSE, polyphyletic.insertion="freq",
+                   # insertion = "random",    ELIMINAR
+                    prob = TRUE, verbose = FALSE, poly.ins="freq",
                     trim=TRUE){
 
     start<- Sys.time()
 
     tree$tip.label <- gsub(" ", "_", tree$tip.label)
-    new.tree <- tree
-    DF1.dupl <- NULL
     DF1$taxon <- gsub(" ", "_", DF1$taxon)
+
+    new.tree <- tree
+
+    DF1.rand <- NULL
+    DF1.poly <- NULL
+    DF1.dupl <- NULL
+
 
     DF1_search<- usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree, verbose)
     DF1$using.MDCC     <- DF1_search[[1]]
@@ -403,7 +404,9 @@ rand.list <- function(tree, DF1,
         trimming.species<- randtip::notNA(trimming.species)
         new.tree <- ape::keep.tip(new.tree, trimming.species)}
 
-    if(type=="random"){
+    if(type=="random"){DF1$}
+
+      {
         DF1$using.taxa <- get.taxa.to.use(DF1, aggregate.subspecies)
         DF1 <- DF1[order(DF1$using.taxa),]
         is.duplicated <- duplicated(DF1$using.taxa)
@@ -528,3 +531,6 @@ rand.list <- function(tree, DF1,
 }
 
 
+options=list(aggregate.subspecies = TRUE,
+        insertion = "random",
+        prob = TRUE,  polyphyletic.insertion="freq")
