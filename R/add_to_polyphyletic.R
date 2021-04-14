@@ -215,4 +215,3 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T){
 
 }
 
-add.to.polyphyletic(tree = GBOTB.extended, new.tip = genus.taxa, poly.ins , prob )
