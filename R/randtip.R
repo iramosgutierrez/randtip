@@ -500,7 +500,7 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
     #Polytomies
     if(nrow(DF1.poly)>0){
       if(verbose){
-        cat(paste0("Starting polytomies addition \n"))
+        cat(paste0("\n","Starting polytomies addition \n"))
       }
       DF1.poly<-DF1.poly[!(DF1.poly$taxon %in% new.tree$tip.label),]
 
@@ -512,8 +512,14 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
         MDCC.genera <- unique(randtip::firstword(MDCC.taxa.inDF1))
         MDCC.taxa.inTree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
         MDCC.mrca<- ape::getMRCA(new.tree, MDCC.taxa.inTree)
-       new.tree<- randtip::polytomy.into.node(tree=new.tree, new.tip =MDCC.taxa.toAdd, node = MDCC.mrca )
-      }
+        new.tree<- randtip::polytomy.into.node(tree=new.tree, new.tip =MDCC.taxa.toAdd, node = MDCC.mrca )
+
+        if(verbose){
+          cat(paste0(which(MDCCs==MDCCs.i), "/", length(MDCCs),
+                     " (",round(which(MDCCs==MDCCs.i)/length(MDCCs)*100, 2), " %). ",
+                     "Adding ", MDCCs.i ," (",
+                     length(MDCC.taxa.toAdd)," tips).\n")) }
+        }
 
     }
 
