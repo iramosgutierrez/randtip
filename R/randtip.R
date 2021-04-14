@@ -432,7 +432,7 @@ rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
 if(length(MDCC)>1){stop("Several MDCCs recognised for genus ", genus, ". Please correct your DF1")}
             #genus.match <- DF1$using.MDCC==MDCC
             MDCC.type <- randtip::MDCC.phyleticity(DF1 = DF1.rand, tree = new.tree,
-                          MDCC.info = list(level=level, MDCC=MDCC), trim=F)
+                          MDCC.info = list(level=level, MDCC=MDCC), trim)
 
             genus.taxa <- taxa[randtip::firstword(taxa)==genus]
             genus.taxa <- sample(genus.taxa, length(genus.taxa))
