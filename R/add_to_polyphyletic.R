@@ -103,10 +103,10 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T){
           mrca.desc <- randtip::notNA(new.tree$tip.label[mrca.desc])
           mrca.desc.gen <- randtip::firstword(mrca.desc)
           intruders <- mrca.desc[mrca.desc.gen != genus]
-          intruders.mrca <- phytools::findMRCA(new.tree, tips = intruders)
           if(length(intruders)==1){
             new.tree<-add.into.node(new.tree, node = mrca, new.tip = sp, prob = prob)
           }else{
+          intruders.mrca <- phytools::findMRCA(new.tree, tips = intruders)
           new.tree <- add.to.paraphyletic(tree = new.tree,
                                           new.tip = sp,
                                           group.node = mrca,
@@ -215,5 +215,4 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T){
 
 }
 
-#POR ALGUNA RAZÓN, CUANDO APLICO ESTA FUNCIÓN (EN FREQ O LARGE), A VECES INCLUYE UN NEW.TIP
-#AL FINAL DEL TODO, JUNTO A ACHILLUM MILLEFOLIUM
+
