@@ -32,16 +32,16 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T){
       group.types <- rep(list(NA), times = length(taxa.vector))
       names(group.types) <- taxa.vector
 
-      for(t in 1:length(taxa.vector)){
-        taxon <- taxa.vector[t]
+      for(tx in 1:length(taxa.vector)){
+        taxon <- taxa.vector[tx]
         taxon.tip <- which(new.tree$tip.label == taxon)
         par.sib <- get.parent.siblings(new.tree, taxon.tip)
 
         siblings.genus <- randtip::firstword(par.sib$siblings)
 
         if(sum(siblings.genus == genus) == 1){
-          groups[[t]]<- taxon
-          group.types[[t]]<- "singleton"
+          groups[[tx]]<- taxon
+          group.types[[tx]]<- "singleton"
         }
         if(sum(siblings.genus == genus) > 1){
           grouped.list <- get.grouped(tree = new.tree, siblings.genera = siblings.genus,
@@ -52,24 +52,24 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T){
           grouped.gen.uniq <- randtip::notNA(unique(grouped.gen))
 
           if(length(grouped.gen.uniq) == 1){
-            groups[[t]] <- grouped
-            group.types[[t]] <- "monophyletic"
+            groups[[tx]] <- grouped
+            group.types[[tx]] <- "monophyletic"
           }
           if(length(grouped.gen.uniq) > 1){
-            groups[[t]] <- grouped[grouped.gen == genus]
+            groups[[tx]] <- grouped[grouped.gen == genus]
 
             group.mrca <- ape::getMRCA(new.tree, grouped )
-            group.descs<- randtip::getDescendants(new.tree, group.mrca, curr = F)
+            group.descs<- phytools::getDescendants(new.tree, group.mrca)
             group.descs<- randtip::notNA(new.tree$tip.label[group.descs])
             intruders <- group.descs[randtip::firstword(group.descs)!=genus]
-            if(length(intruders)==1){group.types[[t]]<- "paraphyletic"
+            if(length(intruders)==1){group.types[[tx]]<- "paraphyletic"
             next}
             intruders.mrca<- ape::getMRCA(new.tree, intruders )
-            intruders.descs<- randtip::getDescendants(new.tree, intruders.mrca, curr = F)
+            intruders.descs<- phytools::getDescendants(new.tree, intruders.mrca)
             intruders.descs<- randtip::notNA(new.tree$tip.label[intruders.descs])
             intruders.genera <- randtip::firstword(intruders.descs)
-            if(genus %in% intruders.genera){group.types[[t]]<- "polyphyletic"}else{
-              group.types[[t]]<- "paraphyletic"
+            if(genus %in% intruders.genera){group.types[[tx]]<- "polyphyletic"}else{
+              group.types[[tx]]<- "paraphyletic"
             }
 
           }
@@ -98,7 +98,7 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T){
                                              new.tip = sp, prob=prob)}
         if(group.type == "paraphyletic"){
           mrca <- phytools::findMRCA(new.tree, tips = group)
-          mrca.desc <- randtip::getDescendants(new.tree, mrca, curr = F)
+          mrca.desc <- phytools::getDescendants(new.tree, mrca)
           mrca.desc <- mrca.desc[!is.na(mrca.desc)]
           mrca.desc <- randtip::notNA(new.tree$tip.label[mrca.desc])
           mrca.desc.gen <- randtip::firstword(mrca.desc)
@@ -156,13 +156,13 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T){
                 groups[[t]] <- grouped[grouped.gen == genus]
 
                 group.mrca <- ape::getMRCA(new.tree, grouped )
-                group.descs<- randtip::getDescendants(new.tree, group.mrca, curr = F)
+                group.descs<- phytools::getDescendants(new.tree, group.mrca)
                 group.descs<- randtip::notNA(new.tree$tip.label[group.descs])
                 intruders <- group.descs[randtip::firstword(group.descs)!=genus]
                 if(length(intruders)==1){group.types[[t]]<- "paraphyletic"
                 next}
                 intruders.mrca<- ape::getMRCA(new.tree, intruders )
-                intruders.descs<- randtip::getDescendants(new.tree, intruders.mrca, curr = F)
+                intruders.descs<- phytools::getDescendants(new.tree, intruders.mrca)
                 intruders.descs<- randtip::notNA(new.tree$tip.label[intruders.descs])
                 intruders.genera <- randtip::firstword(intruders.descs)
                 if(genus %in% intruders.genera){group.types[[t]]<- "polyphyletic"}else{
@@ -198,7 +198,7 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T){
                                           new.tip = sp, prob=prob)}
             if(group.type == "paraphyletic"){
                 mrca <- phytools::findMRCA(new.tree, tips = group)
-                mrca.desc <- randtip::getDescendants(new.tree, mrca, curr = F)
+                mrca.desc <- phytools::getDescendants(new.tree, mrca)
                 mrca.desc <- mrca.desc[!is.na(mrca.desc)]
                 mrca.desc.gen <- stringr::word(mrca.desc, 1, sep = "_")
                 intruders <- mrca.desc[mrca.desc.gen != genus]
@@ -214,3 +214,5 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T){
     return(new.tree)
 
 }
+
+add.to.polyphyletic(tree = GBOTB.extended, new.tip = genus.taxa, poly.ins , prob )
