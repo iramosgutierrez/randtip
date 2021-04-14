@@ -332,7 +332,9 @@ usingMDCCfinder<- function(DF1, taxon, tree, verbose=F){
   MDCC.vect<- vector(mode="character", length = length(taxon))
   MDCC.lev.vect<- vector(mode="character", length = length(taxon))
 
-
+  if(verbose){
+    cat("Searching MDCCs... ", "\n")
+    }
   for(v in 1:length(taxon)){
   i<- which(DF1$taxon==taxon[v])
   MDCC<-NA
@@ -351,7 +353,7 @@ usingMDCCfinder<- function(DF1, taxon, tree, verbose=F){
 
       if(verbose){
         if(v %in% c(seq(0, length(taxon), 10), length(taxon))){
-          cat(paste0("Searching MDCCs. ", round((v/length(taxon)*100),2), " % completed.\n"))
+          cat(paste0(round((v/length(taxon)*100),2), " % completed.\n"))
         }
 
       }
@@ -364,12 +366,9 @@ usingMDCCfinder<- function(DF1, taxon, tree, verbose=F){
 
 #' randtip "MOTHER FUNCTION"
 #' @export
-rand.list <- function(tree, DF1,
-                    type = "random",
-                    aggregate.subspecies = TRUE,
-                   # insertion = "random",    ELIMINAR
-                    prob = TRUE, verbose = FALSE, poly.ins="freq",
-                    trim=TRUE){
+rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
+                    prob = TRUE, verbose = FALSE,
+                    poly.ins="freq",trim=TRUE){
 
     start<- Sys.time()
 
@@ -386,7 +385,7 @@ rand.list <- function(tree, DF1,
     DF1_search<- usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree, verbose)
     DF1$using.MDCC     <- DF1_search[[1]]
     DF1$using.MDCC.lev <- DF1_search[[2]]
-
+    if(verbose){cat("\n")}
 
     if(trim){
       trimming.species<- rep(NA, 1)
@@ -426,7 +425,7 @@ rand.list <- function(tree, DF1,
 
 
         for(i in 1:length(taxa.genera)){
-            gen.start<- Sys.time()
+
 
             genus <- taxa.genera[i]
             MDCC  <- unique(DF1.rand$using.MDCC    [randtip::firstword(DF1.rand$using.taxa)==genus])
@@ -485,12 +484,7 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
                                         new.tips = genus.taxa[2:length(genus.taxa)] )
             }
 
-            gen.end <- Sys.time()
-            if(verbose){
-                cat(paste0("\U2713", " (done in ",
-                           round(as.numeric(difftime(gen.end, gen.start, units = "secs")), 2), " sec. out of ",
-                           round(as.numeric(difftime(gen.end, start,     units = "mins")), 2), " mins)\n"))
-            }
+
 
         }
       }
@@ -499,12 +493,15 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
             new.tree <- randtip.subsp(tree = new.tree, DF1.dupl, verbose)
             }
 
-
+    if(verbose){cat("\n")}
     new.tree <- get.original.names(tree = new.tree, DF1 = DF1.nonpoly, verbose )
 
 
     #Polytomies
     if(nrow(DF1.poly)>0){
+      if(verbose){
+        cat(paste0("Starting polytomies addition \n"))
+      }
       DF1.poly<-DF1.poly[!(DF1.poly$taxon %in% new.tree$tip.label),]
 
       MDCCs<- unique(DF1.poly$using.MDCC)
@@ -532,10 +529,15 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
     if(isTRUE(trim)){new.tree <- ape::keep.tip(new.tree, complete.taxa.list.in.tree)}
 
 
-
+    end <- Sys.time()
+    if(verbose){
+      cat(paste0("\n","\n","\U2713", " Tip Randomization completed in ",
+                 round(as.numeric(difftime(end, start,units = "mins")), 2), " mins\n"))
+    }
 
     return(new.tree)
 }
+
 
 
 
