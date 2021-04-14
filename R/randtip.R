@@ -201,6 +201,9 @@ get.permitted.nodes <- function (tree, node){
   }
 
 get.original.names <- function(tree, DF1, verbose = FALSE){
+  if(verbose){
+    cat("Starting name checking...", "\n")
+  }
 
     for(n in 1:nrow(DF1)){
         tip.label <- tree$tip.label
@@ -208,14 +211,12 @@ get.original.names <- function(tree, DF1, verbose = FALSE){
         if(DF1$using.taxa[n] %in% tree$tip.label){
             correct.tip.loc <- tree$tip.label == DF1$using.taxa[n]
             tree$tip.label[correct.tip.loc] <- DF1$taxon[n]
-            if(verbose){
-                print(paste0("name correction: ", n, "/",
-                             nrow(DF1), " (",
-                             round(n/nrow(DF1)*100, 2), " %)"))
-            }
+
         }
     }
-
+  if(verbose){
+    cat("\U2713", "Names checking completed", "\n")
+  }
     return(tree)
 }
 
@@ -400,19 +401,19 @@ rand.list <- function(tree, DF1,
         trimming.species<- randtip::notNA(trimming.species)
         new.tree <- ape::keep.tip(new.tree, trimming.species)}
 
-    if(isTRUE(agg.ssp)){DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"0"}else{DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"1"}
+    if(isTRUE(agg.ssp)){DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"1"}else{DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"0"}
     if(type=="random"){DF1$rand.type[is.na(DF1$rand.type)]<-"0"}else{DF1$rand.type[is.na(DF1$rand.type)]<-"1"}
     {DF1$poly.ins[is.na(DF1$poly.ins)]<-poly.ins}
 
 
-    DF1.poly <- DF1[DF1$rand.type=="1",]
-    DF1.rand <- DF1[DF1$rand.type=="0",]
+    DF1.poly    <- DF1[DF1$rand.type=="1",]
+    DF1.nonpoly <- DF1[DF1$rand.type=="0",]
 
-    DF1.rand$using.taxa <- get.taxa.to.use(DF1.rand)
-    DF1.rand <- DF1.rand[order(DF1.rand$using.taxa),]
-    is.duplicated <- duplicated(DF1.rand$using.taxa)
-    DF1.dupl <- DF1.rand[ is.duplicated,]
-    DF1.rand <- DF1.rand[!is.duplicated,]
+    DF1.nonpoly$using.taxa <- get.taxa.to.use(DF1.nonpoly)
+    DF1.nonpoly <- DF1.nonpoly[order(DF1.nonpoly$using.taxa),]
+    is.duplicated <- duplicated(DF1.nonpoly$using.taxa)
+    DF1.dupl <- DF1.nonpoly[ is.duplicated,]
+    DF1.rand <- DF1.nonpoly[!is.duplicated,]
 
 
     #Phase 1. Random insertions, non-aggregated
@@ -424,7 +425,7 @@ rand.list <- function(tree, DF1,
 
 
 
-        for(i in 1:length(taxa.genera)){        #loop 1
+        for(i in 1:length(taxa.genera)){
             gen.start<- Sys.time()
 
             genus <- taxa.genera[i]
@@ -488,43 +489,41 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
             if(verbose){
                 cat(paste0("\U2713", " (done in ",
                            round(as.numeric(difftime(gen.end, gen.start, units = "secs")), 2), " sec. out of ",
-                           round(as.numeric(difftime(gen.end, start,     units = "mins")), 2), " mins\n)"))
+                           round(as.numeric(difftime(gen.end, start,     units = "mins")), 2), " mins)\n"))
             }
 
         }
       }
     #Phase 2 - Random insertions, aggregated subspecies
-        if(nrow(DF1.dupl)>0){
+    if(nrow(DF1.dupl)>0){
             new.tree <- randtip.subsp(tree = new.tree, DF1.dupl, verbose)
             }
 
 
-    new.tree <- get.original.names(new.tree, DF1)
+    new.tree <- get.original.names(tree = new.tree, DF1 = DF1.nonpoly, verbose )
 
 
     #Polytomies
-    {
-        #In polytomy cases, names are not changed
-        DF1$using.taxa <- DF1$taxon
+    if(nrow(DF1.poly)>0){
+      DF1.poly<-DF1.poly[!(DF1.poly$taxon %in% new.tree$tip.label),]
 
-        taxa.table <- DF1[!duplicated(DF1$using.taxa),]
-        taxa.table$using.taxa <- gsub(" ", "_", taxa.table$using.taxa)
-        taxa.table <- taxa.table[!(taxa.table$using.taxa %in% tree$tip.label),]
-
-        taxa.genera <- taxa.table$genus
-        taxa.genera <- sample(taxa.genera, length(taxa.genera))
-
-        new.tree <- add.polytomy.types(new.tree, taxa.table, species.table,
-                                       type, insertion, taxa.genera)
+      MDCCs<- unique(DF1.poly$using.MDCC)
+      for(MDCCs.i in MDCCs){
+        MDCCs.i.level<- unique(DF1.poly$using.MDCC.lev[DF1.poly[,"using.MDCC"]==MDCCs.i])
+        MDCC.taxa.toAdd <- DF1.poly$taxon[DF1.poly[,"using.MDCC"]==MDCCs.i]
+        MDCC.taxa.inDF1 <- DF1$taxon[DF1[, MDCCs.i.level]==MDCCs.i]
+        MDCC.genera <- unique(randtip::firstword(MDCC.taxa.inDF1))
+        MDCC.taxa.inTree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
+        MDCC.mrca<- ape::getMRCA(new.tree, MDCC.taxa.inTree)
+       new.tree<- randtip::polytomy.into.node(tree=new.tree, new.tip =MDCC.taxa.toAdd, node = MDCC.mrca )
+      }
 
     }
 
-    if(!is.null(DF1.dupl)){
-        complete.taxa.list <- c(DF1$taxon, DF1.dupl$taxon)
-    }else{
-        complete.taxa.list <- DF1$taxon
-    }
 
+
+
+    complete.taxa.list <- DF1$taxon
     complete.taxa.list.in.tree <- complete.taxa.list[complete.taxa.list %in% new.tree$tip.label]
     not.included <- complete.taxa.list[!(complete.taxa.list %in% complete.taxa.list.in.tree)]
     if(length(not.included) > 1){
