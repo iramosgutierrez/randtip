@@ -459,7 +459,7 @@ if(length(MDCC)>1){stop("Several MDCCs recognised for genus ", genus, ". Please 
                                                     new.tip = genus.taxa[j], prob)
                 }
             }else if(MDCC.type=="Polyphyletic"){
-              poly.ins<- unique(DF1.rand$poly.ins[DF1$using.taxa %in% genus.taxa])
+              poly.ins<- unique(DF1.rand$poly.ins[DF1.rand$using.taxa %in% genus.taxa])
 if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genus ", genus, ". Please correct your DF1")}
                 new.tree<- add.to.polyphyletic(tree = new.tree, new.tip = genus.taxa,
                                 polyphyletic.insertion =poly.ins, prob)
