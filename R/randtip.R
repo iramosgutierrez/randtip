@@ -333,7 +333,7 @@ usingMDCCfinder<- function(DF1, taxon, tree, verbose=F){
   MDCC.lev.vect<- vector(mode="character", length = length(taxon))
 
   if(verbose){
-    cat("Searching MDCCs... ", "\n")
+    cat(paste0("Searching MDCCs... ", "\n"))
     }
   for(v in 1:length(taxon)){
   i<- which(DF1$taxon==taxon[v])
@@ -353,7 +353,7 @@ usingMDCCfinder<- function(DF1, taxon, tree, verbose=F){
 
       if(verbose){
         if(v %in% c(seq(0, length(taxon), 10), length(taxon))){
-          cat(paste0(round((v/length(taxon)*100),2), " % completed.\n"))
+          cat(paste0(round((v/length(taxon)*100),2), "% completed.\n"))
         }
 
       }
@@ -422,11 +422,10 @@ rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
         taxa.genera <- randtip::firstword(taxa)
         taxa.genera <- unique(taxa.genera)
 
-
+        if(verbose){
+          cat(paste0("Starting randomization","\n")) }
 
         for(i in 1:length(taxa.genera)){
-
-
             genus <- taxa.genera[i]
             MDCC  <- unique(DF1.rand$using.MDCC    [randtip::firstword(DF1.rand$using.taxa)==genus])
             level <- unique(DF1.rand$using.MDCC.lev[randtip::firstword(DF1.rand$using.taxa)==genus])
@@ -441,7 +440,7 @@ if(length(MDCC)>1){stop("Several MDCCs recognised for genus ", genus, ". Please 
 
             if(verbose){
               cat(paste0(i, "/", length(taxa.genera),
-                           " (",round(i/length(taxa.genera)*100, 2), " %). ",
+                           " (",round(i/length(taxa.genera)*100, 2), "%). ",
                            "Adding ", genus, " to ", MDCC ," (", MDCC.type,", ",
                            length(taxa.genera)," tips).\n")) }
 
