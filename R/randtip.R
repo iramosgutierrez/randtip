@@ -425,7 +425,7 @@ rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
         if(verbose){
           cat(paste0("Starting randomization","\n")) }
 
-        for(i in 1:length(taxa.genera)){
+        for(i in seq_along(taxa.genera)){
             genus <- taxa.genera[i]
             MDCC  <- unique(DF1.rand$using.MDCC    [randtip::firstword(DF1.rand$using.taxa)==genus])
             level <- unique(DF1.rand$using.MDCC.lev[randtip::firstword(DF1.rand$using.taxa)==genus])
