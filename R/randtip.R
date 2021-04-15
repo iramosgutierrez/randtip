@@ -408,8 +408,6 @@ rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
     DF1.poly    <- DF1[DF1$rand.type=="1",]
     DF1.nonpoly <- DF1[DF1$rand.type=="0",]
 
-    DF1.dupl <-NULL
-    DF1.rand <-NULL
 
     if(nrow(DF1.nonpoly)>0){
     DF1.nonpoly$using.taxa <- get.taxa.to.use(DF1.nonpoly)
@@ -498,7 +496,7 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
             }}
 
     if(verbose){cat("\n")}
-    new.tree <- get.original.names(tree = new.tree, DF1 = DF1.nonpoly, verbose )
+    if(nrow(DF1.nonpoly)>0){new.tree <- get.original.names(tree = new.tree, DF1 = DF1.nonpoly, verbose )}
 
 
     #Polytomies
@@ -516,7 +514,10 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
         MDCC.genera <- unique(randtip::firstword(MDCC.taxa.inDF1))
         MDCC.taxa.inTree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
         MDCC.mrca<- ape::getMRCA(new.tree, MDCC.taxa.inTree)
-        new.tree<- randtip::polytomy.into.node(tree=new.tree, new.tip =MDCC.taxa.toAdd, node = MDCC.mrca )
+        if(length(MDCC.taxa.inTree)==1){new.tree<- randtip::polytomy.to.singleton(new.tree, MDCC.taxa.inTree,
+                                                                                  MDCC.taxa.toAdd, insertion = "long")}
+        if(length(MDCC.taxa.inTree)>1) {new.tree<- randtip::polytomy.into.node(tree=new.tree,
+                                                                               new.tip =MDCC.taxa.toAdd, node = MDCC.mrca)}
 
         if(verbose){
           cat(paste0(which(MDCCs==MDCCs.i), "/", length(MDCCs),
@@ -533,7 +534,7 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
     complete.taxa.list <- DF1$taxon
     complete.taxa.list.in.tree <- complete.taxa.list[complete.taxa.list %in% new.tree$tip.label]
     not.included <- complete.taxa.list[!(complete.taxa.list %in% complete.taxa.list.in.tree)]
-    if(length(not.included) > 1){
+    if(length(not.included) > 0){
         message("The following taxa were not included in the tree: ", not.included, "\n")}
 
     if(isTRUE(trim)){new.tree <- ape::keep.tip(new.tree, complete.taxa.list.in.tree)}
@@ -609,7 +610,7 @@ rand.phy <- function(tree, DF1, DF2, type = "random",agg.ssp = TRUE,
 
 
   #Phase 1. Random insertions, non-aggregated
-  {if(nrow(DF1.rand)>0){
+  if(!is.null(DF1.rand)){if(nrow(DF1.rand)>0){
     taxa <- DF1.rand$using.taxa
     taxa <- taxa[!(taxa %in% tree$tip.label)]
     taxa.genera <- randtip::firstword(taxa)
@@ -681,12 +682,12 @@ rand.phy <- function(tree, DF1, DF2, type = "random",agg.ssp = TRUE,
     }
   }}
   #Phase 2 - Random insertions, aggregated subspecies
-  {if(nrow(DF1.dupl)>0){
+  if(!is.null(DF1.dupl)){if(nrow(DF1.dupl)>0){
     new.tree <- randtip.subsp(tree = new.tree, DF1.dupl, verbose)
   }}
 
   if(verbose){cat("\n")}
-  new.tree <- get.original.names(tree = new.tree, DF1 = DF1.nonpoly, verbose )
+  if(nrow(DF1.nonpoly)>0){new.tree <- get.original.names(tree = new.tree, DF1 = DF1.nonpoly, verbose )}
 
 
   #Polytomies
@@ -704,7 +705,10 @@ rand.phy <- function(tree, DF1, DF2, type = "random",agg.ssp = TRUE,
       MDCC.genera <- unique(randtip::firstword(MDCC.taxa.inDFtot))
       MDCC.taxa.inTree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
       MDCC.mrca<- ape::getMRCA(new.tree, MDCC.taxa.inTree)
-      new.tree<- randtip::polytomy.into.node(tree=new.tree, new.tip =MDCC.taxa.toAdd, node = MDCC.mrca )
+      if(length(MDCC.taxa.inTree)==1){new.tree<- randtip::polytomy.to.singleton(new.tree, MDCC.taxa.inTree,
+                                                                                MDCC.taxa.toAdd, insertion = "long")}
+      if(length(MDCC.taxa.inTree)>1) {new.tree<- randtip::polytomy.into.node(tree=new.tree,
+                                                                             new.tip =MDCC.taxa.toAdd, node = MDCC.mrca)}
 
       if(verbose){
         cat(paste0(which(MDCCs==MDCCs.i), "/", length(MDCCs),
