@@ -461,7 +461,7 @@ if(length(MDCC)>1){stop("Several MDCCs recognised for genus ", genus, ". Please 
               poly.ins<- unique(DF1.rand$poly.ins[DF1.rand$using.taxa %in% genus.taxa])
 if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genus ", genus, ". Please correct your DF1")}
                 new.tree<- add.to.polyphyletic(tree = new.tree, new.tip = genus.taxa,
-                                               poly.ins =poly.ins, prob)
+                                               poly.ins , prob)
             }else if(MDCC.type=="Singleton MDCC"){
                 # All tips added in one step
                 singleton <- tree$tip.label[(randtip::firstword(tree$tip.label) == genus)]
