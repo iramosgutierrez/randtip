@@ -71,6 +71,7 @@ get.parent.siblings <- function(tree, tip){
                 siblings = siblings))
 }
 
+#quitar
 par.sib.diff.genera <- function(tree, siblings.genera, tip){
     # At least one sibling is from the same genus
     while(length(unique(siblings.genera)) == 1){
@@ -83,6 +84,7 @@ par.sib.diff.genera <- function(tree, siblings.genera, tip){
     return(par.sib)
 }
 
+#quitar
 sib.intruders <- function(tree, genus, siblings){
     sibling.genera <- stringr::word(siblings, 1, sep = "_")
 
@@ -103,7 +105,7 @@ sib.intruders <- function(tree, genus, siblings){
     return(siblings)
 }
 
-
+#quitar
 get.grouped <- function(tree, siblings.genera, genus, tip){
 
     par.sib <- par.sib.diff.genera(tree = tree,siblings.genera =  siblings.genera,tip =  tip)
@@ -159,4 +161,108 @@ firstword<- function(string, sep="_"){
 notNA <- function(x){
   vect<- x[!is.na(x)]
   return(vect)
+}
+
+
+get.groups <- function(tree, genus){
+  species <- randtip::sp.genus.in.tree(tree, genus)
+  sp.mrca<- ape::getMRCA(tree, species)
+  mrca.descs <- phytools::getDescendants(tree, sp.mrca)
+
+  node.descs<- rep(list(NA), times=length(mrca.descs))
+  names(node.descs)<- mrca.descs
+
+  node.types<- rep(list(NA), times=length(mrca.descs))
+  names(node.types)<- mrca.descs
+
+  for(n in seq_along(mrca.descs)){
+     nd<- mrca.descs[n]
+
+    if(randtip::is.tip(tree = tree,node = nd)){
+      node.descs[[n]]<- tree$tip.label[nd]
+      node.types[[n]]<- "tip"
+      next
+    }
+
+    nd.descs<- phytools::getDescendants(tree, nd)
+    nd.descs <- randtip::notNA(tree$tip.label[nd.descs])
+    nd.genera<- randtip::firstword(nd.descs)
+
+    if(!(genus%in%nd.genera)){
+      node.descs[[n]]<- NA
+      node.types[[n]]<- NA
+      next
+    }
+
+
+    siblings<-randtip::get.parent.siblings(tree, tip = nd)$siblings
+    siblings<-siblings[-which(siblings%in%nd.descs)]
+    siblings.genus<- randtip::firstword(siblings)
+    if(all(nd.genera==genus)){
+
+      if(genus%in%siblings.genus){
+        node.descs[[n]]<- NA
+        node.types[[n]]<- NA}else{
+      node.descs[[n]]<- nd.descs
+      node.types[[n]]<- "monophyletic"}
+    next}
+
+      intruders<- nd.descs[nd.genera!=genus]
+
+      if(length(intruders)==1){
+        node.descs[[n]]<- nd.descs
+        node.types[[n]]<- "paraphyletic"
+        next}
+
+        intruders.mrca<- ape::getMRCA(tree, intruders)
+
+        intruders.descs<- phytools::getDescendants(tree, intruders.mrca)
+        intruders.descs <- randtip::notNA(tree$tip.label[intruders.descs])
+        intruders.genera<- randtip::firstword(intruders.descs)
+
+        if(genus %in% intruders.genera){
+          node.descs[[n]]<- nd.descs
+          node.types[[n]]<- "polyphyletic"
+          next}
+        if(length(nd.genera[nd.genera==genus])==1){
+            node.descs[[n]]<- nd.descs[nd.genera==genus]
+            node.types[[n]]<- "singleton"
+            next}
+
+          group<- nd.descs[nd.genera==genus]
+          group.mrca<- ape::getMRCA(tree, group)
+          group.descs<- phytools::getDescendants(tree, group.mrca)
+          group.descs<- randtip::notNA(tree$tip.label[group.descs])
+          group.descs.gen <- randtip::firstword(group.descs)
+          if(!all(group.descs.gen==genus)){
+            node.descs[[n]]<- nd.descs
+            node.types[[n]]<- "paraphyletic"
+          }else{
+            node.descs[[n]]<- NA
+            node.types[[n]]<- NA
+          }
+        }
+
+
+
+
+
+
+  node.types<-node.types[as.vector(which(!is.na(node.types)))]
+  node.descs<-node.descs[as.vector(which(!is.na(node.descs)))]
+
+  permitted.type<- as.vector(unlist(node.types))
+  permitted.type<- which(!(permitted.type%in% c("polyphyletic")))
+
+  permitted.gen<- grep(paste0(genus,"_"), (node.descs))
+
+  permitted<- intersect(permitted.type,permitted.gen)
+
+  node.types<-node.types[permitted]
+  node.descs<-node.descs[permitted]
+
+
+
+
+  return(list(species=node.descs, type=node.types))
 }
