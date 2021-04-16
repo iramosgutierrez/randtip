@@ -19,6 +19,9 @@ bind.tip.pos <- function(pos.min, pos.max){
 
 # Return index of edge where binding should take place
 get.index <- function(tree, how = "sample_simple", node = NULL, df = NULL){
+
+    if(randtip::isRoot(tree, node)){return(NA)}
+
     if(is.null(df)){
         df <- data.frame(tree$edge, tree$edge.length, 1:length(tree$edge.length))
     }
@@ -39,7 +42,7 @@ get.index <- function(tree, how = "sample_simple", node = NULL, df = NULL){
 }
 
 get.position <- function(tree, node, insertion){
-
+if(randtip::isRoot(tree, node)){position=0 ; return(position)}
     edge.length <- tree$edge.length[ape::which.edge(tree, node)]
     if(insertion=="random"){
         # Bind at a random point of the branch
@@ -274,4 +277,15 @@ correct.DF<- function(DF){
     if(length(vect)>0){DF[vect,i]<-NA}
     }
   return(DF)
+}
+
+isRoot<- function(tree, node){
+  tips<- length(tree$tip.label)
+  if(node==(tips+1)){root<-TRUE}else{root<-FALSE}
+  return(root)
+}
+
+findRoot<- function(tree){
+  tips<- length(tree$tip.label)
+  return(root+1)
 }

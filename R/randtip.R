@@ -512,6 +512,12 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
 
       MDCCs<- randtip::notNA(unique(DF1.poly$using.MDCC))
       for(MDCCs.i in MDCCs){
+        if(verbose){
+          cat(paste0(which(MDCCs==MDCCs.i), "/", length(MDCCs),
+                     " (",round(which(MDCCs==MDCCs.i)/length(MDCCs)*100, 2), " %). ",
+                     "Adding ", MDCCs.i ," (",
+                     length(MDCC.taxa.toAdd)," tips).\n")) }
+
         MDCCs.i.level<- unique(DF1.poly$using.MDCC.lev[DF1.poly[,"using.MDCC"]==MDCCs.i])
         MDCCs.i.level<- randtip::notNA(MDCCs.i.level)
         NAs.i <- which(is.na(DF1.poly[ , MDCCs.i.level]))
@@ -529,13 +535,9 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
           MDCC.mrca<- ape::getMRCA(new.tree, MDCC.taxa.inTree)
           new.tree<- randtip::polytomy.into.node(tree=new.tree,
                                             MDCC.taxa.toAdd,  MDCC.mrca)}
+            }
 
-        if(verbose){
-          cat(paste0(which(MDCCs==MDCCs.i), "/", length(MDCCs),
-                     " (",round(which(MDCCs==MDCCs.i)/length(MDCCs)*100, 2), " %). ",
-                     "Adding ", MDCCs.i ," (",
-                     length(MDCC.taxa.toAdd)," tips).\n")) }
-        }
+
 
     }
 
