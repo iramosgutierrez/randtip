@@ -51,7 +51,9 @@ build.input<- function(species, tree, find.MDCC=TRUE, db="ncbi", mode="list"){
 
         for(cat in searching.categories){
           if(length(search[which(search$rank==cat), "name"])==0){DF1[DF1$genus==genera[i], cat]<-NA}else{
-          DF1[DF1$genus==genera[i], cat]<- search[which(search$rank==cat), "name"]}
+            cats<-search[which(search$rank==cat), "name"]
+            if(length(cats)>1){cats<-cats[1]}
+            DF1[DF1$genus==genera[i], cat]<- cats}
         }
 
         if(mode=="phylomatic"){
