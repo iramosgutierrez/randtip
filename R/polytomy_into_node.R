@@ -24,7 +24,9 @@ polytomy.into.node <- function(tree, new.tip, node){
      node<- phytools::findMRCA(tree=new.tree, tips=sticksp)
 
      to.index <- randtip::get.index(new.tree, node = node)
-     bind.where <- new.tree$edge[to.index, 2]
+     if(is.na(to.index)){
+       bind.where <- new.tree$edge[1, 1]}else{
+         bind.where <- new.tree$edge[to.index, 2]}
      # Indexing position; node length is 0
      new.tree <- phytools::bind.tip(new.tree,
                                     new.tip[i],
