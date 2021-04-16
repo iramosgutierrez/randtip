@@ -509,10 +509,12 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
       }
       DF1.poly<-DF1.poly[!(DF1.poly$taxon %in% new.tree$tip.label),]
 
-      MDCCs<- unique(DF1.poly$using.MDCC)
+      MDCCs<- randtip::notNA(unique(DF1.poly$using.MDCC))
       for(MDCCs.i in MDCCs){
-        MDCCs.i.level<- unique(DF1.poly$using.MDCC.lev[DF1.poly[,"using.MDCC"]==MDCCs.i])
-        MDCC.taxa.toAdd <- DF1.poly$taxon[DF1.poly[,"using.MDCC"]==MDCCs.i]
+        NAs<- which(is.na(DF1.poly[,"using.MDCC"]==MDCCs.i))
+        DF1.poly.i<- DF1.poly[-NAs,]
+        MDCCs.i.level<- unique(DF1.poly.i$using.MDCC.lev[DF1.poly.i[,"using.MDCC"]==MDCCs.i])
+        MDCC.taxa.toAdd <- DF1.poly.i$taxon[DF1.poly.i[,"using.MDCC"]==MDCCs.i]
         MDCC.taxa.inDF1 <- DF1$taxon[DF1[, MDCCs.i.level]==MDCCs.i]
         MDCC.genera <- unique(randtip::firstword(MDCC.taxa.inDF1))
         MDCC.taxa.inTree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
