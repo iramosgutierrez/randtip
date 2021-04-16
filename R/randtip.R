@@ -337,11 +337,11 @@ usingMDCCfinder<- function(DF1, taxon, tree, verbose=F){
     }
   for(v in 1:length(taxon)){
   i<- which(DF1$taxon==taxon[v])
-  MDCC<-NA
-  MDCC.levels<-NA
+  MDCC<-as.character(NA)
+  MDCC.levels<-as.character(NA)
   for(level in levels){
       if(is.na(MDCC)){
-        MDCC<-DF1[i, level]
+        MDCC<-as.character(DF1[i, level])
         if(!is.na(MDCC)){phyleticity<-randtip::MDCC.phyleticity(DF1, tree = tree,
                      MDCC.info = list(level=level, MDCC= MDCC))
         if(phyleticity=="Not included"){MDCC<-NA}
@@ -350,8 +350,9 @@ usingMDCCfinder<- function(DF1, taxon, tree, verbose=F){
         lev<-level
       }else{next}
     }
-      MDCC.vect[v]<-MDCC
-      MDCC.lev.vect[v]<-lev
+      MDCC.vect[v]<-as.character(MDCC)
+      MDCC.lev.vect[v]<-as.character(lev)
+      if(is.na(MDCC)){MDCC.lev.vect[v]<-NA}
 
       if(verbose){
         if(v %in% c(seq(0, length(taxon), 10), length(taxon))){
