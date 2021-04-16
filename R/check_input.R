@@ -52,11 +52,12 @@ check.input<- function(DF1, tree){
 levels<-c("genus", "tribe","subfamily","family", "order", "class")
   for (level in levels){
     groups<- unique(DF1[,level])
+    groups<- randtip::notNA(groups)
 
-    for(group in groups){
+   if (length(groups)>0){for(group in groups){
       type<- randtip::MDCC.phyleticity(DF1, tree, MDCC.info = list("level"= level, "MDCC"= group))
     DF[which(DF[,level]==group), paste0(level,"_phyletic.status")]<-type
-      }
+      }}
 
   }
 
