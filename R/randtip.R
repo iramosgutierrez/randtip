@@ -208,7 +208,8 @@ get.original.names <- function(tree, DF1, verbose = FALSE){
     for(n in 1:nrow(DF1)){
         tip.label <- tree$tip.label
         if(DF1$using.taxa[n] == DF1$taxon[n]) next
-        if(DF1$using.taxa[n] %in% tree$tip.label){
+        if(DF1$using.taxa[n] %in% tree$tip.label&
+           !(DF1$using.taxa[n] %in% DF1$taxon)){
             correct.tip.loc <- tree$tip.label == DF1$using.taxa[n]
             tree$tip.label[correct.tip.loc] <- DF1$taxon[n]
 
@@ -229,7 +230,7 @@ randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
     sp <- stringr::word(rep.taxa, 2, sep= "_")
 
     for(i in 1:length(rep.taxa.species)){
-        sp.start<- Sys.time()
+
         # Select subspecies
         ssps <- rep.taxa[paste0(genus, "_", sp) == rep.taxa.species[i]]
         ssps <- sample(ssps, length(ssps))
@@ -244,13 +245,6 @@ randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
         # Add subspecies as singleton
         new.tree <- add.to.singleton(new.tree, singleton = sp.to.add,
                                      new.tips = ssps)
-        sp.end<- Sys.time()
-#        if(verbose){
-#            print(paste0(i, "/", length(rep.taxa.species), " (",
-#                         round(i/length(rep.taxa.species)*100, 2), " %): ",
-#                         rep.taxa.species[i]," (",
-#                         round(as.numeric(difftime(sp.end, sp.start, units = "secs")), 2), " sec. out of ",
-#                         round(as.numeric(difftime(sp.end, start,     units = "mins")), 2), " mins)"))
 #        }
     }
     return(new.tree)
@@ -437,7 +431,7 @@ rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
             MDCC  <- unique(DF1.rand$using.MDCC    [randtip::firstword(DF1.rand$using.taxa)==genus])
             level <- unique(DF1.rand$using.MDCC.lev[randtip::firstword(DF1.rand$using.taxa)==genus])
 if(length(MDCC)>1){stop("Several MDCCs recognised for genus ", genus, ". Please correct your DF1")}
-            #genus.match <- DF1$using.MDCC==MDCC
+
             MDCC.type <- randtip::MDCC.phyleticity(DF1 = DF1.rand, tree = new.tree,
                           MDCC.info = list(level=level, MDCC=MDCC), trim)
 
