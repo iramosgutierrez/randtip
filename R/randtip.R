@@ -512,11 +512,6 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
 
       MDCCs<- randtip::notNA(unique(DF1.poly$using.MDCC))
       for(MDCCs.i in MDCCs){
-        if(verbose){
-          cat(paste0(which(MDCCs==MDCCs.i), "/", length(MDCCs),
-                     " (",round(which(MDCCs==MDCCs.i)/length(MDCCs)*100, 2), " %). ",
-                     "Adding ", MDCCs.i ," (",
-                     length(MDCC.taxa.toAdd)," tips).\n")) }
 
         MDCCs.i.level<- unique(DF1.poly$using.MDCC.lev[DF1.poly[,"using.MDCC"]==MDCCs.i])
         MDCCs.i.level<- randtip::notNA(MDCCs.i.level)
@@ -527,6 +522,13 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
         MDCC.genera <- unique(randtip::firstword(MDCC.taxa.inDF1))
         MDCC.taxa.inTree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
 
+        if(verbose){
+          cat(paste0(which(MDCCs==MDCCs.i), "/", length(MDCCs),
+                     " (",round(which(MDCCs==MDCCs.i)/length(MDCCs)*100, 2), " %). ",
+                     "Adding ", MDCCs.i ," (",
+                     length(MDCC.taxa.toAdd)," tips).\n")) }
+
+
         if(length(MDCC.taxa.inTree)==1){
           new.tree<- randtip::polytomy.to.singleton(new.tree, MDCC.taxa.inTree,
                                             MDCC.taxa.toAdd, insertion = "long")}
@@ -534,7 +536,7 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
         if(length(MDCC.taxa.inTree)>1) {
           MDCC.mrca<- ape::getMRCA(new.tree, MDCC.taxa.inTree)
           new.tree<- randtip::polytomy.into.node(tree=new.tree,
-                                            MDCC.taxa.toAdd,  MDCC.mrca)}
+                            new.tip =MDCC.taxa.toAdd, node =  MDCC.mrca)}
             }
 
 
