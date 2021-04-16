@@ -509,20 +509,26 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
       }
       DF1.poly<-DF1.poly[!(DF1.poly$taxon %in% new.tree$tip.label),]
 
+
       MDCCs<- randtip::notNA(unique(DF1.poly$using.MDCC))
       for(MDCCs.i in MDCCs){
-        NAs<- which(is.na(DF1.poly[,"using.MDCC"]==MDCCs.i))
-        DF1.poly.i<- DF1.poly[-NAs,]
-        MDCCs.i.level<- unique(DF1.poly.i$using.MDCC.lev[DF1.poly.i[,"using.MDCC"]==MDCCs.i])
-        MDCC.taxa.toAdd <- DF1.poly.i$taxon[DF1.poly.i[,"using.MDCC"]==MDCCs.i]
+        MDCCs.i.level<- unique(DF1.poly$using.MDCC.lev[DF1.poly[,"using.MDCC"]==MDCCs.i])
+        MDCCs.i.level<- randtip::notNA(MDCCs.i.level)
+        NAs.i <- which(is.na(DF1.poly[ , MDCCs.i.level]))
+        if(length(NAs.i)>0) {DF1.poly<- DF1.poly[-NAs.i,]}
+        MDCC.taxa.toAdd <- DF1.poly$taxon[DF1.poly[,"using.MDCC"]==MDCCs.i]
         MDCC.taxa.inDF1 <- DF1$taxon[DF1[, MDCCs.i.level]==MDCCs.i]
         MDCC.genera <- unique(randtip::firstword(MDCC.taxa.inDF1))
         MDCC.taxa.inTree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
-        MDCC.mrca<- ape::getMRCA(new.tree, MDCC.taxa.inTree)
-        if(length(MDCC.taxa.inTree)==1){new.tree<- randtip::polytomy.to.singleton(new.tree, MDCC.taxa.inTree,
-                                                                                  MDCC.taxa.toAdd, insertion = "long")}
-        if(length(MDCC.taxa.inTree)>1) {new.tree<- randtip::polytomy.into.node(tree=new.tree,
-                                                                               new.tip =MDCC.taxa.toAdd, node = MDCC.mrca)}
+
+        if(length(MDCC.taxa.inTree)==1){
+          new.tree<- randtip::polytomy.to.singleton(new.tree, MDCC.taxa.inTree,
+                                            MDCC.taxa.toAdd, insertion = "long")}
+
+        if(length(MDCC.taxa.inTree)>1) {
+          MDCC.mrca<- ape::getMRCA(new.tree, MDCC.taxa.inTree)
+          new.tree<- randtip::polytomy.into.node(tree=new.tree,
+                                            MDCC.taxa.toAdd,  MDCC.mrca)}
 
         if(verbose){
           cat(paste0(which(MDCCs==MDCCs.i), "/", length(MDCCs),
@@ -540,7 +546,7 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
     complete.taxa.list.in.tree <- complete.taxa.list[complete.taxa.list %in% new.tree$tip.label]
     not.included <- complete.taxa.list[!(complete.taxa.list %in% complete.taxa.list.in.tree)]
     if(length(not.included) > 0){
-        message("The following taxa were not included in the tree: ", not.included, "\n")}
+        message("The following taxa were not included in the tree:\n", paste0(not.included, "\n"))}
 
     if(isTRUE(trim)){new.tree <- ape::keep.tip(new.tree, complete.taxa.list.in.tree)}
 
