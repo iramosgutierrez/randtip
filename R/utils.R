@@ -266,3 +266,12 @@ get.groups <- function(tree, genus){
 
   return(list(species=node.descs, type=node.types))
 }
+
+
+correct.DF<- function(DF){
+  for(i in 1:(ncol(DF))){
+    vect<- which(DF[,i]=="")
+    if(length(vect)>0){DF[vect,i]<-NA}
+    }
+  return(DF)
+}
