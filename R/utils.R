@@ -20,7 +20,7 @@ bind.tip.pos <- function(pos.min, pos.max){
 # Return index of edge where binding should take place
 get.index <- function(tree, how = "sample_simple", node = NULL, df = NULL){
 
-    if(randtip::isRoot(tree, node)){return(NA)}
+    if(!is.null(node)){if(randtip::isRoot(tree, node)){return(NA)}}
 
     if(is.null(df)){
         df <- data.frame(tree$edge, tree$edge.length, 1:length(tree$edge.length))
