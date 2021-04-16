@@ -342,9 +342,11 @@ usingMDCCfinder<- function(DF1, taxon, tree, verbose=F){
   for(level in levels){
       if(is.na(MDCC)){
         MDCC<-DF1[i, level]
-        phyleticity<-randtip::MDCC.phyleticity(DF1, tree = tree,
+        if(!is.na(MDCC)){phyleticity<-randtip::MDCC.phyleticity(DF1, tree = tree,
                      MDCC.info = list(level=level, MDCC= MDCC))
         if(phyleticity=="Not included"){MDCC<-NA}
+        }
+
         lev<-level
       }else{next}
     }
