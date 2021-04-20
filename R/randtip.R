@@ -365,7 +365,7 @@ usingMDCCfinder<- function(DF1, taxon, tree, verbose=F){
 #' @export
 rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
                     prob = TRUE, verbose = FALSE,
-                    poly.ins="freq",trim=TRUE){
+                    poly.ins="all",trim=TRUE){
 
     start<- Sys.time()
 
