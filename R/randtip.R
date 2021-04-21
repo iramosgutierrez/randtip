@@ -451,7 +451,7 @@ if(length(MDCC)>1){stop("Several MDCCs recognised for genus ", genus, ". Please 
             if(level=="genus"){
             if(MDCC.type=="Monophyletic"){
                 for( j in 1:length(genus.taxa)){
-                  new.tree<-add.to.monophyletic(tree = new.tree, new.tip = genus.taxa[j], prob)
+                  new.tree<-add.to.monophyletic(tree = new.tree, new.tip = genus.taxa[j], prob=prob)
                   }
             }else if(MDCC.type=="Paraphyletic"){#ALGUN ERROR EN PARAPHYLETIC!!!!
                 for( j in 1:length(genus.taxa)){

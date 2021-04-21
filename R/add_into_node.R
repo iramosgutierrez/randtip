@@ -80,7 +80,7 @@ add.into.node <- function(tree, node, new.tip, exception.list = NULL, prob=T){
   df.to.stick <- df[!(df$edge.id %in% unlist(forbid.edge)), ]
   df.to.stick <- df.to.stick[df.to.stick$child.node %in% descs,]
 
-  pos<- binding.position(tree = tree, df = df.to.stick, insertion = "random", prob )
+  pos<- binding.position(tree = tree, df = df.to.stick, insertion = "random", prob=prob)
 
   new.tree <- phytools::bind.tip(tree, new.tip, edge.length = pos$length,
                                  where = pos$where, position = pos$position)

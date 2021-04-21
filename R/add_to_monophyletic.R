@@ -15,6 +15,6 @@ add.to.monophyletic <- function(tree, new.tip, prob=T){
   }
 
   mrca <- phytools::findMRCA(tree = new.tree, tips = taxa.vector)
-  new.tree <- add.into.node(tree = new.tree, node = mrca, new.tip = new.tip, prob )
+  new.tree <- add.into.node(tree = new.tree, node = mrca, new.tip = new.tip, prob =prob)
   return(new.tree)
 }
