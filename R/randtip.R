@@ -223,6 +223,8 @@ get.original.names <- function(tree, DF1, verbose = FALSE){
 
 randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
     new.tree<-tree
+    DF1.dupl<- DF1.dupl[!(DF1.dupl$taxon%in%new.tree$tip.label),]
+
     rep.taxa <- DF1.dupl$taxon
     rep.taxa.species <- unique(DF1.dupl$using.taxa)
 
