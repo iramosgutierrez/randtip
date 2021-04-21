@@ -3,7 +3,7 @@
 #'
 #'
 
-check.input<- function(DF1, tree){
+check.input<- function(DF1, tree, verbose=F){
 
 
   DF1.taxa<-DF1$taxon
@@ -54,11 +54,13 @@ levels<-c("genus", "tribe","subfamily","family", "order", "class")
     groups<- unique(DF1[,level])
     groups<- randtip::notNA(groups)
 
-   if (length(groups)>0){for(group in groups){
+    if(verbose){cat( paste0("Checking phyletic status at ", level, " level ... (", length(groups), " categories)"))}
+    if (length(groups)>0){for(group in groups){
       type<- randtip::MDCC.phyleticity(DF1, tree, MDCC.info = list("level"= level, "MDCC"= group))
     DF[which(DF[,level]==group), paste0(level,"_phyletic.status")]<-type
-      }}
 
+      }}
+   if(verbose){ cat(paste0(" Done!", "\U2713", "\n"))}
   }
 
 DF<-DF[,c("taxon", "PUT.status", "Name.simmilarity","genus", "genus_phyletic.status",
