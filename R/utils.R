@@ -36,7 +36,7 @@ get.index <- function(tree, how = "sample_simple", node = NULL, df = NULL){
         stop("Unrecognized set of arguments to get.index function.")
     }
 
-    to.index <- edges[,4]
+    to.index <- edges$edge.id
 
     return(to.index)
 }
@@ -61,13 +61,13 @@ if(randtip::isRoot(tree, node)){position=0 ; return(position)}
 }
 
 
-binding.position<- function(tree, node=NULL, df=NULL, insertion, bind.type, prob){
+binding.position<- function(tree, node=NULL, df=NULL, insertion,  prob){
   position<-list("length"=NA, "where"=NA, "position"=NA)
 
   if(is.null(df)){df <- data.frame(tree$edge, tree$edge.length, 1:length(tree$edge.length))}
 
   if(ape::is.ultrametric(tree)){position$length<-NULL}else{
-    position$length<-rnorm(1, mean=mean(df$tree.edge.length), sd= sd(df$tree.edge.length) )}
+    position$length<-rnorm(1, mean=mean(df$edge.length), sd= sd(df$edge.length) )}
 
   if(insertion=="polytomy"){
     position$position<- 0
@@ -77,10 +77,10 @@ binding.position<- function(tree, node=NULL, df=NULL, insertion, bind.type, prob
   if(insertion=="random"){
     if(prob){how <- "sample_prob"}else{how <- "sample_simple"}
     index<- randtip::get.index(tree = tree, df=df , how = how)
-    pos <- randtip::get.position(tree = tree, node = df[df$id==index,2], insertion = "random")
+    pos <- randtip::get.position(tree = tree, node = df[df$edge.id==index,"child.node"], insertion = "random")
 
     position$position<- pos
-    position$where <- df[df$id==index,2]
+    position$where <- df[df$id==index,"child.node"]
   }
 
   return(position)
