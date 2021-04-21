@@ -9,29 +9,24 @@ polytomy.into.node <- function(tree, new.tip, node){
   for(i in 1: length(new.tip)){
 
     if (i==1) {
-    to.index <- randtip::get.index(new.tree, node = node)
-    if(is.na(to.index)){
-    bind.where <- new.tree$edge[1, 1]}else{
-    bind.where <- new.tree$edge[to.index, 2]}
+pos<- binding.position(tree=new.tree, node = node, insertion = "polytomy", prob = T)
     # Indexing position; node length is 0
     new.tree <- phytools::bind.tip(new.tree,
                                    new.tip[i],
-                                   edge.length = NULL,
-                                   where = bind.where,
+                                   edge.length = pos$length,
+                                   where = pos$where,
                                    position = 0)
     }else{
      sticksp<-  c(tip.descs,new.tip[1:i-1] )
      node<- phytools::findMRCA(tree=new.tree, tips=sticksp)
 
-     to.index <- randtip::get.index(new.tree, node = node)
-     if(is.na(to.index)){
-       bind.where <- new.tree$edge[1, 1]}else{
-         bind.where <- new.tree$edge[to.index, 2]}
+     pos<- binding.position(tree=new.tree, node = node, insertion = "polytomy", prob = T)
+
      # Indexing position; node length is 0
      new.tree <- phytools::bind.tip(new.tree,
                                     new.tip[i],
-                                    edge.length = NULL,
-                                    where = bind.where,
+                                    edge.length = pos$length,
+                                    where = pos$where,
                                     position = 0)
                                    }
 
