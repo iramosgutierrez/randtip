@@ -11,7 +11,7 @@ add.into.node <- function(tree, node, new.tip, exception.list = NULL, prob=T){
   new.tip <- gsub(" ", "_", new.tip)
 
   if(is.null(exception.list)){
-    descs<-phytools::getDescendants(tree = tree, node = node, curr = T)
+    descs<-phytools::getDescendants(tree = tree, node = node)
     descs.DF<- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2], "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
     descs.DF<-descs.DF[descs.DF$node%in%descs,]
 

@@ -23,7 +23,9 @@ get.index <- function(tree, how = "sample_simple", node = NULL, df = NULL){
     if(!is.null(node)){if(randtip::isRoot(tree, node)){return(NA)}}
 
     if(is.null(df)){
-        df <- data.frame(tree$edge, tree$edge.length, 1:length(tree$edge.length))
+        df <- data.frame("parent"=tree$edge[1], "node"=tree$edge[1],
+                         "length"=tree$edge.length, "id"=1:length(tree$edge.length))
+
     }
 
     if(!is.null(node)){
@@ -36,7 +38,7 @@ get.index <- function(tree, how = "sample_simple", node = NULL, df = NULL){
         stop("Unrecognized set of arguments to get.index function.")
     }
 
-    to.index <- edges$edge.id
+    to.index <- edges$id
 
     return(to.index)
 }
