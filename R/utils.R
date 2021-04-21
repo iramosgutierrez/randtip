@@ -61,6 +61,38 @@ if(randtip::isRoot(tree, node)){position=0 ; return(position)}
 }
 
 
+binding.position<- function(tree, node=NULL, df=NULL, insertion, bind.type, prob){
+  position<-list("length"=NA, "where"=NA, "position"=NA)
+
+  if(is.null(df)){df <- data.frame(tree$edge, tree$edge.length, 1:length(tree$edge.length))}
+
+  if(ape::is.ultrametric(tree)){position$length<-NULL}else{
+    position$length<-rnorm(1, mean=mean(df$tree.edge.length), sd= sd(df$tree.edge.length) )}
+
+  if(insertion=="polytomy"){
+    position$position<- 0
+    position$where <- node
+  }
+
+  if(insertion=="random"){
+    if(prob){how <- "sample_prob"}else{how <- "sample_simple"}
+    index<- randtip::get.index(tree = tree, df=df , how = how)
+    pos <- randtip::get.position(tree = tree, node = df[index,2], insertion = "random")
+
+    position$position<- pos
+    position$where <- df[index,2]
+  }
+
+  return(position)
+
+
+
+
+
+
+}
+
+
 get.parent.siblings <- function(tree, tip){
     tree.sp <- tree$tip.label
     # Direct ancestor
