@@ -376,7 +376,7 @@ rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
     DF1$taxon <- gsub(" ", "_", DF1$taxon)
 
     new.tree <- tree
-    if(forceultrametric & !is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
+    if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
 
     DF1.rand <- NULL
     DF1.poly <- NULL
@@ -446,7 +446,7 @@ if(length(MDCC)>1){stop("Several MDCCs recognised for genus ", genus, ". Please 
               cat(paste0(i, "/", length(taxa.genera),
                            " (",round(i/length(taxa.genera)*100, 2), "%). ",
                            "Adding ", genus, " to ", MDCC ," (", MDCC.type,", ",
-                           length(taxa.genera)," tips).\n")) }
+                           length(genus.taxa)," PUTs).\n")) }
 
 
 
@@ -535,8 +535,8 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
 
 
         if(length(MDCC.taxa.inTree)==1){
-          new.tree<- randtip::polytomy.to.singleton(new.tree, MDCC.taxa.inTree,
-                                            MDCC.taxa.toAdd, insertion = "long")}
+          new.tree<- randtip::polytomy.to.singleton(tree = new.tree, singleton = MDCC.taxa.inTree,
+                                        new.tip =MDCC.taxa.toAdd, insertion = "long")}
 
         if(length(MDCC.taxa.inTree)>1) {
           MDCC.mrca<- ape::getMRCA(new.tree, MDCC.taxa.inTree)
