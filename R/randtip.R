@@ -367,7 +367,7 @@ usingMDCCfinder<- function(DF1, taxon, tree, verbose=F){
 #' @export
 rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
                     prob = TRUE, verbose = FALSE,
-                    poly.ins="all",trim=TRUE){
+                    poly.ins="all",trim=TRUE, forceultrametric=F){
 
     start<- Sys.time()
 
@@ -376,6 +376,7 @@ rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
     DF1$taxon <- gsub(" ", "_", DF1$taxon)
 
     new.tree <- tree
+    if(forceultrametric & !is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
 
     DF1.rand <- NULL
     DF1.poly <- NULL
@@ -458,7 +459,7 @@ if(length(MDCC)>1){stop("Several MDCCs recognised for genus ", genus, ". Please 
             }else if(MDCC.type=="Paraphyletic"){#ALGUN ERROR EN PARAPHYLETIC!!!!
                 for( j in 1:length(genus.taxa)){
                     new.tree <- add.to.paraphyletic(tree = new.tree,
-                                                    new.tip = genus.taxa[j], prob)
+                                                    new.tip = genus.taxa[j], prob = prob)
                 }
             }else if(MDCC.type=="Polyphyletic"){
               poly.ins<- unique(DF1.rand$poly.ins[DF1.rand$using.taxa %in% genus.taxa])

@@ -40,6 +40,7 @@ add.to.paraphyletic <- function(tree, new.tip, prob = TRUE, intern.node = NULL,
 
   if(length(intruder.tips) == 1 ){
     new.tree <- add.into.node(tree = tree, node = mrca, new.tip = new.tip)
+    return(new.tree)
   }
 
   if(length(intruder.tips) > 1 ){
