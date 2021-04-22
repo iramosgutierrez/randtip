@@ -24,7 +24,7 @@ get.index <- function(tree, how = "sample_simple", node = NULL, df = NULL){
 
     if(is.null(df)){
         df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
-                         "length"=tree$edge.length, "id"=1:length(tree$edge.length))
+                         "length"=tree$edge.length, "id"=1:length(tree$edge[,1]))
 
     }
 
