@@ -474,16 +474,20 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
             }else{
 
               MDCC.taxa<- DF1$taxon[DF1[,level]==MDCC]
-              MDCC.genera<- unique(randtip::firstword(MDCC.taxa))
+              MDCC.genera<- randtip::notNA(unique(randtip::firstword(MDCC.taxa)))
               MDCC.intree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
 
               MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
               permitted.nodes<-get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
-              if(length(permitted.nodes)>1){sample(x = permitted.nodes, size = 1, replace = F)}
+
+              if(length(permitted.nodes)>1){permitted.nodes<-sample(x = permitted.nodes, size = 1, replace = F)}
+              if((length(new.tree$tip.label)+1)%in%permitted.nodes){
+                permitted.nodes<-permitted.nodes[-which(permitted.nodes==(length(new.tree$tip.label)+1))]}
 
               new.tree <- randtip::add.over.node(new.tree, new.tip = genus.taxa[1], node = permitted.nodes)
+              if(length(genus.taxa)>1){
               new.tree <- randtip::add.to.singleton(tree = new.tree,singleton = genus.taxa[1],
-                                        new.tips = genus.taxa[2:length(genus.taxa)] )
+                                        new.tips = genus.taxa[2:length(genus.taxa)] )}
             }
 
 
