@@ -43,7 +43,7 @@ add.to.singleton <- function(tree, singleton, new.tips){
             edges2 <- df[df[,1] == parent.min & df[,2] == min(edges[,1]),]
             edges <- rbind(edges2, edges)
 
-            pos<- binding.position(new.tree, df = edges, insertion = "random", prob=prob)
+            pos<- binding.position(tree = new.tree, df = edges, insertion = "random", prob=T)
 
                         new.tree <- phytools::bind.tip(new.tree,
                                            new.tip,
