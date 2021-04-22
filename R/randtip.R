@@ -412,7 +412,7 @@ rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
 
     if(nrow(DF1.nonpoly)>0){
     DF1.nonpoly$using.taxa <- get.taxa.to.use(DF1.nonpoly)
-    DF1.nonpoly <- DF1.nonpoly[order(DF1.nonpoly$using.taxa),]
+    DF1.nonpoly <- DF1.nonpoly[order(DF1.nonpoly$taxon),]
     is.duplicated <- duplicated(DF1.nonpoly$using.taxa)
     DF1.dupl <- DF1.nonpoly[ is.duplicated,]
     DF1.rand <- DF1.nonpoly[!is.duplicated,]
