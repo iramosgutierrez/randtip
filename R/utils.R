@@ -44,7 +44,8 @@ get.index <- function(tree, how = "sample_simple", node = NULL, df = NULL){
 }
 
 get.position <- function(tree, node, insertion){
-if(randtip::isRoot(tree, node)){position=0 ; return(position)}
+if(randtip::isRoot(tree, node)){position=0
+}else{
     edge.length <- tree$edge.length[ape::which.edge(tree, node)]
     if(insertion=="random"){
         # Bind at a random point of the branch
@@ -57,7 +58,7 @@ if(randtip::isRoot(tree, node)){position=0 ; return(position)}
         position <- edge.length
     }else{
         stop("Unknown specification of the insertion argument.")
-    }
+    }}
 
     return(position)
 }

@@ -479,10 +479,10 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
 
               MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
               permitted.nodes<-get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
-
-              if(length(permitted.nodes)>1){permitted.nodes<-sample(x = permitted.nodes, size = 1, replace = F)}
               if((length(new.tree$tip.label)+1)%in%permitted.nodes){
                 permitted.nodes<-permitted.nodes[-which(permitted.nodes==(length(new.tree$tip.label)+1))]}
+
+              if(length(permitted.nodes)>1){permitted.nodes<-sample(x = permitted.nodes, size = 1, replace = F)}
 
               new.tree <- randtip::add.over.node(new.tree, new.tip = genus.taxa[1], node = permitted.nodes)
               if(length(genus.taxa)>1){
