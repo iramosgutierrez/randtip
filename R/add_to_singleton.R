@@ -18,13 +18,15 @@ add.to.singleton <- function(tree, singleton, new.tips){
         if(i == 1){
             new.tip <- to.add[i]
             node<-which(tips.labs == added[1])
-            pos<-binding.position(new.tree, node, prob = T, insertion = "random")
+            df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2], "length"= tree$edge.length, "id"=1:length(tree$edge[,1]))
+            df <- df[df$node==node,]
+            pos<-binding.position(new.tree, node, df = df, prob = T, insertion = "random")
 
 
             new.tree <- phytools::bind.tip(new.tree,
                                            new.tip,
                                            edge.length = pos$length,
-                                           where = pos$where,
+                                           where = pos$where ,
                                            position = pos$position)
             added[i+1] <- new.tip
 
@@ -40,19 +42,14 @@ add.to.singleton <- function(tree, singleton, new.tips){
             parent.min <- phytools::getParent(new.tree, min(edges[,1]))
             edges2 <- df[df[,1] == parent.min & df[,2] == min(edges[,1]),]
             edges <- rbind(edges2, edges)
-            to.index <- sample(edges[,4], 1, prob = edges[,3])
-            bind.where <- new.tree$edge[to.index, 2]
-            tip.pos <- bind.tip.pos(pos.min = 0,
-                                    pos.max = edge.length[to.index])
 
-            if(ape::is.ultrametric(tree)){lgth<-NULL}else{
-              lgth<-abs(rnorm(1, mean=mean(tree$edge.length), sd= sd(tree$edge.length) ))}
+            pos<- binding.position(new.tree, df = edges, insertion = "random", prob=prob)
 
-            new.tree <- phytools::bind.tip(new.tree,
+                        new.tree <- phytools::bind.tip(new.tree,
                                            new.tip,
-                                           edge.length = lgth,
-                                           where = bind.where,
-                                           position = tip.pos)
+                                           edge.length = pos$length,
+                                           where = pos$where,
+                                           position = pos$position)
             added[i+1] <- new.tip
         }
   }
