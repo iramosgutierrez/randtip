@@ -492,7 +492,10 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
       }}
     #Phase 2 - Random insertions, aggregated subspecies
     if(!is.null(DF1.dupl)){if(nrow(DF1.dupl)>0){
-            new.tree <- randtip.subsp(tree = new.tree, DF1.dupl, verbose)
+      DF1.masdupl<- DF1.rand[(DF1.rand$using.taxa%in%tree$tip.label) &
+                             !(DF1.rand$taxon%in%tree$tip.label) , ]
+      DF1.dupl<- rbind(DF1.dupl, DF1.masdupl)
+      new.tree <- randtip.subsp(tree = new.tree, DF1.dupl, verbose)
             }}
 
     if(verbose){cat("\n")}
