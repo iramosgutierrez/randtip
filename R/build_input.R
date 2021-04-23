@@ -12,7 +12,7 @@ build.input<- function(species, tree, find.MDCC=TRUE, db="ncbi", mode="list"){
   if (!inherits(tree, "phylo")) { stop("tree should be an object of class \"phylo\".")}
 
 
-  names_df <- c("taxon", "genus", "tribe", "subfamily", "family", "order", "class",
+  names_df <- c("taxon",  "taxon1", "taxon2","genus", "tribe", "subfamily", "family", "order", "class",
                 "agg.ssp","rand.type", "poly.ins")
 
   DF1<- as.data.frame(matrix(nrow = length(species), ncol = length(names_df)))
