@@ -24,8 +24,18 @@ build.input<- function(species, tree, find.MDCC=TRUE, db="ncbi", mode="list"){
   species<- gsub(" ", "_", species)
 
   DF1$taxon<- species
+  onlygenus<-which(sapply(strsplit(species, "_"), length)==1)
+  if(length(onlygenus)>0){
+    for(t in onlygenus){
+      if(paste0(DF1$taxon[t], "_sp.")%in% tree$tip.label){
+        DF1$taxon[t]<-paste0(DF1$taxon[t], "_sp2.")}else{DF1$taxon[t]<-paste0(DF1$taxon[t], "_sp.")}
+
+    }
+  }
 
   DF1$genus<- randtip::firstword(species)
+
+
 
 
 
