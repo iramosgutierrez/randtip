@@ -72,6 +72,10 @@ binding.position<- function(tree, node=NULL, df=NULL, insertion,  prob){
   if(ape::is.ultrametric(tree)){position$length<-NULL}else{
     position$length<-abs(rnorm(1, mean=mean(tree$edge.length), sd= sd(tree$edge.length) ))}
 
+  if(!is.null(node)){
+    df<- df[df$node==node,]
+    position$where<- node}
+
   if(insertion=="polytomy"){
     position$position<- 0
     position$where <- node
@@ -85,6 +89,8 @@ binding.position<- function(tree, node=NULL, df=NULL, insertion,  prob){
     position$position<- pos
     position$where <- df[df$id==index,"node"]
   }
+
+
 
   return(position)
 

@@ -11,7 +11,7 @@ polytomy.to.singleton <- function(tree, singleton, new.tip,
 
     if (i==1) {
 
-      pos<- randtip::binding.position(new.tree, node = node, insertion = "polytomy",prob = prob)
+      pos<- randtip::binding.position(new.tree, node = node, insertion = "random",prob = prob)
 
 
 
