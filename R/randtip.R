@@ -497,6 +497,7 @@ rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
     if(!is.null(DF1.rand)){if(nrow(DF1.rand)>0){
 
         DF1.rand.bind<- DF1.rand[!(DF1.rand$using.taxa %in% new.tree$tip.label),]
+        DF1.rand.bind<- DF1.rand.bind[!is.na(DF1.rand.bind$using.MDCC),]
 
         binding.units<- unique(paste0(randtip::firstword(DF1.rand.bind$using.taxa), "-",DF1.rand.bind$using.MDCC))
 
@@ -578,7 +579,8 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
               MDCC.genera<- randtip::notNA(unique(randtip::firstword(MDCC.taxa)))
               MDCC.intree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
 
-              MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
+              if(length(MDCC.intree)==1){new.tree<- randtip::add.to.singleton(new.tree, MDCC.intree, unit.taxa)}else
+              {MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
               permitted.nodes<-get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
               if((length(new.tree$tip.label)+1)%in%permitted.nodes){
                 permitted.nodes<-permitted.nodes[-which(permitted.nodes==(length(new.tree$tip.label)+1))]}
@@ -588,7 +590,7 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
               new.tree <- randtip::add.over.node(new.tree, new.tip = unit.taxa[1], node = permitted.nodes)
               if(length(unit.taxa)>1){
               new.tree <- randtip::add.to.singleton(tree = new.tree,singleton = unit.taxa[1],
-                                        new.tips = unit.taxa[2:length(unit.taxa)] )}
+                                        new.tips = unit.taxa[2:length(unit.taxa)] )}}
             }
 
 
