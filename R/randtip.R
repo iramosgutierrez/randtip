@@ -575,7 +575,7 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
             #Add to other taxonomic MDCC
             if(level%in% c("tribe", "subfamily", "family", "order", "class")){
 
-              MDCC.taxa<- DF1.rand.bind$taxon[DF1.rand.bind[,level]==MDCC]
+              MDCC.taxa<- DF1$taxon[DF1[,level]==MDCC]
               MDCC.genera<- randtip::notNA(unique(randtip::firstword(MDCC.taxa)))
               MDCC.intree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
 
