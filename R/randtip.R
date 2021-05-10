@@ -198,7 +198,30 @@ get.permitted.nodes <- function (tree, node){
   permitted.nodes[is.na(permitted.nodes)]<-TRUE
 
   if(length(nodes[(permitted.nodes)==TRUE])>0){return(nodes[(permitted.nodes)==TRUE])}else{return(node)}
-  }
+}
+
+get.forbidden.MDCC.nodes <- function(tree,DF1, level, MDCC){
+
+  DF1.mdcc<- DF1[DF1[,level]==MDCC,]
+  forbidden.nodes<- as.numeric(NULL)
+  if(level=="genus"){return(NULL)}
+  for(lv in 4:(which(colnames(DF1)==level)-1)){
+    col.lev<-colnames(DF1.mdcc)[lv]
+    MDCCs<-unique(DF1.mdcc[,col.lev])
+    for(lev in MDCCs){
+     phylstat<-randtip::MDCC.phyleticity(DF1, tree, MDCC.info = list(level=col.lev, MDCC=lev) )
+     if(phylstat%in%c("Monophyletic","Paraphyletic")){
+       mdcc.gen<-randtip::firstword(DF1.mdcc[DF1.mdcc[,col.lev]==lev,"taxon"])
+       mdcc.sppintree<-sp.genus.in.tree(tree, mdcc.gen)
+       mdcc.sppintree.mrca<-ape::getMRCA(tree, tip = mdcc.sppintree)
+       mdcc.sppintree.descs<- phytools::getDescendants(tree, mdcc.sppintree.mrca)
+       forbidden.nodes<- c(forbidden.nodes, mdcc.sppintree.descs)
+    }
+      }
+    }
+
+  return(unique(forbidden.nodes))
+}
 
 get.original.names <- function(tree, DF1, verbose = FALSE){
   if(verbose){
@@ -328,6 +351,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
   DF1<-randtip::correct.DF(DF1)
   MDCC.vect<- vector( mode="character", length = length(taxon))
   MDCC.lev.vect<- vector(mode="character", length = length(taxon))
+  MDCC.phyletictype.vect<- vector(mode="character", length = length(taxon))
 
   if(verbose){
     cat(paste0("Searching MDCCs... ", "\n"))
@@ -425,10 +449,13 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
       if(is.na(MDCC)){MDCC.lev.vect[v]<-NA}
 
 
-    }}
+  }
+  MDCC.phyletictype.vect[v]<-randtip::MDCC.phyleticity(DF1 = DF1, tree =  tree,
+          MDCC.info = list(level=as.character(lev), MDCC=as.character(MDCC)), trim = T)
+  }
 
 
-  return(list(MDCC=MDCC.vect,MDCC.levels=MDCC.lev.vect) )
+  return(list(MDCC=MDCC.vect,MDCC.levels=MDCC.lev.vect, MDCC.phylstat=MDCC.phyletictype.vect) )
 }
 
 
@@ -451,15 +478,19 @@ rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
     tree$tip.label <- gsub("_X_", "_x-", tree$tip.label)
 
     if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
+    if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
+      message("Specified tree is not ultrametric. \nTo force the randomization as an ultrametric tree plase set forceultrametric=TRUE")}
 
     DF1.rand <- NULL
     DF1.poly <- NULL
     DF1.dupl <- NULL
 
 
-    DF1_search<- usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree, verbose)
+    DF1_search<- randtip::usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree, verbose)
     DF1$using.MDCC     <- DF1_search[[1]]
     DF1$using.MDCC.lev <- DF1_search[[2]]
+    DF1$using.MDCC.phylstat <- DF1_search[[3]]
+
     if(verbose){cat("\n")}
 
     if(trim){
@@ -511,8 +542,8 @@ rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
             level <- unique(DF1.rand.bind$using.MDCC.lev[DF1.rand.bind$using.MDCC==MDCC])
 if(length(MDCC)>1){stop("Several MDCC levels recognised for MDCC ", MDCC, ". Please correct your DF1")}
 
-            MDCC.type <- randtip::MDCC.phyleticity(DF1 = DF1.rand, tree = new.tree,
-                          MDCC.info = list(level=level, MDCC=MDCC), trim)
+            MDCC.type <- unique(DF1.rand.bind$using.MDCC.phylstat[DF1.rand.bind$using.MDCC==MDCC])
+if(length(MDCC.type)>1){stop("Several MDCC phyletic statuses recognised for MDCC ", MDCC, ". Please correct your DF1")}
 
             unit.taxa <- DF1.rand.bind$using.taxa[randtip::firstword(DF1.rand.bind$using.taxa)==genus&
                                                    DF1.rand.bind$using.MDCC==MDCC]
@@ -574,15 +605,18 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
             }
             #Add to other taxonomic MDCC
             if(level%in% c("tribe", "subfamily", "family", "order", "class")){
-              MDCC.type <- randtip::MDCC.phyleticity(DF1 = DF1.rand, tree = new.tree,
-                                                     MDCC.info = list(level=level, MDCC=MDCC), trim=T)
+
               MDCC.taxa<- DF1$taxon[DF1[,level]==MDCC]
               MDCC.genera<- randtip::notNA(unique(randtip::firstword(MDCC.taxa)))
-              MDCC.intree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
+              MDCC.intree<- sp.genus.in.tree(new.tree, MDCC.genera)
 
               if(length(MDCC.intree)==1){new.tree<- randtip::add.to.singleton(new.tree, MDCC.intree, unit.taxa)}else
-              {MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
-              permitted.nodes<-get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
+
+              if(length(MDCC.intree)>1){
+              MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
+              permitted.nodes<-randtip::get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
+              forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, DF1, level, MDCC)
+              permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]
               if((length(new.tree$tip.label)+1)%in%permitted.nodes){
                 permitted.nodes<-permitted.nodes[-which(permitted.nodes==(length(new.tree$tip.label)+1))]}
 
