@@ -33,7 +33,7 @@ get.index <- function(tree, how = "sample_simple", node = NULL, df = NULL){
     }else if(how == "sample_simple"){
         edges <- df[sample(x = 1:nrow(df), size = 1),]
     }else if(how == "sample_prob"){
-        edges <- df[sample(x = 1:nrow(df), size = 1, prob = df$length),]
+        edges <- df[sample(x = 1:nrow(df), size = 1, prob = abs(df$length)),]
     }else{
         stop("Unrecognized set of arguments to get.index function.")
     }
