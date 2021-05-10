@@ -617,6 +617,9 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
               permitted.nodes<-randtip::get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
               forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, DF1, level, MDCC)
               permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]
+              if(length(permitted.nodes)==0){
+                new.tree<-add.over.node(new.tree, new.tip = unit.taxa, node = MDCC.mrca)
+              }else{
               if((length(new.tree$tip.label)+1)%in%permitted.nodes){
                 permitted.nodes<-permitted.nodes[-which(permitted.nodes==(length(new.tree$tip.label)+1))]}
 
@@ -625,7 +628,7 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
               new.tree <- randtip::add.over.node(new.tree, new.tip = unit.taxa[1], node = permitted.nodes)
               if(length(unit.taxa)>1){
               new.tree <- randtip::add.to.singleton(tree = new.tree,singleton = unit.taxa[1],
-                                        new.tips = unit.taxa[2:length(unit.taxa)] )}}
+                                        new.tips = unit.taxa[2:length(unit.taxa)] )}}}
             }
 
 

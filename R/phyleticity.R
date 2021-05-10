@@ -69,8 +69,8 @@ MDCC.phyleticity<-function(DF1, tree, MDCC.info=list("level"=NA, "MDCC"=NA), tri
 
    species<- DF1[which(DF1[,level]==MDCC),]
    MDCC.genera<- unique(randtip::firstword(species$taxon))
-
-   genera.in.tree<-MDCC.genera[MDCC.genera%in%randtip::firstword(tree$tip.label)]
+   genera.in.tree<-randtip::firstword(tree$tip.label)
+   genera.in.tree<-MDCC.genera[MDCC.genera%in%genera.in.tree]
    spp.in.tree<- tree$tip.label[randtip::firstword(tree$tip.label)%in%genera.in.tree]
 
    if(length(spp.in.tree)==0){MDCC.type<-"Not included"
