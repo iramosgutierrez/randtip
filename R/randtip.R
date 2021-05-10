@@ -508,7 +508,7 @@ rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
             binding.unit <- binding.units[i]
             genus <- strsplit(binding.unit, "-")[[1]][1]
             MDCC  <- strsplit(binding.unit, "-")[[1]][2]
-            level <- unique(DF1.rand$using.MDCC.lev[DF1.rand$using.MDCC==MDCC])
+            level <- unique(DF1.rand.bind$using.MDCC.lev[DF1.rand.bind$using.MDCC==MDCC])
 if(length(MDCC)>1){stop("Several MDCC levels recognised for MDCC ", MDCC, ". Please correct your DF1")}
 
             MDCC.type <- randtip::MDCC.phyleticity(DF1 = DF1.rand, tree = new.tree,
@@ -575,7 +575,7 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
             #Add to other taxonomic MDCC
             if(level%in% c("tribe", "subfamily", "family", "order", "class")){
 
-              MDCC.taxa<- DF1$taxon[DF1[,level]==MDCC]
+              MDCC.taxa<- DF1.rand.bind$taxon[DF1.rand.bind[,level]==MDCC]
               MDCC.genera<- randtip::notNA(unique(randtip::firstword(MDCC.taxa)))
               MDCC.intree<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%MDCC.genera]
 
