@@ -1,7 +1,7 @@
 # Return a vector of all species in the tree that match a given genus
 sp.genus.in.tree <- function(tree, genus){
     sp <- tree$tip.label
-    taxa.vector <- sp[randtip::firstword(sp)==genus]
+    taxa.vector <- sp[randtip::firstword(sp)%in%genus]
 
     return(taxa.vector)
 }
