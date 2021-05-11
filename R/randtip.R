@@ -122,6 +122,43 @@ get.forbidden.MDCC.nodes <- function(tree,DF1, level, MDCC){
   return(unique(forbidden.nodes))
 }
 
+get.intruder.nodes <- function (tree, DF1, level, MDCC){
+  DF1<- randtip::correct.DF(DF1)
+  DF1.mdcc<- DF1[!is.na(DF1[,level]),]
+  DF1.mdcc<- DF1.mdcc[DF1.mdcc[,level]==MDCC,]
+
+  mdcc.genera<- randtip::firstword(DF1.mdcc$taxon)
+  mdcc.intree<- randtip::sp.genus.in.tree(tree, mdcc.genera)
+  mdcc.mrca<- ape::getMRCA(tree, mdcc.intree)
+
+  descendants<- phytools::getDescendants(tree, node=mdcc.mrca)
+  descendants<- tree$tip.label[descendants]
+  descendants<- randtip::notNA(descendants)
+
+  non.mdcc <- DF1[!is.na(DF1[,level]),]
+  non.mdcc <- non.mdcc[non.mdcc[,level]!=MDCC,]
+  non.mdcc.genera<- unique(randtip::firstword(non.mdcc$taxon))
+
+  intruders<- descendants[randtip::firstword(descendants)%in%non.mdcc.genera ]
+
+  if(length(intruders)==0){return(NULL)}
+  if(length(intruders)==1){return(which(tree$tip.label==intruders))}
+  if(length(intruders)> 1){
+    intruder.mrca<- ape::getMRCA(tree, intruders)
+    intruder.descs<-phytools::getDescendants(tree, node=intruder.mrca)
+
+    forbidden.nodes<- as.numeric(NULL)
+    for(int in intruder.descs){
+      des.i.nodes<- phytools::getDescendants(tree, node=int)
+      des.i<- tree$tip.label[des.i.nodes]
+      des.i<- randtip::notNA(des.i)
+      if(!any(mdcc.intree%in%des.i)){forbidden.nodes<- c(forbidden.nodes,des.i.nodes )}
+    }
+    return(unique(forbidden.nodes))
+
+  }
+}
+
 get.original.names <- function(tree, DF1, verbose = FALSE){
   if(verbose){
     cat("Starting name checking...", "\n")
@@ -448,6 +485,11 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
               permitted.nodes<-randtip::get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
               forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, DF1, level, MDCC)
               permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]
+
+              if(MDCC.type%in%c("Paraphyletic", "Polyphyletic")){
+              forbidden.nodes.mdcc<- randtip::get.intruder.nodes(new.tree, DF1, level, MDCC)
+              permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes.mdcc)]}
+
               if(length(permitted.nodes)==0){
                 new.tree<-add.over.node(new.tree, new.tip = unit.taxa, node = MDCC.mrca)
               }else{
