@@ -279,9 +279,10 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
 
 
   }
+  if(is.na(MDCC.vect[v])|is.na(MDCC.lev.vect[v])){MDCC.phyletictype.vect[v]<-NA}else{
   MDCC.phyletictype.vect[v]<-randtip::MDCC.phyleticity(DF1 = DF1, tree =  tree,
-          MDCC.info = list(level=as.character(lev), MDCC=as.character(MDCC)), trim = T)
-  }
+          MDCC.info = list(level=MDCC.vect[v], MDCC=MDCC.lev.vect[v], trim = T))
+  }}
 
 
   return(list(MDCC=MDCC.vect,MDCC.levels=MDCC.lev.vect, MDCC.phylstat=MDCC.phyletictype.vect) )
