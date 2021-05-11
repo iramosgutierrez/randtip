@@ -201,17 +201,20 @@ get.permitted.nodes <- function (tree, node){
 }
 
 get.forbidden.MDCC.nodes <- function(tree,DF1, level, MDCC){
-
-  DF1.mdcc<- DF1[DF1[,level]==MDCC,]
+  DF1<- randtip::correct.DF(DF1)
+  DF1.mdcc<- DF1[!is.na(DF1[,level]),]
+  DF1.mdcc<- DF1.mdcc[DF1.mdcc[,level]==MDCC,]
   forbidden.nodes<- as.numeric(NULL)
   if(level=="genus"){return(NULL)}
   for(lv in 4:(which(colnames(DF1)==level)-1)){
     col.lev<-colnames(DF1.mdcc)[lv]
     MDCCs<-unique(DF1.mdcc[,col.lev])
+    MDCCs<-randtip::notNA(MDCCs)
     for(lev in MDCCs){
-     phylstat<-randtip::MDCC.phyleticity(DF1, tree, MDCC.info = list(level=col.lev, MDCC=lev) )
+     phylstat<-randtip::MDCC.phyleticity(DF1, tree = tree, MDCC.info = list(level=col.lev, MDCC=lev) )
      if(phylstat%in%c("Monophyletic","Paraphyletic")){
-       mdcc.gen<-randtip::firstword(DF1.mdcc[DF1.mdcc[,col.lev]==lev,"taxon"])
+       mdcc.gen<-DF1.mdcc[DF1.mdcc[,col.lev]==lev,"taxon"]
+       mdcc.gen<-randtip::firstword(randtip::notNA(mdcc.gen))
        mdcc.sppintree<-sp.genus.in.tree(tree, mdcc.gen)
        mdcc.sppintree.mrca<-ape::getMRCA(tree, tip = mdcc.sppintree)
        mdcc.sppintree.descs<- phytools::getDescendants(tree, mdcc.sppintree.mrca)
