@@ -557,7 +557,7 @@ if(length(MDCC.type)>1){stop("Several MDCC phyletic statuses recognised for MDCC
             if(verbose){
               cat(paste0(i, "/", length(binding.units),
                            " (",round(i/length(binding.units)*100, 2), "%). ",
-                           "Adding ", genus, " to ", MDCC ," (", MDCC.type,", ",
+                           "Adding ", genus, " to ", MDCC ," (", MDCC.type, " ", level,", ",
                            length(unit.taxa)," PUTs).\n")) }
 
             #Manual additions
