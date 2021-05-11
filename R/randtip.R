@@ -487,8 +487,8 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
       MDCCs<- randtip::notNA(unique(DF1.poly$using.MDCC))
       for(MDCCs.i in MDCCs){
 
-        DF1.poly.clean<- DF1.poly[!is.na(DF1.poly$using.MDCC),]
-        MDCCs.i.level<- unique(DF1.poly.clean$using.MDCC.lev[DF1.poly.clean[,"using.MDCC"]==MDCCs.i])
+        DF1.poly<- DF1.poly[!is.na(DF1.poly$using.MDCC),]
+        MDCCs.i.level<- unique(DF1.poly$using.MDCC.lev[DF1.poly[,"using.MDCC"]==MDCCs.i])
 
 
         MDCC.taxa.toAdd <- DF1.poly$taxon[DF1.poly[,"using.MDCC"]==MDCCs.i]
