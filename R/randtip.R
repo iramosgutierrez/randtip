@@ -211,7 +211,8 @@ get.forbidden.MDCC.nodes <- function(tree,DF1, level, MDCC){
     MDCCs<-unique(DF1.mdcc[,col.lev])
     MDCCs<-randtip::notNA(MDCCs)
     for(lev in MDCCs){
-     phylstat<-randtip::MDCC.phyleticity(DF1, tree = tree, MDCC.info = list(level=col.lev, MDCC=lev) )
+     phylstat<-randtip::MDCC.phyleticity(DF1, tree = tree,
+                                         MDCC.info = list(level=col.lev, MDCC=lev), trim=F )
      if(phylstat%in%c("Monophyletic","Paraphyletic")){
        mdcc.gen<-DF1.mdcc[DF1.mdcc[,col.lev]==lev,"taxon"]
        mdcc.gen<-randtip::firstword(randtip::notNA(mdcc.gen))
@@ -608,8 +609,8 @@ if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genu
             }
             #Add to other taxonomic MDCC
             if(level%in% c("tribe", "subfamily", "family", "order", "class")){
-
-              MDCC.taxa<- DF1$taxon[DF1[,level]==MDCC]
+              DF1.mdcc<-  DF1[!is.na(DF1[,level]),]
+              MDCC.taxa<- DF1.mdcc$taxon[DF1.mdcc[,level]==MDCC]
               MDCC.genera<- randtip::notNA(unique(randtip::firstword(MDCC.taxa)))
               MDCC.intree<- sp.genus.in.tree(new.tree, MDCC.genera)
 
