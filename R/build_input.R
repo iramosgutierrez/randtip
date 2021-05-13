@@ -10,6 +10,8 @@ build.input<- function(species, tree, find.MDCC=TRUE, db="ncbi", mode="list"){
   if(is.list(species) ){stop("Species list must be a vector or a single-column dataframe!")}
   if(is.null(tree)){stop("A tree must be provided.")}
   if (!inherits(tree, "phylo")) { stop("tree should be an object of class \"phylo\".")}
+  if(!(mode %in% c("list", "phylomatic"))) {stop("type must be \"list\" or \"phylomatic\" ")}
+
 
 
   names_df <- c("taxon",  "taxon1", "taxon2","genus", "tribe", "subfamily", "family", "order", "class",
