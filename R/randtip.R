@@ -332,7 +332,12 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
 #' @export
 rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
                     prob = TRUE, verbose = FALSE,
-                    poly.ins="all",trim=TRUE, forceultrametric=F){
+                    poly.ins="freq",trim=TRUE, forceultrametric=F){
+  if (!inherits(tree, "phylo")) {
+    stop("object \"tree\" is not of class \"phylo\"")}
+
+  if(!(type %in% c("random", "polytomy"))) {stop("type must be \"random\" or \"polytomy\" ")}
+  if(!(poly.ins %in% c("freq", "all", "large"))) {stop("poly.ins must be \"freq\", \"all\" or \"large\" ")}
 
     start<- Sys.time()
 
@@ -461,7 +466,9 @@ if(length(MDCC.type)>1){stop("Several MDCC phyletic statuses recognised for MDCC
                 }
             }else if(MDCC.type=="Polyphyletic"){
               poly.ins<- unique(DF1.rand$poly.ins[DF1.rand$using.taxa %in% unit.taxa])
-if(length(poly.ins)>1){stop("Several Polyphyletic insertions recognised for genus ", genus, ". Please correct your DF1")}
+              if(length(poly.ins)>1){
+  poly.ins<-poly.ins[1]
+  message("Several Polyphyletic insertions recognised for genus ", genus, ". Using only first one (",poly.ins ,")")}
                 new.tree<- add.to.polyphyletic(tree = new.tree, new.tip = unit.taxa,
                                                poly.ins , prob)
             }else if(MDCC.type=="Singleton MDCC"){
