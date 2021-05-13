@@ -34,7 +34,7 @@ check.input<- function(DF1, tree, verbose=F){
     }}
 
   if(length(DF$Name.simmilarity[!is.na(DF$Name.simmilarity)])>0){
-    warning("There may be mistakenly written PUTs in your DF1! \nPlease check the Name.simmilarity column in the resultant dataframe")}
+    message("There may be mistakenly written PUTs in your DF1! \nPlease check the Name.simmilarity column in the resultant dataframe")}
 
 
 
