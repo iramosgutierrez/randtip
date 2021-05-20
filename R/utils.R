@@ -162,11 +162,11 @@ get.groups <- function(tree, genus){
     siblings.genus<- randtip::firstword(siblings)
     if(all(nd.genera==genus)){
 
-      if(genus%in%siblings.genus){
-        node.descs[[n]]<- NA
-        node.types[[n]]<- NA}else{
+    # if(genus%in%siblings.genus){
+    #   node.descs[[n]]<- NA
+    #   node.types[[n]]<- NA}else{
       node.descs[[n]]<- nd.descs
-      node.types[[n]]<- "monophyletic"}
+      node.types[[n]]<- "monophyletic"#}
     next}
 
       intruders<- nd.descs[nd.genera!=genus]
