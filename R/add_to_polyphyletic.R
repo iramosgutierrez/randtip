@@ -19,7 +19,7 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T){
         for(sp in new.tip){
             mrca <- phytools::findMRCA(new.tree, taxa.vector)
             nodes<-get.permitted.nodes(new.tree, mrca)
-            bpos<-binding.position(new.tree, node = sample(nodes,1), insertion="polytomy", prob=prob)
+            bpos<-binding.position(new.tree, node = sample(nodes,1), insertion="random", prob=prob)
 
             new.tree <- bind.tip(tree = new.tree, tip.label = sp, edge.length = bpos$length,
                                  where = bpos$where, position = bpos$position)
