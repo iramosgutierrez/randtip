@@ -66,7 +66,7 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T){
                                           prob=prob)}
           }
         if(group.type == "polyphyletic"){
-          stop("A polyphyletic subgroup canÂ´t be selected. Code Error")
+          stop("A polyphyletic subgroup can´t be selected. Code Error")
           }
       }
       }
@@ -87,8 +87,8 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T){
           max.id <- which(groups.sz == max.sz)
           if(length(max.id)>1){sample(max.id, size = 1)}
 
-          group <- groups$species[max.id]
-          group.type <- groups$type[max.id]
+          group <- groups$species[[max.id]]
+          group.type <- groups$type[[max.id]]
 
 
           if(group.type == "singleton" | group.type == "tip"){
