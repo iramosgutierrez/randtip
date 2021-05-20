@@ -15,7 +15,7 @@ add.into.node <- function(tree, node, new.tip, exception.list = NULL, prob=T){
     descs.DF<- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2], "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
     descs.DF<-descs.DF[descs.DF$node%in%descs,]
 
-    if(isTRUE(prob)){ rand.desc<- sample(descs.DF$node, size = 1, prob = descs.DF$length)}else{rand.desc<- sample(descs.DF$node, size = 1, prob = NULL)}
+    if(isTRUE(prob)){ rand.desc<- sample(descs.DF$node, size = 1, prob = abs(descs.DF$length))}else{rand.desc<- sample(descs.DF$node, size = 1, prob = NULL)}
     new.tree<-randtip::add.over.node(tree = tree, node=rand.desc, new.tip = new.tip)
 
     return(new.tree)
