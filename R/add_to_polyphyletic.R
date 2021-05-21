@@ -66,7 +66,7 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T){
                                           prob=prob)}
           }
         if(group.type == "polyphyletic"){
-          stop("A polyphyletic subgroup can´t be selected. Code Error")
+          stop("A polyphyletic subgroup can't be selected. Code Error")
           }
       }
       }
