@@ -6,6 +6,7 @@ build.input<- function(species, tree, find.MDCC=TRUE, db="ncbi", mode="list"){
 
   if(is.data.frame(species)){
   if(ncol(species)!=1){stop("Species list must be a vector or a single-column dataframe!")}else{species<- species[,1]}}
+  species<- as.vector(species)
   if(!(is.vector(species) )){stop("Species list must be a vector or a single-column dataframe!")}
   if(is.list(species) ){stop("Species list must be a vector or a single-column dataframe!")}
   if(is.null(tree)){stop("A tree must be provided.")}
@@ -57,7 +58,7 @@ build.input<- function(species, tree, find.MDCC=TRUE, db="ncbi", mode="list"){
 
   searching.categories<- c("tribe", "subfamily", "family", "order", "class")
 
-    for(i in 1:length(genera)){
+    if(find.MDCC){for(i in 1:length(genera)){
       tryCatch({
         search <- suppressMessages(taxize::classification(as.character(genera[i]), db = db))[[1]]
 
@@ -85,7 +86,7 @@ build.input<- function(species, tree, find.MDCC=TRUE, db="ncbi", mode="list"){
 
       # Avoid ip blocks. Taxize allows only 3 searches per second.
       Sys.sleep(0.33)
-    }
+    }}
 
 
   if(mode=="phylomatic"){return(list("DF1"=DF1, "DF2"=DF2))}else{return(DF1)}
