@@ -253,7 +253,7 @@ findRoot<- function(tree){
 PUT_TIP_col<- function(newtree, oldtree, TIPcol="black", PUTcol="red"){
   col<- vector("character", length(newtree$tip.label))
   col[1:length(col)]<- PUTcol
-  col[randtree$tip.label%in%tree$tip.label]<-TIPcol
+  col[randtree$tip.label%in%oldtree$tip.label]<-TIPcol
   return(col)
 
 }
