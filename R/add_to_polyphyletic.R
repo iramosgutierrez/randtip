@@ -85,7 +85,7 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T){
 
           max.sz <- max(as.numeric(groups.sz))
           max.id <- which(groups.sz == max.sz)
-          if(length(max.id)>1){sample(max.id, size = 1)}
+          if(length(max.id)>1){max.id<-sample(max.id, size = 1)}
 
           group <- groups$species[[max.id]]
           group.type <- groups$type[[max.id]]
