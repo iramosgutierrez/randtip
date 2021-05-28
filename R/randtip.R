@@ -328,7 +328,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
 
 
 
-#' randtip "MOTHER FUNCTION"
+#' randtip RANDOMIZATION FUNCTIONS
 #' @export
 rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
                     prob = TRUE, verbose = FALSE,
@@ -589,6 +589,281 @@ if(length(MDCC.type)>1){stop("Several MDCC phyletic statuses recognised for MDCC
     tree$tip.label <- gsub("_x-", "_x_", tree$tip.label)
     return(new.tree)
 }
+
+
+#' @export
+rand.phy <- function(tree, DF1, DF2, type = "random",agg.ssp = TRUE,
+                     prob = TRUE, verbose = FALSE,
+                     poly.ins="freq",trim=TRUE, forceultrametric=F){
+  if (!inherits(tree, "phylo")) {
+    stop("object \"tree\" is not of class \"phylo\"")}
+
+  if(!(type %in% c("random", "polytomy"))) {stop("type must be \"random\" or \"polytomy\" ")}
+  if(!(poly.ins %in% c("freq", "all", "large"))) {stop("poly.ins must be \"freq\", \"all\" or \"large\" ")}
+
+  start<- Sys.time()
+
+  tree$tip.label <- gsub(" ", "_", tree$tip.label)
+  DF1<- correct.DF(DF1)
+  DF1$taxon <- gsub(" ", "_", DF1$taxon)
+  DF1orig<-DF1
+
+  DF2<- correct.DF(DF2)
+  DF2$taxon1<- NA
+  DF2$taxon2<- NA
+  DF2$agg.ssp<- NA
+  DF2$rand.type<- NA
+  DF2$poly.ins<- NA
+  DF2<-DF2[names(DF1)]
+
+  DF1<-rbind(DF1, DF2)
+
+
+  new.tree <- tree
+
+  tree$tip.label <- gsub("_x_", "_x-", tree$tip.label)
+  tree$tip.label <- gsub("_X_", "_x-", tree$tip.label)
+
+  if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
+  if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
+    message("Specified tree is not ultrametric. \nTo force the randomization as an ultrametric tree plase set forceultrametric=TRUE")}
+
+  DF1.rand <- NULL
+  DF1.poly <- NULL
+  DF1.dupl <- NULL
+
+
+  DF1_search<- randtip::usingMDCCfinder(DF1 = DF1, taxon = DF1orig$taxon, tree = new.tree, verbose)
+  DF1orig$using.MDCC     <- DF1_search[[1]]
+  DF1orig$using.MDCC.lev <- DF1_search[[2]]
+  DF1orig$using.MDCC.phylstat <- DF1_search[[3]]
+
+  if(verbose){cat("\n")}
+
+  if(trim){
+    trimming.species<- rep(NA, 1)
+    for(using.mdcc in unique(DF1orig$using.MDCC)){
+      spp.df<-DF1orig[DF1orig$using.MDCC==using.mdcc,]
+      using.level<- randtip::notNA(unique(spp.df$using.MDCC.lev))
+
+      mdcc.genera<-randtip::firstword(DF1$taxon[DF1[,using.level]==using.mdcc])
+      mdcc.species<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%mdcc.genera]
+      trimming.species<- c(trimming.species, mdcc.species)
+    }
+    trimming.species<- randtip::notNA(trimming.species)
+    new.tree <- ape::keep.tip(new.tree, trimming.species)}
+
+  if(isTRUE(agg.ssp)){DF1orig$agg.ssp[is.na(DF1orig$agg.ssp)]<-"1"}else{DF1orig$agg.ssp[is.na(DF1orig$agg.ssp)]<-"0"}
+  if(type=="random"){DF1orig$rand.type[is.na(DF1orig$rand.type)]<-"0"}else{DF1orig$rand.type[is.na(DF1orig$rand.type)]<-"1"}
+  {DF1orig$poly.ins[is.na(DF1orig$poly.ins)]<-poly.ins}
+
+
+  DF1.poly    <- DF1orig[DF1orig$rand.type=="1",]
+  DF1.nonpoly <- DF1orig[DF1orig$rand.type=="0",]
+
+
+  if(nrow(DF1.nonpoly)>0){
+    DF1.nonpoly$using.taxa <- get.taxa.to.use(DF1.nonpoly)
+    DF1.nonpoly <- DF1.nonpoly[order(DF1.nonpoly$taxon),]
+    is.duplicated <- duplicated(DF1.nonpoly$using.taxa)
+    DF1.dupl <- DF1.nonpoly[ is.duplicated,]
+    DF1.rand <- DF1.nonpoly[!is.duplicated,]
+  }
+
+
+  #Phase 1. Random insertions, non-aggregated
+  if(!is.null(DF1.rand)){if(nrow(DF1.rand)>0){
+
+    DF1.rand.bind<- DF1.rand[!(DF1.rand$using.taxa %in% new.tree$tip.label),]
+    DF1.rand.bind<- DF1.rand.bind[!is.na(DF1.rand.bind$using.MDCC),]
+
+    binding.units<- unique(paste0(randtip::firstword(DF1.rand.bind$using.taxa), "-",DF1.rand.bind$using.MDCC))
+
+    if(verbose){
+      cat(paste0("Starting randomization","\n")) }
+
+    for(i in seq_along(binding.units)){
+      binding.unit <- binding.units[i]
+      genus <- strsplit(binding.unit, "-")[[1]][1]
+      MDCC  <- strsplit(binding.unit, "-")[[1]][2]
+      level <- unique(DF1.rand.bind$using.MDCC.lev[DF1.rand.bind$using.MDCC==MDCC])
+      if(length(MDCC)>1){stop("Several MDCC levels recognised for MDCC ", MDCC, ". Please correct your DF1")}
+
+      MDCC.type <- unique(DF1.rand.bind$using.MDCC.phylstat[DF1.rand.bind$using.MDCC==MDCC])
+      if(length(MDCC.type)>1){stop("Several MDCC phyletic statuses recognised for MDCC ", MDCC, ". Please correct your DF1")}
+
+      unit.taxa <- DF1.rand.bind$using.taxa[randtip::firstword(DF1.rand.bind$using.taxa)==genus&
+                                              DF1.rand.bind$using.MDCC==MDCC]
+      unit.taxa <- sample(unit.taxa, length(unit.taxa))
+
+
+      if(verbose){
+        cat(paste0(i, "/", length(binding.units),
+                   " (",round(i/length(binding.units)*100, 2), "%). ",
+                   "Adding ", genus, " to ", MDCC ," (", MDCC.type, " ", level,", ",
+                   length(unit.taxa)," PUTs).\n")) }
+
+      #Manual additions
+      if(level=="Sister species"){
+        new.tree <- add.to.singleton(tree=new.tree, singleton = MDCC ,new.tips =  unit.taxa)
+      }
+
+      if(level=="Sister genus"){
+        sister.genus.tips<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)==MDCC]
+        sister.genus.mrca<- ape::getMRCA(new.tree, sister.genus.tips)
+
+        new.tree<-add.over.node(tree= new.tree, new.tip = unit.taxa[j], node = sister.genus.mrca)}
+
+      if(level=="Manual clade"){
+        table<- DF1.rand.bind[DF1.rand.bind$using.taxa%in%unit.taxa,]
+        sp1<- unique(table$taxon1)
+        sp2<- unique(table$taxon2)
+        clade.mrca<- ape::getMRCA(new.tree, c(sp1, sp2))
+        for(j in seq_along(unit.taxa)){
+          new.tree <- add.into.node(tree = new.tree, node = clade.mrca,
+                                    new.tip = unit.taxa[j], prob = prob )}
+      }
+
+
+
+      #Automatically searched MDCCs additions
+      #Add to genus
+      if(level=="genus"){
+        if(MDCC.type=="Monophyletic"){
+          for( j in 1:length(unit.taxa)){
+            new.tree<-add.to.monophyletic(tree = new.tree, new.tip = unit.taxa[j], prob=prob)
+          }
+        }else if(MDCC.type=="Paraphyletic"){#ALGUN ERROR EN PARAPHYLETIC!!!!
+          for( j in 1:length(unit.taxa)){
+            new.tree <- add.to.paraphyletic(tree = new.tree,
+                                            new.tip = unit.taxa[j], prob = prob)
+          }
+        }else if(MDCC.type=="Polyphyletic"){
+          poly.ins<- unique(DF1.rand$poly.ins[DF1.rand$using.taxa %in% unit.taxa])
+          if(length(poly.ins)>1){
+            poly.ins<-poly.ins[1]
+            message("Several Polyphyletic insertions recognised for genus ", genus, ". Using only first one (",poly.ins ,")")}
+          new.tree<- add.to.polyphyletic(tree = new.tree, new.tip = unit.taxa,
+                                         poly.ins , prob)
+        }else if(MDCC.type=="Singleton MDCC"){
+          # All tips added in one step
+          singleton <- tree$tip.label[(randtip::firstword(tree$tip.label) == genus)]
+          new.tree <- add.to.singleton(tree = new.tree,
+                                       singleton = singleton,
+                                       new.tips = unit.taxa)}
+      }
+      #Add to other taxonomic MDCC
+      if(level%in% c("tribe", "subfamily", "family", "order", "class")){
+        DF1.mdcc<-  DF1[!is.na(DF1[,level]),]
+        MDCC.taxa<- DF1.mdcc$taxon[DF1.mdcc[,level]==MDCC]
+        MDCC.genera<- randtip::notNA(unique(randtip::firstword(MDCC.taxa)))
+        MDCC.intree<- sp.genus.in.tree(new.tree, MDCC.genera)
+
+        if(length(MDCC.intree)==1){new.tree<- randtip::add.to.singleton(new.tree, MDCC.intree, unit.taxa)}else
+
+          if(length(MDCC.intree)>1){
+            MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
+            permitted.nodes<-randtip::get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
+            forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, DF1, level, MDCC)
+            permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]
+
+            if(MDCC.type%in%c("Paraphyletic", "Polyphyletic")){
+              forbidden.nodes.mdcc<- randtip::get.intruder.nodes(new.tree, DF1, level, MDCC)
+              permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes.mdcc)]}
+
+            if(length(permitted.nodes)==0){
+              new.tree<-add.over.node(new.tree, new.tip = unit.taxa, node = MDCC.mrca)
+            }else{
+              if((length(new.tree$tip.label)+1)%in%permitted.nodes){
+                permitted.nodes<-permitted.nodes[-which(permitted.nodes==(length(new.tree$tip.label)+1))]}
+
+              if(length(permitted.nodes)>1){permitted.nodes<-sample(x = permitted.nodes, size = 1, replace = F)}
+
+              new.tree <- randtip::add.over.node(new.tree, new.tip = unit.taxa[1], node = permitted.nodes)
+              if(length(unit.taxa)>1){
+                new.tree <- randtip::add.to.singleton(tree = new.tree,singleton = unit.taxa[1],
+                                                      new.tips = unit.taxa[2:length(unit.taxa)] )}}}
+      }
+
+
+
+    }
+  }}
+  #Phase 2 - Random insertions, aggregated subspecies
+  if(!is.null(DF1.dupl)){if(nrow(DF1.dupl)>0){
+    DF1.masdupl<- DF1.rand[(DF1.rand$using.taxa%in%tree$tip.label) &
+                             !(DF1.rand$taxon%in%tree$tip.label) , ]
+    DF1.dupl<- rbind(DF1.dupl, DF1.masdupl)
+    new.tree <- randtip.subsp(tree = new.tree, DF1.dupl, verbose)
+  }}
+
+  if(verbose){cat("\n")}
+  if(nrow(DF1.nonpoly)>0){new.tree <- get.original.names(tree = new.tree, DF1 = DF1.nonpoly, verbose )}
+
+
+  #Polytomies
+  if(nrow(DF1.poly)>0){
+    if(verbose){
+      cat(paste0("\n","Starting polytomies addition \n"))
+    }
+    DF1.poly<-DF1.poly[!(DF1.poly$taxon %in% new.tree$tip.label),]
+
+
+    MDCCs<- randtip::notNA(unique(DF1.poly$using.MDCC))
+    for(MDCCs.i in MDCCs){
+
+      DF1.poly<- DF1.poly[!is.na(DF1.poly$using.MDCC),]
+      MDCCs.i.level<- unique(DF1.poly$using.MDCC.lev[DF1.poly[,"using.MDCC"]==MDCCs.i])
+
+
+      MDCC.taxa.toAdd <- DF1.poly$taxon[DF1.poly[,"using.MDCC"]==MDCCs.i]
+      MDCC.taxa.inDF1 <- DF1$taxon[DF1[, MDCCs.i.level]==MDCCs.i]
+      MDCC.genera <- unique(randtip::firstword(MDCC.taxa.inDF1))
+      MDCC.genera <- randtip::notNA(MDCC.genera)
+      MDCC.taxa.inTree<- randtip::sp.genus.in.tree(new.tree, MDCC.genera)
+
+      if(verbose){
+        cat(paste0(which(MDCCs==MDCCs.i), "/", length(MDCCs),
+                   " (",round(which(MDCCs==MDCCs.i)/length(MDCCs)*100, 2), " %). ",
+                   "Adding ", MDCCs.i ," (",
+                   length(MDCC.taxa.toAdd)," tips).\n")) }
+
+
+      if(length(MDCC.taxa.inTree)==1){
+        new.tree<- randtip::polytomy.to.singleton(tree = new.tree, singleton = MDCC.taxa.inTree,
+                                                  new.tip =MDCC.taxa.toAdd, insertion = "long")}
+
+      if(length(MDCC.taxa.inTree)>1) {
+        MDCC.mrca<- ape::getMRCA(new.tree, MDCC.taxa.inTree)
+        new.tree<- randtip::polytomy.into.node(tree=new.tree,
+                                               new.tip =MDCC.taxa.toAdd, node =  MDCC.mrca)}
+    }
+
+
+
+  }
+
+
+
+
+  complete.taxa.list <- DF1orig$taxon
+  complete.taxa.list.in.tree <- complete.taxa.list[complete.taxa.list %in% new.tree$tip.label]
+  not.included <- complete.taxa.list[!(complete.taxa.list %in% complete.taxa.list.in.tree)]
+  if(length(not.included) > 0){
+    message("The following taxa were not included in the tree:\n", paste0(not.included, "\n"))}
+
+  if(isTRUE(trim)){new.tree <- ape::keep.tip(new.tree, complete.taxa.list.in.tree)}
+
+
+  end <- Sys.time()
+  if(verbose){
+    cat(paste0("\n","\n","\U2713", " Tip Randomization completed in ",
+               round(as.numeric(difftime(end, start,units = "mins")), 2), " mins\n"))
+  }
+  tree$tip.label <- gsub("_x-", "_x_", tree$tip.label)
+  return(new.tree)
+}
+
 
 
 
