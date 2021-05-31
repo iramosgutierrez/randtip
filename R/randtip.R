@@ -283,7 +283,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
   }
 
   #automatic MDCC search
-  levels<- c("genus","tribe","subfamily","family","order","class")
+  levels<- c("genus", "subtribe", "tribe","subfamily","family","superfamily" ,"order","class")
   for(v in 1:length(taxon)){
 
   if(verbose){
