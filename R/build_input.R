@@ -1,7 +1,7 @@
 #' Function to create DF1 given a species vector(column)
 #' @export
 
-build.input<- function(species, tree, find.MDCC=TRUE, db="ncbi", mode="list"){
+build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="phylomatic"){
 
 
   if(is.data.frame(species)){
@@ -15,8 +15,11 @@ build.input<- function(species, tree, find.MDCC=TRUE, db="ncbi", mode="list"){
 
 
 
-  names_df <- c("taxon",  "taxon1", "taxon2","genus", "tribe", "subfamily", "family", "order", "class",
-                "agg.ssp","rand.type", "poly.ins")
+  names_df <- c("taxon",  "taxon1", "taxon2",
+                "genus","subtribe", "tribe", "subfamily", "family",
+                "superfamily","order", "class",
+                "agg.ssp","rand.type", "poly.ins",
+                "resp.mono", "resp.para", "resp.sing")
 
   DF1<- as.data.frame(matrix(nrow = length(species), ncol = length(names_df)))
   names(DF1)<- names_df
@@ -44,8 +47,9 @@ build.input<- function(species, tree, find.MDCC=TRUE, db="ncbi", mode="list"){
 
   if(mode=="phylomatic"){
 
-    DF2<- as.data.frame(matrix(nrow = length(tree$tip.label), ncol = 7))
-    names(DF2)<- c("taxon", "genus", "tribe", "subfamily", "family", "order", "class")
+    DF2<- as.data.frame(matrix(nrow = length(tree$tip.label), ncol = 9))
+    names(DF2)<- c("taxon", "genus","subtribe", "tribe", "subfamily", "family",
+                   "superfamily","order", "class")
 
     DF2$taxon<- tree$tip.label
 
@@ -56,7 +60,8 @@ build.input<- function(species, tree, find.MDCC=TRUE, db="ncbi", mode="list"){
   if(mode=="phylomatic"){genera<- unique(c(randtip::firstword(species), randtip::firstword(tree$tip.label)))}else{
       genera<- unique(randtip::firstword(species))}
 
-  searching.categories<- c("tribe", "subfamily", "family", "order", "class")
+  searching.categories<- c("subtribe", "tribe", "subfamily", "family",
+                           "superfamily","order", "class")
 
     if(find.MDCC){for(i in 1:length(genera)){
       tryCatch({
