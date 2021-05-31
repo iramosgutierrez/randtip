@@ -5,11 +5,13 @@
 
 check.input<- function(DF1, tree, verbose=F){
 
-
+  DF1<- randtip::correct.DF(DF1)
+  tree$tip.label<- gsub(" ", "_", tree$tip.label)
   DF1.taxa<-DF1$taxon
   tree.taxa<- tree$tip.label
 
-  DF<- DF1[,c("taxon","genus", "tribe","subfamily","family", "order", "class")]
+  DF<- DF1[,c("taxon","genus", "subtribe", "tribe", "subfamily", "family",
+              "superfamily","order", "class")]
   DF$PUT.status<- NA
   DF$Name.simmilarity<- NA
 
@@ -39,17 +41,20 @@ check.input<- function(DF1, tree, verbose=F){
 
 
 
-
+  #3rd Taxonomy lookup:
   DF$genus_phyletic.status<-NA
+  DF$subtribe_phyletic.status<-NA
   DF$tribe_phyletic.status<-NA
   DF$subfamily_phyletic.status<-NA
   DF$family_phyletic.status<-NA
+  DF$superfamily_phyletic.status<-NA
   DF$order_phyletic.status<-NA
   DF$class_phyletic.status<-NA
 
 
-  #3th:
-levels<-c("genus", "tribe","subfamily","family", "order", "class")
+
+levels<-c("genus", "subtribe", "tribe", "subfamily", "family",
+          "superfamily","order", "class")
   for (level in levels){
     groups<- unique(DF1[,level])
     groups<- randtip::notNA(groups)
@@ -64,9 +69,31 @@ levels<-c("genus", "tribe","subfamily","family", "order", "class")
   }
 
 DF<-DF[,c("taxon", "PUT.status", "Name.simmilarity","genus", "genus_phyletic.status",
-      "tribe" , "tribe_phyletic.status", "subfamily","subfamily_phyletic.status",
-      "family","family_phyletic.status", "order","order_phyletic.status",
+          "subtribe" , "subtribe_phyletic.status","tribe" , "tribe_phyletic.status",
+          "subfamily","subfamily_phyletic.status","family","family_phyletic.status",
+      "superfamily","superfamily_phyletic.status", "order","order_phyletic.status",
       "class","class_phyletic.status")]
+
+#4th Tree tip evaluation
+tips<- tree$tip.label
+
+if(length(tips[duplicated(tips)])>0){
+  message("Tips ", tips[duplicated(tips)], " is duplicated in your tree!")}
+
+subsp.tips<- tips[sapply(strsplit(tips, "_"), length)>2]
+
+if(length(subsp.tips)>0){
+  for(ssp in subsp.tips){
+    nomials<-strsplit(ssp, split="_")[[1]]
+    if(paste0(nomials[1], "_", nomials[2])%in%tips &
+       any(nomials[3:length(nomials)]==nomials[2])){
+      message("Tips ", ssp, " and " , paste0(nomials[1], "_", nomials[2]),
+              " are synonyms, and are both included in the tree" )
+    }
+  }
+}
+
+
   return(DF)
 }
 
