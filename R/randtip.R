@@ -326,17 +326,22 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
   return(list(MDCC=MDCC.vect,MDCC.levels=MDCC.lev.vect, MDCC.phylstat=MDCC.phyletictype.vect) )
 }
 
+DF1finder<- function(DF1, taxon, column){
+  return(as.character(DF1[DF1$taxon==taxon, column]))
+}
+
 
 
 #' randtip RANDOMIZATION FUNCTIONS
 #' @export
-rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
-                    prob = TRUE, verbose = FALSE,
-                    poly.ins="freq",trim=TRUE, forceultrametric=F){
+rand.list <- function(tree, DF1,
+                    rand.type = "random",agg.ssp = TRUE, poly.ins="freq",
+                    resp.mono=FALSE, resp.para=FALSE, resp.sing=FALSE,
+                    prob = TRUE, verbose = FALSE, trim=TRUE, forceultrametric=F){
   if (!inherits(tree, "phylo")) {
     stop("object \"tree\" is not of class \"phylo\"")}
 
-  if(!(type %in% c("random", "polytomy"))) {stop("type must be \"random\" or \"polytomy\" ")}
+  if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
   if(!(poly.ins %in% c("freq", "all", "large"))) {stop("poly.ins must be \"freq\", \"all\" or \"large\" ")}
 
     start<- Sys.time()
@@ -380,7 +385,7 @@ rand.list <- function(tree, DF1,type = "random",agg.ssp = TRUE,
         new.tree <- ape::keep.tip(new.tree, trimming.species)}
 
     if(isTRUE(agg.ssp)){DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"1"}else{DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"0"}
-    if(type=="random"){DF1$rand.type[is.na(DF1$rand.type)]<-"0"}else{DF1$rand.type[is.na(DF1$rand.type)]<-"1"}
+    if(rand.type=="random"){DF1$rand.type[is.na(DF1$rand.type)]<-"0"}else{DF1$rand.type[is.na(DF1$rand.type)]<-"1"}
     {DF1$poly.ins[is.na(DF1$poly.ins)]<-poly.ins}
 
 
