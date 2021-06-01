@@ -257,3 +257,7 @@ PUT_TIP_col<- function(newtree, oldtree, TIPcol="black", PUTcol="red"){
   return(col)
 
 }
+
+randtip_levels<- function(){
+  return(as.vector(c("genus","subtribe","tribe","subfamily","family","superfamily","order","class")))
+}
