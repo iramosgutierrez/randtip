@@ -550,7 +550,7 @@ rand.list <- function(tree, DF1,
                   forbidden.nodes.mdcc<- randtip::get.intruder.nodes(new.tree, DF1, level, MDCC)
                   permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes.mdcc)]
                   if(randtip::findRoot(new.tree)%in%permitted.nodes){
-                    permitted.nodes<-permitted.nodes[-which(permitted.nodes==randtip::findRoot(new.tree)))]}
+                    permitted.nodes<-permitted.nodes[-which(permitted.nodes==randtip::findRoot(new.tree))]}
 
                   if(length(permitted.nodes)==0){
                     new.tree<-add.over.node(new.tree, new.tip = unit.taxa, node = MDCC.mrca)
