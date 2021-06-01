@@ -201,11 +201,14 @@ randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
         if(length(sp.to.add) > 1){
             sp.to.add <- sp.to.add[sp.to.add == rep.taxa.species[i]]
         }
-        if(!(rep.taxa.species[i]%in%new.tree$tip.label)){stop("Species ", rep.taxa.species[i], " is not in the tree")}
+        if(!(rep.taxa.species[i]%in%new.tree$tip.label)){sp.to.add <- sample(sp.to.add,1)}
 
         # Add subspecies as singleton
-        new.tree <- add.to.singleton(new.tree, singleton = sp.to.add,
-                                     new.tips = ssps)
+        for(ssp in ssps){
+        singleton<-c(sp.to.add,ssps)
+        singleton<- singleton[singleton%in%new.tree$tip.label]
+        new.tree <- add.to.singleton(new.tree, singleton = singleton,
+                                     new.tips = ssp, resp.sing = T, resp.mono = T)}
 #        }
     }
     return(new.tree)
