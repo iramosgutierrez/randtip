@@ -1,40 +1,70 @@
 #' Function to add tip to singleton
 #' @export
-add.to.singleton <- function(tree, singleton, new.tips){
-  singleton<-gsub(pattern = " ", "_", singleton)
+add.to.singleton <- function(tree, singleton, new.tips, resp.sing=F, resp.mono=F){
+  singleton<-gsub(" ", "_", singleton)
+  singleton<-singleton[singleton%in%tree$tip.label]
 
   new.tree <- tree
-  node<-which(new.tree$tip.label==singleton)
 
-  for(i in 1: length(new.tips)){
+  if(length(singleton)==1){
 
-    if (i==1) {
+    node<-which(new.tree$tip.label==singleton)
 
-      pos<- randtip::binding.position(new.tree, node = node, insertion = "random",prob = T)
-
-
-
+   if(isTRUE(resp.sing)){
+     pos<- randtip::binding.position(new.tree, node = node, insertion = "random",prob = T)
+     new.tree <- phytools::bind.tip(new.tree,
+                                       new.tips,
+                                       edge.length = pos$length,
+                                       where = pos$where,
+                                       position = pos$position) }
+   if(isFALSE(resp.sing)){
+     if(!(randtip::isRoot(new.tree, node))){
+     parent<- randtip::get.parent.siblings(new.tree, node)[[1]]
+     if(isFALSE(resp.mono)){nodes<- phytools::getDescendants(new.tree, parent)}
+     if(isTRUE(resp.mono)) {nodes<- randtip::get.permitted.nodes(new.tree, parent)
+     nodes<- nodes[nodes!=parent]
+     if(length(nodes)==0){nodes<-node}
+     }}else{nodes<-node}
+      pos<- randtip::binding.position(new.tree, node = sample(nodes,1), insertion = "random",prob = T)
       new.tree <- phytools::bind.tip(new.tree,
-                                     new.tips[i],
+                                     new.tips,
                                      edge.length = pos$length,
                                      where = pos$where,
-                                     position = pos$position)
-    }else{
-      sticksp<-  c(singleton,new.tips[1:i-1] )
-      node<- phytools::findMRCA(tree=new.tree, tips=sticksp)
-      permitted<- c(node, phytools::getDescendants(new.tree, node))
-      df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2], "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
-      df<- df[df$node%in%permitted,]
-      pos<- randtip::binding.position(new.tree, df = df, insertion = "random",prob = T)
+                                     position = pos$position) }
+  }
 
+  if(length(singleton)> 1){
+    node<-which(new.tree$tip.label%in%singleton)
+    mrca<- ape::getMRCA(new.tree, singleton)
+
+    if(isTRUE(resp.sing)){
+      nodes<- c(mrca, node)
+      pos<- randtip::binding.position(new.tree, node = sample(nodes,1), insertion = "random",prob = T)
       new.tree <- phytools::bind.tip(new.tree,
-                                     new.tips[i],
+                                     new.tips,
                                      edge.length = pos$length,
                                      where = pos$where,
-                                     position = pos$position)
-    }
+                                     position = pos$position) }
+    if(isFALSE(resp.sing)){
+      if(!(randtip::isRoot(new.tree, mrca))){
+      parent<- randtip::get.parent.siblings(new.tree, mrca)[[1]]
+      if(isFALSE(resp.mono)){nodes<- phytools::getDescendants(new.tree, parent)}
+      if(isTRUE(resp.mono)) {nodes<- randtip::get.permitted.nodes(new.tree, parent)
+      nodes<- nodes[nodes!=parent]
+      if(length(nodes)==0){nodes<-c(node,mrca)}
+      }}else{nodes<-c(node,mrca)}
+
+      pos<- randtip::binding.position(new.tree, node = sample(nodes,1), insertion = "random",prob = T)
+      new.tree <- phytools::bind.tip(new.tree,
+                                     new.tips,
+                                     edge.length = pos$length,
+                                     where = pos$where,
+                                     position = pos$position) }
 
   }
+
+
+
 
 
   return(new.tree)
