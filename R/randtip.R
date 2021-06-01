@@ -973,10 +973,3 @@ rand.phy <- function(tree, DF1, DF2, type = "random",agg.ssp = TRUE,
   tree$tip.label <- gsub("_x-", "_x_", tree$tip.label)
   return(new.tree)
 }
-
-
-
-
-
-
-
