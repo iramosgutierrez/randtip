@@ -506,6 +506,15 @@ rand.list <- function(tree, DF1,
             }
             #Add to other taxonomic MDCC
             if(level%in% randtip::randtip_levels()[-1]){
+              if(isTRUE(resp.mono)){
+                if(length(sp.genus.in.tree(tree, randtip::firstword(PUT)))==0 &
+                   length(sp.genus.in.tree(new.tree, randtip::firstword(PUT)))> 0){
+                  singleton<-sp.genus.in.tree(new.tree, randtip::firstword(PUT))
+                  new.tree<- add.to.singleton(new.tree, singleton, PUT, T, T)
+                  next
+                }
+              }
+
               DF1.mdcc<-  DF1[!is.na(DF1[,level]),]
               MDCC.taxa<- DF1.mdcc$taxon[DF1.mdcc[,level]==MDCC]
               MDCC.genera<- randtip::notNA(unique(randtip::firstword(MDCC.taxa)))
