@@ -10,8 +10,7 @@ check.input<- function(DF1, tree, verbose=F){
   DF1.taxa<-DF1$taxon
   tree.taxa<- tree$tip.label
 
-  DF<- DF1[,c("taxon","genus", "subtribe", "tribe", "subfamily", "family",
-              "superfamily","order", "class")]
+  DF<- DF1[,c("taxon",randtip::randtip_levels())]
   DF$PUT.status<- NA
   DF$Name.simmilarity<- NA
 
@@ -53,8 +52,7 @@ check.input<- function(DF1, tree, verbose=F){
 
 
 
-levels<-c("genus", "subtribe", "tribe", "subfamily", "family",
-          "superfamily","order", "class")
+levels<-randtip::randtip_levels()
   for (level in levels){
     groups<- unique(DF1[,level])
     groups<- randtip::notNA(groups)

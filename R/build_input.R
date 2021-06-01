@@ -16,8 +16,7 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="phylomat
 
 
   names_df <- c("taxon",  "taxon1", "taxon2",
-                "genus","subtribe", "tribe", "subfamily", "family",
-                "superfamily","order", "class",
+                randtip::randtip_levels(),
                 "agg.ssp","rand.type", "poly.ins",
                 "resp.mono", "resp.para", "resp.sing")
 
@@ -48,8 +47,7 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="phylomat
   if(mode=="phylomatic"){
 
     DF2<- as.data.frame(matrix(nrow = length(tree$tip.label), ncol = 9))
-    names(DF2)<- c("taxon", "genus","subtribe", "tribe", "subfamily", "family",
-                   "superfamily","order", "class")
+    names(DF2)<- c("taxon", randtip::randtip_levels())
 
     DF2$taxon<- tree$tip.label
 
@@ -60,8 +58,7 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="phylomat
   if(mode=="phylomatic"){genera<- unique(c(randtip::firstword(species), randtip::firstword(tree$tip.label)))}else{
       genera<- unique(randtip::firstword(species))}
 
-  searching.categories<- c("subtribe", "tribe", "subfamily", "family",
-                           "superfamily","order", "class")
+  searching.categories<- randtip::randtip_levels()[-1]
 
     if(find.MDCC){for(i in 1:length(genera)){
       tryCatch({
