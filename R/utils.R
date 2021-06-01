@@ -246,7 +246,7 @@ isRoot<- function(tree, node){
 
 findRoot<- function(tree){
   tips<- length(tree$tip.label)
-  return(root+1)
+  return(tips+1)
 }
 
 #' @export
@@ -260,4 +260,19 @@ PUT_TIP_col<- function(newtree, oldtree, TIPcol="black", PUTcol="red"){
 
 randtip_levels<- function(){
   return(as.vector(c("genus","subtribe","tribe","subfamily","family","superfamily","order","class")))
+}
+
+sharingtaxa.descs<-function(tree, nodes, MDCC.genera){
+  table<- data.frame("node"=as.numeric(nodes), "number"=rep(NA, length(nodes)))
+  for(i in seq_along(table$node)){
+    node<- table$node[i]
+    if(randtip::is.tip(tree,node)){table$number[i]<-1; next}
+    descs<- phytools::getDescendants(tree, node)
+    descs<- tree$tip.label[descs]
+    descs<- randtip::notNA(descs)
+    descs<- descs[randtip::firstword(descs)%in%MDCC.genera]
+    table$number[i]<-length(descs)
+  }
+  table<- table[table$number>0,]
+  return(table)
 }
