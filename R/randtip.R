@@ -538,7 +538,7 @@ rand.list <- function(tree, DF1,
               }
               if(length(permitted.nodes)==1){nd<-permitted.nodes}else{
                 nd<-sample(permitted.nodes,1)}
-              pos<- randtip::binding.position(new.tree, node = nd,
+              pos<- randtip::binding.position(new.tree, node = nd,df = NULL,
                                               insertion = "random", prob = prob)
               new.tree<- phytools::bind.tip(new.tree, PUT, pos$length, pos$where, pos$position)
               }
@@ -557,7 +557,7 @@ rand.list <- function(tree, DF1,
                   }
                   if(length(permitted.nodes)==1){nd<-permitted.nodes}else{
                     nd<-sample(permitted.nodes,1)}
-                  pos<- randtip::binding.position(new.tree, node = nd,
+                  pos<- randtip::binding.position(new.tree, node = nd,df = NULL,
                                                   insertion = "random", prob = prob)
                   new.tree<- phytools::bind.tip(new.tree, PUT, pos$length, pos$where, pos$position)
                 }#same as monophyletic
@@ -576,8 +576,8 @@ rand.list <- function(tree, DF1,
                   }else{
                     if(length(permitted.nodes)==1){nd<-permitted.nodes}else{
                       nd<-sample(permitted.nodes,1)}
-                    pos<- randtip::binding.position(new.tree, nd,
-                                   "random", prob = prob)
+                    pos<- randtip::binding.position(new.tree, nd,df = NULL,
+                                    "random", prob = prob)
                     new.tree<-phytools::bind.tip(new.tree, PUT, pos$length, pos$where, pos$position)
 
                   }
@@ -597,7 +597,7 @@ rand.list <- function(tree, DF1,
                   }
                   if(length(permitted.nodes)==1){nd<-permitted.nodes}else{
                     nd<-sample(permitted.nodes,1)}
-                  pos<- randtip::binding.position(new.tree, node = nd,
+                  pos<- randtip::binding.position(new.tree, node = nd,df = NULL,
                                                   insertion = "random", prob = prob)
                   new.tree<- phytools::bind.tip(new.tree, PUT, pos$length, pos$where, pos$position)
                 }#same as monophyletic
@@ -618,7 +618,7 @@ rand.list <- function(tree, DF1,
                   }
                   if(length(nodes)==1){nd<-nodes}else{
                     nd<-sample(nodes,1)}
-                  pos<- randtip::binding.position(new.tree, nd,
+                  pos<- randtip::binding.position(new.tree, nd,df = NULL,
                                   insertion = "random", prob=prob)
                   new.tree<-phytools::bind.tip(new.tree, PUT, pos$length, pos$where, pos$position)
 
@@ -642,7 +642,7 @@ rand.list <- function(tree, DF1,
                   }
                   if(length(nodes)==1){nd<-nodes}else{
                     nd<-sample(nodes,1)}
-                  pos<- randtip::binding.position(new.tree, nd,
+                  pos<- randtip::binding.position(new.tree, nd,df = NULL,
                                                   insertion = "random", prob=prob)
                   new.tree<-phytools::bind.tip(new.tree, PUT, pos$length, pos$where, pos$position)
 
