@@ -530,7 +530,9 @@ rand.list <- function(tree, DF1,
               if(isTRUE(resp.mono)){
               permitted.nodes<-randtip::get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
               forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, DF1, level, MDCC)
+              if(!all(permitted.nodes%in%forbidden.nodes)){
               permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}
+              }
               if(isFALSE(resp.mono)){
                 permitted.nodes<- phytools::getDescendants(new.tree, MDCC.mrca)
               }
@@ -548,7 +550,8 @@ rand.list <- function(tree, DF1,
                   if(isTRUE(resp.mono)){
                     permitted.nodes<-randtip::get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
                     forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, DF1, level, MDCC)
-                    permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}
+                    if(!all(permitted.nodes%in%forbidden.nodes)){
+                      permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}}
                   if(isTRUE(resp.mono)){
                     permitted.nodes<- phytools::getDescendants(new.tree, MDCC.mrca)
                   }
@@ -563,7 +566,8 @@ rand.list <- function(tree, DF1,
 
                   permitted.nodes<- get.permitted.nodes(new.tree, MDCC.mrca)
                   forbidden.nodes.mdcc<- randtip::get.intruder.nodes(new.tree, DF1, level, MDCC)
-                  permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes.mdcc)]
+                  if(!all(permitted.nodes%in%forbidden.nodes)){
+                    permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}
                   if(randtip::findRoot(new.tree)%in%permitted.nodes){
                     permitted.nodes<-permitted.nodes[-which(permitted.nodes==randtip::findRoot(new.tree))]}
 
@@ -586,7 +590,8 @@ rand.list <- function(tree, DF1,
                   if(isTRUE(resp.mono)){
                     permitted.nodes<-randtip::get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
                     forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, DF1, level, MDCC)
-                    permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}
+                    if(!all(permitted.nodes%in%forbidden.nodes)){
+                      permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}}
                   if(isFALSE(resp.mono)){
                     permitted.nodes<- phytools::getDescendants(new.tree, MDCC.mrca)
                   }
