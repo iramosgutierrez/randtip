@@ -271,7 +271,9 @@ rand.list <- function(tree, DF1,
                   forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, DF1, level, MDCC)
                   descs<- descs[!(descs%in%forbidden.nodes)]
                   table<-sharingtaxa.descs(tree=new.tree, nodes=descs, MDCC.genera = MDCC.genera)
-                  node<-sample(table$node, 1, prob=table$number)
+                  table.row<- sample(1:length(table$node), 1, prob=as.numeric(table$number))
+                  node<-table[table.row,"node"]
+
 
                   if(isTRUE(resp.mono)){
                     nodes<- randtip::get.permitted.nodes(new.tree, node)
@@ -295,7 +297,7 @@ rand.list <- function(tree, DF1,
                   descs<- descs[!(descs%in%forbidden.nodes)]
                   table<-sharingtaxa.descs(tree=new.tree, nodes=descs, MDCC.genera = MDCC.genera)
                   table<- table[table$number==max(table$number),]
-                  table.row<- sample(1:length(table$node), 1, prob=table$number)
+                  table.row<- sample(1:length(table$node), 1, prob=as.numeric(table$number))
                   node<-table[table.row,"node"]
 
                   if(isTRUE(resp.mono)){
