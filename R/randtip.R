@@ -198,7 +198,7 @@ rand.list <- function(tree, DF1,
               permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}
               }
               if(isFALSE(resp.mono)){
-                permitted.nodes<- phytools::getDescendants(new.tree, MDCC.mrca,curr = F)
+                permitted.nodes<- phytools::getDescendants(new.tree, MDCC.mrca,curr = NULL)
               }
               if(length(permitted.nodes)==1){nd<-permitted.nodes}else{
                 nd<-sample(permitted.nodes,1)}
@@ -217,7 +217,7 @@ rand.list <- function(tree, DF1,
                     if(!all(permitted.nodes%in%forbidden.nodes)){
                       permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}}
                   if(isTRUE(resp.mono)){
-                    permitted.nodes<- phytools::getDescendants(new.tree, MDCC.mrca,curr = F)
+                    permitted.nodes<- phytools::getDescendants(new.tree, MDCC.mrca,curr = NULL)
                   }
                   if(length(permitted.nodes)==1){nd<-permitted.nodes}else{
                     nd<-sample(permitted.nodes,1)}
@@ -257,7 +257,7 @@ rand.list <- function(tree, DF1,
                     if(!all(permitted.nodes%in%forbidden.nodes)){
                       permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}}
                   if(isFALSE(resp.mono)){
-                    permitted.nodes<- phytools::getDescendants(new.tree, MDCC.mrca,curr = F)
+                    permitted.nodes<- phytools::getDescendants(new.tree, MDCC.mrca,curr = NULL)
                   }
                   if(length(permitted.nodes)==1){nd<-permitted.nodes}else{
                     nd<-sample(permitted.nodes,1)}
@@ -267,7 +267,7 @@ rand.list <- function(tree, DF1,
                 }#same as monophyletic
                 if(poly.ins=="freq"){
                   mrca<- ape::getMRCA(new.tree, MDCC.intree)
-                  descs<- phytools::getDescendants(new.tree, mrca,curr = F)
+                  descs<- phytools::getDescendants(new.tree, mrca,curr = NULL)
                   forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, DF1, level, MDCC)
                   descs<- descs[!(descs%in%forbidden.nodes)]
                   table<-sharingtaxa.descs(tree=new.tree, nodes=descs, MDCC.genera = MDCC.genera)
@@ -279,7 +279,7 @@ rand.list <- function(tree, DF1,
                     nodes<- randtip::get.permitted.nodes(new.tree, node)
                   }
                   if(isFALSE(resp.mono)){
-                    nodes<- phytools::getDescendants(new.tree, node,curr = F)
+                    nodes<- phytools::getDescendants(new.tree, node,curr = NULL)
 
                   }
                   if(length(nodes)==1){nd<-nodes}else{
@@ -292,7 +292,7 @@ rand.list <- function(tree, DF1,
                 }
                 if(poly.ins=="large"){
                   mrca<- ape::getMRCA(new.tree, MDCC.intree)
-                  descs<- phytools::getDescendants(new.tree, mrca,curr = F)
+                  descs<- phytools::getDescendants(new.tree, mrca,curr = NULL)
                   forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, DF1, level, MDCC)
                   descs<- descs[!(descs%in%forbidden.nodes)]
                   table<-sharingtaxa.descs(tree=new.tree, nodes=descs, MDCC.genera = MDCC.genera)
@@ -304,7 +304,7 @@ rand.list <- function(tree, DF1,
                     nodes<- randtip::get.permitted.nodes(new.tree, node)
                   }
                   if(isFALSE(resp.mono)){
-                    nodes<- phytools::getDescendants(new.tree, node,curr = F)
+                    nodes<- phytools::getDescendants(new.tree, node,curr = NULL)
 
                   }
                   if(length(nodes)==1){nd<-nodes}else{
