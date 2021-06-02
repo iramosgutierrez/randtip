@@ -84,7 +84,7 @@ binding.position<- function(tree, node=NULL, df=NULL, insertion,  prob){
   if(insertion=="random"){
 
     index<- df[df$node==node,"id"]
-    pos <- randtip::get.position(tree = tree, node = df[df$id==index,"node"], insertion = "random")
+    pos <- randtip::get.position(tree = tree, node = node, insertion = "random")
 
     position$position<- pos
     position$where <- df[df$id==index,"node"]

@@ -649,7 +649,8 @@ rand.list <- function(tree, DF1,
 
                 }
 
-                }}}}}
+              }}}
+        }}
 
     #Phase 2 - Random insertions, aggregated subspecies
     if(!is.null(DF1.dupl)){if(nrow(DF1.dupl)>0){
