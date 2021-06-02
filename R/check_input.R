@@ -72,6 +72,17 @@ DF<-DF[,c("taxon", "PUT.status", "Name.simmilarity","genus", "genus_phyletic.sta
       "superfamily","superfamily_phyletic.status", "order","order_phyletic.status",
       "class","class_phyletic.status")]
 
+#3.2 Taxa with no MDCC
+DF_search<- randtip::usingMDCCfinder(DF1 = DF, taxon = DF$taxon, tree = tree, verbose)
+taxaMDCC<- data.frame("taxon"=DF$taxon, "MDCC"= rep(NA, length(DF$taxon)))
+taxaMDCC$MDCC     <- DF_search[[1]]
+
+not.included<- taxaMDCC[is.na(taxaMDCC$MDCC),]
+if(length(not.included$taxon) > 0){
+  message("The following taxa do not have a MDCC and cannot be randomized:\n\n",
+          paste0(not.included$taxon, "\n"))}
+
+
 #4th Tree tip evaluation
 tips<- tree$tip.label
 
@@ -97,3 +108,4 @@ if(length(subsp.tips)>0){
 
 #example.check<- check.input(DF1 =example , tree = tree25)
 
+check.input(DF, tree)
