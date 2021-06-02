@@ -527,13 +527,13 @@ correct.DF<- function(DF){
 
 isRoot<- function(tree, node){
   tips<- length(tree$tip.label)
-  if(node==(tips+1)){root<-TRUE}else{root<-FALSE}
+  if(node==(tips+1L)){root<-TRUE}else{root<-FALSE}
   return(root)
 }
 
 findRoot<- function(tree){
   tips<- length(tree$tip.label)
-  return(tips+1)
+  return(tips+1L)
 }
 
 #' @export
