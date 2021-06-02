@@ -6,65 +6,21 @@ sp.genus.in.tree <- function(tree, genus){
     return(taxa.vector)
 }
 
-# Convenience function to give bind position for tip
-# The returning value is to be used in the position argument
-# of phytools bind.tip function.
-bind.tip.pos <- function(pos.min, pos.max){
-     pos.tip <- stats::runif(1, pos.min, pos.max)
-     while(pos.tip == pos.min | pos.tip == pos.max){
-        pos.tip <- stats::runif(1, pos.min, pos.max)
-     }
-     return(pos.tip)
-}
-
-# Return index of edge where binding should take place
-get.index <- function(tree, how = "sample_simple", node = NULL, df = NULL){
-
-    if(!is.null(node)){if(randtip::isRoot(tree, node)){return(NA)}}
-
-    if(is.null(df)){
-        df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
-                         "length"=tree$edge.length, "id"=1:length(tree$edge[,1]))
-
-    }
-
-    if(!is.null(node)){
-        edges <- df[ape::which.edge(tree, node),]
-    }else if(how == "sample_simple"){
-        edges <- df[sample(x = 1:nrow(df), size = 1),]
-    }else if(how == "sample_prob"){
-        edges <- df[sample(x = 1:nrow(df), size = 1, prob = abs(df$length)),]
-    }else{
-        stop("Unrecognized set of arguments to get.index function.")
-    }
-
-    to.index <- edges$id
-
-    return(to.index)
-}
-
-get.position <- function(tree, node, insertion){
+get.position <- function(tree, node){
 if(randtip::isRoot(tree, node)){position=0
 }else{
-    edge.length <- tree$edge.length[ape::which.edge(tree, node)]
-    if(insertion=="random"){
+    df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
+                       "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
+  edge.length <- df[df$node==node,"length"]
+
         # Bind at a random point of the branch
         position <- edge.length * stats::runif(1, 0, 1)
-    }else if(insertion=="middle"){
-        position <- edge.length*0.5
-        # Bind at the middle of the branch
-    }else if(insertion=="long"){
-        # Bind at the beggining of the branch
-        position <- edge.length
-    }else{
-        stop("Unknown specification of the insertion argument.")
-    }}
+}
 
     return(position)
 }
 
-
-binding.position<- function(tree, node=NULL, df=NULL, insertion,  prob){
+binding.position<- function(tree, node, df=NULL, insertion,  prob){
   position<-list("length"=NA, "where"=NA, "position"=NA)
 
   if(is.null(df)){df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2], "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )}
@@ -72,9 +28,8 @@ binding.position<- function(tree, node=NULL, df=NULL, insertion,  prob){
   if(ape::is.ultrametric(tree)){position$length<-NULL}else{
     position$length<-abs(rnorm(1, mean=mean(tree$edge.length), sd= sd(tree$edge.length) ))}
 
-  if(!is.null(node)){
     df<- df[df$node==node,]
-    position$where<- node}
+    position$where<- node
 
   if(insertion=="polytomy"){
     position$position<- 0
@@ -101,7 +56,6 @@ binding.position<- function(tree, node=NULL, df=NULL, insertion,  prob){
 
 }
 
-
 get.parent.siblings <- function(tree, tip){
     tree.sp <- tree$tip.label
     # Direct ancestor
@@ -124,7 +78,6 @@ notNA <- function(x){
   vect<- x[!is.na(x)]
   return(vect)
 }
-
 
 get.groups <- function(tree, genus){
   species <- randtip::sp.genus.in.tree(tree, genus)
@@ -228,7 +181,6 @@ get.groups <- function(tree, genus){
 
   return(list(species=node.descs, type=node.types))
 }
-
 
 correct.DF<- function(DF){
   for(i in 1:(ncol(DF))){
