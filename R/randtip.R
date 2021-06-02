@@ -183,10 +183,10 @@ rand.list <- function(tree, DF1,
               MDCC.genera<- randtip::notNA(unique(randtip::firstword(MDCC.taxa)))
               MDCC.intree<- sp.genus.in.tree(new.tree, MDCC.genera)
 
-              if(MDCC.type=="Singleton"){
+              if(MDCC.type=="Singleton MDCC"){
                 singleton<-c(MDCC.taxa, MDCC.intree)
-                singleton<-singleton[singleton%in%new.tree$tip.label]
-                new.tree<- randtip::add.to.singleton(new.tree, MDCC.intree, PUT,
+                singleton<-unique(singleton[singleton%in%new.tree$tip.label])
+                new.tree<- randtip::add.to.singleton(new.tree, singleton , PUT,
                                                      resp.sing, resp.mono)}
 
               if(MDCC.type=="Monophyletic"){
