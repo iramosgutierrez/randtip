@@ -18,8 +18,8 @@ add.over.node <- function(tree, new.tip, node){
       if(i==1){
     df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2], "length"=tree$edge.length, "id"=1:length(tree$edge.length))
 
-    to.index <- randtip::get.index(tree, node = node)
-    df <- df[df$id==to.index,]
+
+    df <- df[df$node==node,]
     pos<- binding.position(tree = tree, df = df, insertion = "random" , prob=T)
 
     new.tree <- phytools::bind.tip(tree, tip, edge.length = pos$length,
