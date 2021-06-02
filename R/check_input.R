@@ -108,4 +108,3 @@ if(length(subsp.tips)>0){
 
 #example.check<- check.input(DF1 =example , tree = tree25)
 
-check.input(DF, tree)
