@@ -20,7 +20,7 @@ add.over.node <- function(tree, new.tip, node){
 
 
     df <- df[df$node==node,]
-    pos<- binding.position(tree = tree, df = df, insertion = "random" , prob=T)
+    pos<- binding.position(tree = tree, node, insertion = "random")
 
     new.tree <- phytools::bind.tip(tree, tip, edge.length = pos$length,
                                  where = pos$where, position = pos$position)}else{
