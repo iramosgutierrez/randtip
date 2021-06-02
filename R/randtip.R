@@ -101,8 +101,8 @@ get.forbidden.MDCC.nodes <- function(tree,DF1, level, MDCC){
   DF1.mdcc<- DF1.mdcc[DF1.mdcc[,level]==MDCC,]
   forbidden.nodes<- as.numeric(NULL)
   if(level=="genus"){return(NULL)}
-  for(lv in 4:(which(colnames(DF1)==level)-1)){
-    col.lev<-colnames(DF1.mdcc)[lv]
+  for(lv in randtip::randtip_levels()[-1]){
+    col.lev<- as.character(lv)
     MDCCs<-unique(DF1.mdcc[,col.lev])
     MDCCs<-randtip::notNA(MDCCs)
     for(lev in MDCCs){
@@ -341,9 +341,7 @@ rand.list <- function(tree, DF1,
                     rand.type = "random",agg.ssp = FALSE, poly.ins="large",
                     resp.mono=FALSE, resp.para=FALSE, resp.sing=FALSE,
                     prob = TRUE, verbose = FALSE, trim=TRUE, forceultrametric=F){
-  if (!inherits(tree, "phylo")) {
-    stop("object \"tree\" is not of class \"phylo\"")}
-
+  if (!inherits(tree, "phylo")) {stop("object \"tree\" is not of class \"phylo\"")}
   if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
   if(!(poly.ins %in% c("freq", "all", "large"))) {stop("poly.ins must be \"freq\", \"all\" or \"large\" ")}
 
@@ -483,6 +481,14 @@ rand.list <- function(tree, DF1,
 
             #Automatically searched MDCCs additions
             #Add to genus
+            if(isTRUE(resp.mono)&isTRUE(resp.sing)){
+              if(length(sp.genus.in.tree(tree, randtip::firstword(PUT)))==0 &
+                 length(sp.genus.in.tree(new.tree, randtip::firstword(PUT)))> 0){
+                singleton<-sp.genus.in.tree(new.tree, randtip::firstword(PUT))
+                new.tree<- add.to.singleton(new.tree, singleton, PUT, T, T)
+                next
+              }}
+
             if(level=="genus"){
             if(MDCC.type=="Monophyletic"){
 
@@ -506,14 +512,7 @@ rand.list <- function(tree, DF1,
             }
             #Add to other taxonomic MDCC
             if(level%in% randtip::randtip_levels()[-1]){
-              if(isTRUE(resp.mono)){
-                if(length(sp.genus.in.tree(tree, randtip::firstword(PUT)))==0 &
-                   length(sp.genus.in.tree(new.tree, randtip::firstword(PUT)))> 0){
-                  singleton<-sp.genus.in.tree(new.tree, randtip::firstword(PUT))
-                  new.tree<- add.to.singleton(new.tree, singleton, PUT, T, T)
-                  next
-                }
-              }
+
 
               DF1.mdcc<-  DF1[!is.na(DF1[,level]),]
               MDCC.taxa<- DF1.mdcc$taxon[DF1.mdcc[,level]==MDCC]
