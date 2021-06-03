@@ -96,7 +96,11 @@ rand.list <- function(tree, DF1,
         DF1.rand.bind<- DF1.rand[!(DF1.rand$using.taxa %in% new.tree$tip.label),]
         DF1.rand.bind<- DF1.rand.bind[!is.na(DF1.rand.bind$using.MDCC),]
 
+        manual.mdcc.taxa<-DF1.rand.bind$taxon[!is.na(DF1.rand.bind$taxon1)|!is.na(DF1.rand.bind$taxon2)]
         rand.PUTs<- DF1.rand.bind$taxon
+        rand.PUTs<-sample(rand.PUTs, length(rand.PUTs), replace = F)
+        rand.PUTs<- c(rand.PUTs[rand.PUTs%in%manual.mdcc.taxa], rand.PUTs[!(rand.PUTs%in%manual.mdcc.taxa)])
+
         if(verbose){
           cat(paste0("Starting randomization","\n")) }
 
