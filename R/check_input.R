@@ -79,7 +79,7 @@ taxaMDCC$MDCC     <- DF_search[[1]]
 
 not.included<- taxaMDCC[is.na(taxaMDCC$MDCC),]
 if(length(not.included$taxon) > 0){
-  message("The following taxa do not have a MDCC and cannot be randomized:\n\n",
+  message("\n\nThe following taxa do not have a MDCC and cannot be randomized:\n",
           paste0(not.included$taxon, "\n"))}
 
 
@@ -96,7 +96,7 @@ if(length(subsp.tips)>0){
     nomials<-strsplit(ssp, split="_")[[1]]
     if(paste0(nomials[1], "_", nomials[2])%in%tips &
        any(nomials[3:length(nomials)]==nomials[2])){
-      message("Tips ", ssp, " and " , paste0(nomials[1], "_", nomials[2]),
+      message("\nTips ", ssp, " and " , paste0(nomials[1], "_", nomials[2]),
               " are synonyms, and are both included in the tree" )
     }
   }
