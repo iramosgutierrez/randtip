@@ -149,7 +149,7 @@ rand.list <- function(tree, DF1,
 
             #Automatically searched MDCCs additions
             #Add to genus
-            if(isTRUE(resp.mono)&isTRUE(resp.sing)){
+            if(isTRUE(resp.sing)){
               if(length(sp.genus.in.tree(tree, randtip::firstword(PUT)))==0 &
                  length(sp.genus.in.tree(new.tree, randtip::firstword(PUT)))> 0){
                 singleton<-sp.genus.in.tree(new.tree, randtip::firstword(PUT))
