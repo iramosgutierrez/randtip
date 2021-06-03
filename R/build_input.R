@@ -1,7 +1,7 @@
 #' Function to create DF1 given a species vector(column)
 #' @export
 
-build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="phylomatic"){
+build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list"){
 
 
   if(is.data.frame(species)){
