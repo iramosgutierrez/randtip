@@ -4,7 +4,7 @@
 rand.list <- function(tree, DF1,
                     rand.type = "random",agg.ssp = FALSE, poly.ins="large",
                     resp.mono=FALSE, resp.para=FALSE, resp.sing=FALSE,
-                    prob = TRUE, verbose = FALSE, trim=TRUE, forceultrametric=F){
+                    prob = TRUE, verbose = FALSE, prune=TRUE, forceultrametric=F){
   if (!inherits(tree, "phylo")) {stop("object \"tree\" is not of class \"phylo\"")}
   if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
   if(!(poly.ins %in% c("freq", "all", "large"))) {stop("poly.ins must be \"freq\", \"all\" or \"large\" ")}
@@ -36,7 +36,7 @@ rand.list <- function(tree, DF1,
 
     if(verbose){cat("\n")}
 
-    if(trim){
+    if(prune){
       trimming.species<- rep(NA, 1)
       for(using.mdcc in unique(DF1$using.MDCC)){
         spp.df<-DF1[DF1$using.MDCC==using.mdcc,]
@@ -386,7 +386,7 @@ rand.list <- function(tree, DF1,
     if(length(not.included) > 0){
         message("The following taxa were not included in the tree:\n", paste0(not.included, "\n"))}
 
-    if(isTRUE(trim)){new.tree <- ape::keep.tip(new.tree, complete.taxa.list.in.tree)}
+    if(isTRUE(prune)){new.tree <- ape::keep.tip(new.tree, complete.taxa.list.in.tree)}
 
 
     end <- Sys.time()
