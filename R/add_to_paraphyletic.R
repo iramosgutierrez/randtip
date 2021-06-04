@@ -63,7 +63,7 @@ add.to.paraphyletic <- function(tree, new.tip, prob = TRUE, intern.node = NULL,
     df <- data.frame("parent"=tree$edge[,1],"node"= tree$edge[,2],"length"=tree$edge.length, "id" =1:length(tree$edge.length))
     df <- df[df[,2] %in% descs,]
     if(length(intruder.descs)>0){df <- df[!(df[,2] %in% intruder.descs),]}
-    if(nrow(df)==1){nd<- df$node}else{sample(df$node, 1, prob = df$length)}
+    if(nrow(df)==1){nd<- df$node}else{nd<-sample(df$node, 1, prob = df$length)}
     pos<- randtip::binding.position(tree = tree, node=nd, insertion = "random", prob=prob )
 
     new.tree <- phytools::bind.tip(tree, new.tip, edge.length = pos$length,
