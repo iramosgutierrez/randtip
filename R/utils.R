@@ -306,7 +306,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
                 taxa$taxon1[tx]==taxa$taxon2[tx] &
                 length(randtip::sp.genus.in.tree(tree, taxa$taxon1[tx]))>0)){
 
-        pos<- which(taxon==taxa$taxon)
+        pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon1[tx]
         MDCC.lev.vect[pos] <- "Sister genus"
         next
@@ -319,7 +319,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
                 taxa$taxon2[tx] %in% tree$tip.label &
                 taxa$taxon1[tx]==taxa$taxon2[tx])){
 
-        pos<- which(taxon==taxa$taxon)
+        pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon1[tx]
         MDCC.lev.vect[pos] <- "Sister species"
         next
@@ -329,7 +329,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
                 taxa$taxon2[tx] %in% tree$tip.label &
                 taxa$taxon1[tx]!=taxa$taxon2[tx])){
 
-        pos<- which(taxon==taxa$taxon)
+        pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- paste0("Clade (", taxa$taxon1[tx], "-", taxa$taxon2[tx], ")")
         MDCC.lev.vect[pos] <- "Manual clade"
         next
@@ -338,7 +338,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
       if(isTRUE(taxa$taxon1[tx] %in% tree$tip.label &
                 is.na(taxa$taxon2[tx]))){
 
-        pos<- which(taxon==taxa$taxon)
+        pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon1[tx]
         MDCC.lev.vect[pos] <- "Sister species"
         next
@@ -347,7 +347,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
       if(isTRUE(taxa$taxon2[tx] %in% tree$tip.label &
                 is.na(taxa$taxon1[tx]))){
 
-        pos<- which(taxon==taxa$taxon)
+        pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon2[tx]
         MDCC.lev.vect[pos] <- "Sister species"
         next
