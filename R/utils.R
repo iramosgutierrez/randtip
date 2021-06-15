@@ -172,7 +172,8 @@ get.forbidden.MDCC.nodes <- function(tree,DF1, level, MDCC){
   DF1.mdcc<- DF1.mdcc[DF1.mdcc[,level]==MDCC,]
   forbidden.nodes<- as.numeric(NULL)
   if(level=="genus"){return(NULL)}
-  for(lv in randtip::randtip_levels()[-1]){
+  for(i in 2:which(randtip::randtip_levels()==level)){
+    lv<-randtip::randtip_levels()[i]
     col.lev<- as.character(lv)
     MDCCs<-unique(DF1.mdcc[,col.lev])
     MDCCs<-randtip::notNA(MDCCs)
