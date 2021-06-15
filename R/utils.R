@@ -521,7 +521,13 @@ correct.DF<- function(DF){
   for(i in 1:(ncol(DF))){
     vect<- which(DF[,i]=="")
     if(length(vect)>0){DF[vect,i]<-NA}
+  }
+
+  for(col in names(DF)){
+    DF[,col]<- as.character(DF[,col])
     }
+  }
+
   return(DF)
 }
 
