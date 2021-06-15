@@ -526,7 +526,6 @@ correct.DF<- function(DF){
   for(col in names(DF)){
     DF[,col]<- as.character(DF[,col])
     }
-  }
 
   return(DF)
 }
