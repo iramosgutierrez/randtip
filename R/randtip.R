@@ -130,12 +130,14 @@ rand.list <- function(tree, DF1,
             #Manual additions
             if(level=="Sister species"){
               new.tree <- add.to.singleton(tree=new.tree, singleton = MDCC ,new.tips =  PUT)
+              next
             }
 
             if(level=="Sister genus"){
               sister.genus.tips<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)==MDCC]
               sister.genus.mrca<- ape::getMRCA(new.tree, sister.genus.tips)
               new.tree<-add.over.node(tree= new.tree, new.tip = PUT, node = sister.genus.mrca)
+              next
               }
 
             if(level=="Manual clade"){
@@ -145,11 +147,11 @@ rand.list <- function(tree, DF1,
 
             new.tree <- add.into.node(tree = new.tree, node = clade.mrca,
                                         new.tip = PUT, prob = prob )
+            next
               }
 
 
-        MDCC.type <- randtip::MDCC.phyleticity(DF1, new.tree,
-                     MDCC.info = list(level=level,MDCC=MDCC), trim=F)
+
 
             #Automatically searched MDCCs additions
             #Add to genus
@@ -162,6 +164,8 @@ rand.list <- function(tree, DF1,
               }}
 
             if(level=="genus"){
+              MDCC.type <- randtip::MDCC.phyleticity(DF1, new.tree,
+                                                     MDCC.info = list(level=level,MDCC=MDCC), trim=F)
             if(MDCC.type=="Monophyletic"){
 
             new.tree<-add.to.monophyletic(tree = new.tree, new.tip = PUT, prob=prob)
@@ -184,7 +188,8 @@ rand.list <- function(tree, DF1,
             }
             #Add to other taxonomic MDCC
             if(level%in% randtip::randtip_levels()[-1]){
-
+              MDCC.type <- randtip::MDCC.phyleticity(DF1, new.tree,
+                              MDCC.info = list(level=level,MDCC=MDCC), trim=F)
 
               DF1.mdcc<-  DF1[!is.na(DF1[,level]),]
               MDCC.taxa<- DF1.mdcc$taxon[DF1.mdcc[,level]==MDCC]
