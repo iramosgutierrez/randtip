@@ -12,7 +12,7 @@ rand.list <- function(tree, DF1,
     start<- Sys.time()
 
     tree$tip.label <- gsub(" ", "_", tree$tip.label)
-    DF1<- correct.DF(DF1)
+    DF1<- randtip::correct.DF(DF1)
     DF1$taxon <- gsub(" ", "_", DF1$taxon)
 
     tree$tip.label <- gsub("_x_", "_x-", tree$tip.label)
@@ -42,7 +42,10 @@ rand.list <- function(tree, DF1,
         spp.df<-DF1[DF1$using.MDCC==using.mdcc,]
         using.level<- randtip::notNA(unique(spp.df$using.MDCC.lev))
 
-        mdcc.genera<-randtip::firstword(DF1$taxon[DF1[,using.level]==using.mdcc])
+        if(!(using.level%in%names(DF1))){
+          mdcc.genera<-randtip::firstword(spp.df[,c("taxon1","taxon2")]) }else{
+          mdcc.genera<-randtip::firstword(DF1$taxon[DF1[,using.level]==using.mdcc])}
+
         mdcc.species<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%mdcc.genera]
         trimming.species<- c(trimming.species, mdcc.species)
       }
@@ -136,7 +139,6 @@ rand.list <- function(tree, DF1,
               }
 
             if(level=="Manual clade"){
-            table<- DF1.rand.bind[DF1.rand.bind$using.taxa%in%unit.taxa,]
             sp1<- randtip::DF1finder(DF1.rand.bind, PUT, "taxon1")
             sp2<- randtip::DF1finder(DF1.rand.bind, PUT, "taxon2")
             clade.mrca<- ape::getMRCA(new.tree, c(sp1, sp2))
