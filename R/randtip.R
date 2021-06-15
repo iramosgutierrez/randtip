@@ -148,6 +148,8 @@ rand.list <- function(tree, DF1,
               }
 
 
+        MDCC.type <- randtip::MDCC.phyleticity(DF1, new.tree,
+                     MDCC.info = list(level=level,MDCC=MDCC), trim=F)
 
             #Automatically searched MDCCs additions
             #Add to genus
