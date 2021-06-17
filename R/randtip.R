@@ -94,8 +94,11 @@ rand.list <- function(tree, DF1,
     treelist<- rep(list(NULL),times=ntrees)
     names(treelist)<- paste0("tree", 1:ntrees)
 
+    correctedtree<- new.tree
 
-  for(t in 1:ntrees) { #Phase 1. Random insertions, non-aggregated
+  for(t in 1:ntrees) {
+    new.tree<-correctedtree
+    #Phase 1. Random insertions, non-aggregated
     if(!is.null(DF1.rand)){if(nrow(DF1.rand)>0){
 
         DF1.rand.bind<- DF1.rand[!(DF1.rand$using.taxa %in% new.tree$tip.label),]
