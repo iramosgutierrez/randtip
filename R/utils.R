@@ -377,6 +377,12 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
 
     }
 
+    if(taxon[v]%in%tree$tip.label){
+      MDCC.vect[v]<- "Tip"
+      MDCC.lev.vect[v]<-"Tip"
+      MDCC.phyletictype.vect[v]<-"Tip"
+      next
+      }
     i<- which(DF1$taxon==taxon[v])
     if((MDCC.vect[v])==""){
 
