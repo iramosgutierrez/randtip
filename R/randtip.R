@@ -165,6 +165,8 @@ rand.list <- function(tree, DF1,
               if(length(sp.genus.in.tree(tree, randtip::firstword(PUT)))==0 &
                  length(sp.genus.in.tree(new.tree, randtip::firstword(PUT)))> 0){
                 singleton<-sp.genus.in.tree(new.tree, randtip::firstword(PUT))
+                except<- DF1[randtip::firstword(DF1$taxon)==genus&DF1$resp.sing=="FALSE",]
+                singleton<- singleton[!(singleton%in%except)]
                 new.tree<- add.to.singleton(new.tree, singleton, PUT, T, T)
                 next
               }}
