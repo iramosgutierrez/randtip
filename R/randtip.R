@@ -405,12 +405,13 @@ rand.list <- function(tree, DF1,
 
 
     end <- Sys.time()
-    if(verbose){
-      cat(paste0("\n","\n","\U2713", " Tip Randomization completed in ",
-                 round(as.numeric(difftime(end, start,units = "mins")), 2), " mins\n"))
-    }
+
     new.tree$tip.label <- gsub("_x-", "_x_", new.tree$tip.label)
     treelist[[t]]<-new.tree
+  }
+    if(verbose){
+      cat(paste0("\n","\n","\U2713", " Randomization completed in ",
+                 round(as.numeric(difftime(end, start,units = "mins")), 2), " mins\n"))
     }
     if(ntrees==1){return(new.tree)}else{return(treelist)}
 }
