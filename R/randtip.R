@@ -4,7 +4,7 @@
 rand.list <- function(tree, DF1,
                     rand.type = "random",agg.ssp = FALSE, poly.ins="large",
                     resp.mono=FALSE, resp.para=FALSE, resp.sing=FALSE,
-                    prob = TRUE, verbose = FALSE, prune=TRUE, forceultrametric=F){
+                    prob = TRUE, verbose = FALSE, prune=TRUE, forceultrametric=F, ntrees=1){
   if (!inherits(tree, "phylo")) {stop("object \"tree\" is not of class \"phylo\"")}
   if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
   if(!(poly.ins %in% c("freq", "all", "large"))) {stop("poly.ins must be \"freq\", \"all\" or \"large\" ")}
@@ -91,9 +91,10 @@ rand.list <- function(tree, DF1,
 
 
 
+    treelist<- rep(list(NULL),times=ntrees)
+    names(treelist)<- paste0("tree", 1:ntrees)
 
-
-    #Phase 1. Random insertions, non-aggregated
+  for(t in 1:ntrees) { #Phase 1. Random insertions, non-aggregated
     if(!is.null(DF1.rand)){if(nrow(DF1.rand)>0){
 
         DF1.rand.bind<- DF1.rand[!(DF1.rand$using.taxa %in% new.tree$tip.label),]
@@ -404,5 +405,7 @@ rand.list <- function(tree, DF1,
                  round(as.numeric(difftime(end, start,units = "mins")), 2), " mins\n"))
     }
     new.tree$tip.label <- gsub("_x-", "_x_", new.tree$tip.label)
-    return(new.tree)
+    treelist[[t]]<-new.tree
+    }
+    if(ntrees==1){return(new.tree)}else{return(treelist)}
 }
