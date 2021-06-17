@@ -402,7 +402,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
 
     if(is.na(MDCC.vect[v])|is.na(MDCC.lev.vect[v])){MDCC.phyletictype.vect[v]<-NA}else{
 
-      if(MDCC%in%MDCC.vect){
+      if(MDCC%in%MDCC.vect[-v]){
         ps<- which(MDCC.vect==MDCC)[1]
         MDCC.phyletictype.vect[v]<-MDCC.phyletictype.vect[ps]
       }else{
