@@ -94,6 +94,7 @@ rand.list <- function(tree, DF1,
     treelist<- rep(list(NULL),times=ntrees)
     names(treelist)<- paste0("tree", 1:ntrees)
 
+
   for(t in 1:ntrees) { #Phase 1. Random insertions, non-aggregated
     if(!is.null(DF1.rand)){if(nrow(DF1.rand)>0){
 
@@ -105,8 +106,9 @@ rand.list <- function(tree, DF1,
         rand.PUTs<-sample(rand.PUTs, length(rand.PUTs), replace = F)
         rand.PUTs<- c(rand.PUTs[rand.PUTs%in%manual.mdcc.taxa], rand.PUTs[!(rand.PUTs%in%manual.mdcc.taxa)])
 
-        if(verbose){
-          cat(paste0("Starting randomization","\n")) }
+        if( verbose){
+          cat(paste0("\n", "PERFORMING RANDOMIZATION #", t,"\n","\n"))
+        }
 
         for(i in seq_along(rand.PUTs)){
             PUT <- rand.PUTs[i]
