@@ -37,8 +37,10 @@ rand.list <- function(tree, DF1,
     if(verbose){cat("\n")}
 
     if(prune){
-      trimming.species<- rep(NA, 1)
+      trimming.species<- DF1$taxon[DF1$using.MDCC=="Tip"]
       for(using.mdcc in unique(DF1$using.MDCC)){
+        if(using.mdcc=="Tip"){next}
+
         spp.df<-DF1[DF1$using.MDCC==using.mdcc,]
         using.level<- randtip::notNA(unique(spp.df$using.MDCC.lev))
 
