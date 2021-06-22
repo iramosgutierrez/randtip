@@ -73,7 +73,7 @@ get.taxa.to.use <- function(DF1){
   DF1$using.taxa <- NA
 
   for(i in 1:nrow(DF1)){
-    taxon <- DF1$taxon[i]
+    taxon <- as.character(DF1$taxon[i])
     genus.name <- stringr::word(DF1$taxon[i],1, sep = "_")
     sp.name <-    stringr::word(DF1$taxon[i],2, sep = "_")
     if(DF1$agg.ssp[i]=="1"){

@@ -42,7 +42,7 @@ rand.list <- function(tree, DF1,
         if(using.mdcc=="Tip"){next}
 
         spp.df<-DF1[DF1$using.MDCC==using.mdcc,]
-        using.level<- randtip::notNA(unique(spp.df$using.MDCC.lev))
+        using.level<- as.character(randtip::notNA(unique(spp.df$using.MDCC.lev)))
 
         if(!(using.level%in%names(DF1))){
           mdcc.genera<-randtip::firstword(spp.df[,c("taxon1","taxon2")]) }else{
