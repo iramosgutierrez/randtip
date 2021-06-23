@@ -4,7 +4,7 @@
 rand.list <- function(tree, DF1,
                     rand.type = "random",agg.ssp = FALSE, poly.ins="large",
                     resp.mono=FALSE, resp.para=FALSE, resp.sing=FALSE,
-                    prob = TRUE, verbose = FALSE, prune=TRUE, forceultrametric=F, ntrees=1){
+                    prob = TRUE, verbose = FALSE, prune=TRUE, forceultrametric=F){
   if (!inherits(tree, "phylo")) {stop("object \"tree\" is not of class \"phylo\"")}
   if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
   if(!(poly.ins %in% c("freq", "all", "large"))) {stop("poly.ins must be \"freq\", \"all\" or \"large\" ")}
@@ -13,6 +13,8 @@ rand.list <- function(tree, DF1,
 
     tree$tip.label <- gsub(" ", "_", tree$tip.label)
     DF1<- randtip::correct.DF(DF1)
+    originalDF1<- DF1
+    DF1<- DF1[!is.na(DF1$using.MDCC),]
     DF1$taxon <- gsub(" ", "_", DF1$taxon)
 
     tree$tip.label <- gsub("_x_", "_x-", tree$tip.label)
@@ -29,10 +31,11 @@ rand.list <- function(tree, DF1,
     DF1.dupl <- NULL
 
 
-    if(verbose){cat("\n")}
-
     if(prune){
-      trimming.species<- DF1$taxon[DF1$using.MDCC=="Tip"]
+
+      if(length(DF1$taxon[DF1$using.MDCC=="Tip"])>0){
+      trimming.species<- DF1$taxon[DF1$using.MDCC=="Tip"]}else{
+        trimming.species<- as.vector(NULL)}
       for(using.mdcc in unique(DF1$using.MDCC)){
         if(using.mdcc=="Tip"){next}
 
@@ -66,12 +69,6 @@ rand.list <- function(tree, DF1,
     DF1[DF1$resp.sing==0, "resp.sing"]<- FALSE
     DF1[DF1$resp.sing==1, "resp.sing"]<- TRUE
 
-
-
-
-
-
-
     DF1.poly    <- DF1[DF1$rand.type=="1",]
     DF1.nonpoly <- DF1[DF1$rand.type=="0",]
 
@@ -85,16 +82,6 @@ rand.list <- function(tree, DF1,
     }
 
 
-
-
-
-    treelist<- rep(list(NULL),times=ntrees)
-    names(treelist)<- paste0("tree", 1:ntrees)
-
-    correctedtree<- new.tree
-
-  for(t in 1:ntrees) {
-    new.tree<-correctedtree
     #Phase 1. Random insertions, non-aggregated
     if(!is.null(DF1.rand)){if(nrow(DF1.rand)>0){
 
@@ -107,7 +94,7 @@ rand.list <- function(tree, DF1,
         rand.PUTs<- c(rand.PUTs[rand.PUTs%in%manual.mdcc.taxa], rand.PUTs[!(rand.PUTs%in%manual.mdcc.taxa)])
 
         if( verbose){
-          cat(paste0("\n", "PERFORMING RANDOMIZATION #", t,"\n","\n"))
+          cat(paste0("\n", "STARTING RANDOMIZATION \n"))
         }
 
         for(i in seq_along(rand.PUTs)){
@@ -346,7 +333,7 @@ rand.list <- function(tree, DF1,
             }}
 
     if(verbose){cat("\n")}
-    if(nrow(DF1.nonpoly)>0){new.tree <- get.original.names(tree = new.tree, DF1 = DF1.nonpoly, verbose )}
+    if(nrow(DF1.nonpoly)>0){new.tree <- get.original.names(tree = new.tree, DF1 = DF1.nonpoly, verbose=F )}
 
 
     #Polytomies
@@ -394,7 +381,7 @@ rand.list <- function(tree, DF1,
 
 
 
-    complete.taxa.list <- DF1$taxon
+    complete.taxa.list <- originalDF1$taxon
     complete.taxa.list.in.tree <- complete.taxa.list[complete.taxa.list %in% new.tree$tip.label]
     not.included <- complete.taxa.list[!(complete.taxa.list %in% complete.taxa.list.in.tree)]
     if(length(not.included) > 0){
@@ -405,12 +392,10 @@ rand.list <- function(tree, DF1,
 
     end <- Sys.time()
 
-    new.tree$tip.label <- gsub("_x-", "_x_", new.tree$tip.label)
-    treelist[[t]]<-new.tree
-  }
+
     if(verbose){
       cat(paste0("\n","\n","\U2713", " Randomization completed in ",
                  round(as.numeric(difftime(end, start,units = "mins")), 2), " mins\n"))
     }
-    if(ntrees==1){return(new.tree)}else{return(treelist)}
+    return(new.tree)
 }
