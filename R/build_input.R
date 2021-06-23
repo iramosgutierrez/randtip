@@ -96,9 +96,10 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list"){
 
 #example<-build.input(species = phylo25.table$taxon, find.MDCC = T , mode = "list", tree=tree25)
 
-complete.input<- function(DF1, tree, verbose=F){
+complete.input<- function(DF0, tree, verbose=F){
 
   tree$tip.label <- gsub(" ", "_", tree$tip.label)
+  DF1<-DF0
   DF1<- randtip::correct.DF(DF1)
   DF1$taxon <- gsub(" ", "_", DF1$taxon)
 
@@ -110,6 +111,13 @@ complete.input<- function(DF1, tree, verbose=F){
   DF1$using.MDCC     <- DF1_search[[1]]
   DF1$using.MDCC.lev <- DF1_search[[2]]
   DF1$using.MDCC.phylstat <- DF1_search[[3]]
+
+  #3.2 Taxa with no MDCC
+
+  not.included<- DF1[is.na(DF1$using.MDCC),]
+  if(length(not.included$taxon) > 0){
+    message("\n\nThe following taxa do not have a MDCC and cannot be randomized:\n",
+            paste0(not.included$taxon, "\n"))}
 
   return(DF1)
 }
