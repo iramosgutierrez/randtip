@@ -319,6 +319,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
         pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon1[tx]
         MDCC.lev.vect[pos] <- "Sister genus"
+        MDCC.phyletictype.vect[pos]<-"-"
         next
       }
 
@@ -332,6 +333,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
         pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon1[tx]
         MDCC.lev.vect[pos] <- "Sister species"
+        MDCC.phyletictype.vect[pos]<-"-"
         next
       }
 
@@ -342,6 +344,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
         pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- paste0("Clade (", taxa$taxon1[tx], "-", taxa$taxon2[tx], ")")
         MDCC.lev.vect[pos] <- "Manual clade"
+        MDCC.phyletictype.vect[pos]<-"-"
         next
       }
 
@@ -351,6 +354,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
         pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon1[tx]
         MDCC.lev.vect[pos] <- "Sister species"
+        MDCC.phyletictype.vect[pos]<-"-"
         next
       }
 
@@ -360,6 +364,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
         pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon2[tx]
         MDCC.lev.vect[pos] <- "Sister species"
+        MDCC.phyletictype.vect[pos]<-"-"
         next
       }
 
@@ -368,7 +373,11 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
 
   #automatic MDCC search
   levels<- randtip::randtip_levels()
-  for(v in 1:length(taxon)){
+  taxa<- DF1[!(!is.na(DF1$taxon1)|!is.na(DF1$taxon2)),]
+
+  if(nrow(taxa)>0){
+    taxon<- taxa$taxon
+    for(v in 1:length(taxon)){
 
     if(verbose){
       if(v %in% c(seq(0, length(taxon), 10), length(taxon))){
@@ -393,7 +402,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
         if(is.na(MDCC)){
           MDCC<-as.character(DF1[i, level])
           if(!is.na(MDCC)){phyleticity<-randtip::MDCC.phyleticity(DF1, tree = tree,
-                                                                  MDCC.info = list(level=level, MDCC= MDCC))
+                                         MDCC.info = list(level=level, MDCC= MDCC))
           if(phyleticity=="Not included"){MDCC<-NA}
           }
 
@@ -408,14 +417,14 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
 
     if(is.na(MDCC.vect[v])|is.na(MDCC.lev.vect[v])){MDCC.phyletictype.vect[v]<-NA}else{
 
-      if(MDCC%in%MDCC.vect[-v]){
-        ps<- which(MDCC.vect==MDCC)[1]
+      if(MDCC%in%taxa$using.MDCC[-which(taxa$taxon==taxon[v])]){
+        ps<-taxa$using.MDCC.phylstat[taxa$using.MDCC==MDCC][1]
         MDCC.phyletictype.vect[v]<-MDCC.phyletictype.vect[ps]
       }else{
       MDCC.phyletictype.vect[v]<-randtip::MDCC.phyleticity(DF1 = DF1, tree =  tree,
                MDCC.info = list(level=MDCC.lev.vect[v], MDCC=MDCC.vect[v]), trim = T)}
     }
-  }}
+  }}}
 
 
   return(list(MDCC=MDCC.vect,MDCC.levels=MDCC.lev.vect, MDCC.phylstat=MDCC.phyletictype.vect) )
