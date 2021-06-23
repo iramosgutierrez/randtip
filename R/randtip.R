@@ -29,11 +29,6 @@ rand.list <- function(tree, DF1,
     DF1.dupl <- NULL
 
 
-    DF1_search<- randtip::usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = new.tree, verbose)
-    DF1$using.MDCC     <- DF1_search[[1]]
-    DF1$using.MDCC.lev <- DF1_search[[2]]
-    DF1$using.MDCC.phylstat <- DF1_search[[3]]
-
     if(verbose){cat("\n")}
 
     if(prune){

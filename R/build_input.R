@@ -95,3 +95,21 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list"){
 }
 
 #example<-build.input(species = phylo25.table$taxon, find.MDCC = T , mode = "list", tree=tree25)
+
+complete.input<- function(DF1, tree, verbose=F){
+
+  tree$tip.label <- gsub(" ", "_", tree$tip.label)
+  DF1<- randtip::correct.DF(DF1)
+  DF1$taxon <- gsub(" ", "_", DF1$taxon)
+
+  tree$tip.label <- gsub("_x_", "_x-", tree$tip.label)
+  tree$tip.label <- gsub("_X_", "_x-", tree$tip.label)
+
+
+  DF1_search<- randtip::usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = tree, verbose)
+  DF1$using.MDCC     <- DF1_search[[1]]
+  DF1$using.MDCC.lev <- DF1_search[[2]]
+  DF1$using.MDCC.phylstat <- DF1_search[[3]]
+
+  return(DF1)
+}
