@@ -235,7 +235,7 @@ rand.list <- function(tree, DF1,
                   MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
 
                   permitted.nodes<- get.permitted.nodes(new.tree, MDCC.mrca)
-                  forbidden.nodes.mdcc<- randtip::get.intruder.nodes(new.tree, DF1, level, MDCC)
+                  forbidden.nodes<- randtip::get.intruder.nodes(new.tree, DF1, level, MDCC)
                   if(!all(permitted.nodes%in%forbidden.nodes)){
                     permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}
                   if(randtip::findRoot(new.tree)%in%permitted.nodes){
