@@ -32,11 +32,12 @@ rand.list <- function(tree, DF1,
 
 
     if(prune){
-
       if(length(DF1$taxon[DF1$using.MDCC=="Tip"])>0){
       trimming.species<- DF1$taxon[DF1$using.MDCC=="Tip"]}else{
         trimming.species<- as.vector(NULL)}
-      for(using.mdcc in unique(DF1$using.MDCC)){
+
+      for(using.mdcc in as.character(unique(DF1$using.MDCC))){
+
         if(using.mdcc=="Tip"){next}
 
         spp.df<-DF1[DF1$using.MDCC==using.mdcc,]
