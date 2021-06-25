@@ -222,7 +222,7 @@ rand.list <- function(tree, DF1,
                     forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, DF1, level, MDCC)
                     if(!all(permitted.nodes%in%forbidden.nodes)){
                       permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}}
-                  if(isTRUE(resp.mono)){
+                  if(isFALSE(resp.mono)){
                     permitted.nodes<- phytools::getDescendants(new.tree, MDCC.mrca,curr = NULL)
                   }
                   if(length(permitted.nodes)==1){nd<-permitted.nodes}else{
