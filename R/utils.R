@@ -262,7 +262,11 @@ randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
   genus <- stringr::word(rep.taxa, 1, sep = "_")
   sp <- stringr::word(rep.taxa, 2, sep= "_")
 
+  if(verbose){cat(paste0("Adding subspecies\n"))}
   for(i in 1:length(rep.taxa.species)){
+
+    if(verbose){cat(paste0(i, "/",length(rep.taxa.species),
+                           " Adding subspecies to ", rep.taxa.species[i],".\n" ))}
 
     # Select subspecies
     ssps <- rep.taxa[paste0(genus, "_", sp) == rep.taxa.species[i]]
@@ -291,6 +295,7 @@ randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
       new.tree <- add.to.singleton(new.tree, singleton = singleton,
                                    new.tips = ssp, resp.sing = T, resp.mono = T)}
     #        }
+
   }
   return(new.tree)
 }
