@@ -252,7 +252,7 @@ get.original.names <- function(tree, DF1, verbose = FALSE){
   return(tree)
 }
 
-randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
+randtip.subsp <- function(tree, DF1.dupl, DF1, verbose = FALSE){
   new.tree<-tree
   DF1.dupl<- DF1.dupl[!(DF1.dupl$taxon%in%new.tree$tip.label),]
 
@@ -282,8 +282,9 @@ randtip.subsp <- function(tree, DF1.dupl, verbose = FALSE){
       sp.to.add <- new.tree$tip.label[rep.taxa.species[i]== paste0(genus.tree, "_", sp.tree)]
       agg<-vector("character",length (sp.to.add))
       for(s in seq_along(sp.to.add)){
-      agg[s]<-randtip::DF1finder(DF1, sp.to.add[s], "agg.ssp")
-      }
+      if(length(randtip::DF1finder(DF1, sp.to.add[s], "agg.ssp"))>0){
+        agg[s]<-randtip::DF1finder(DF1, sp.to.add[s], "agg.ssp")}}
+
       sp.to.add<- sp.to.add[agg=="1"]
     }
     if(!(rep.taxa.species[i]%in%new.tree$tip.label)){sp.to.add <- sample(sp.to.add,1)}
