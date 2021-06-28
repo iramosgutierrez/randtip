@@ -22,7 +22,7 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T, resp.m
             if(isTRUE(resp.mono))  {nodes<-get.permitted.nodes(new.tree, mrca)}
             bpos<-binding.position(new.tree, node = sample(nodes,1), insertion="random", prob=prob)
 
-            new.tree <- bind.tip(tree = new.tree, tip.label = sp, edge.length = bpos$length,
+            new.tree <- phytools::bind.tip(tree = new.tree, tip.label = sp, edge.length = bpos$length,
                                  where = bpos$where, position = bpos$position)
         }
 
