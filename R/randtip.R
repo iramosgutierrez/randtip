@@ -49,6 +49,7 @@ rand.list <- function(tree, DF1,
 
         mdcc.species<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%mdcc.genera]
         trimming.species<- c(trimming.species, mdcc.species)
+        trimming.species<-trimming.species[trimming.species%in%new.tree$tip.label]
       }
         trimming.species<- randtip::notNA(trimming.species)
         new.tree <- ape::keep.tip(new.tree, trimming.species)}
