@@ -382,15 +382,14 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
   taxa<- DF1[!(!is.na(DF1$taxon1)|!is.na(DF1$taxon2)),]
 
   if(nrow(taxa)>0){
-    taxon<- taxa$taxon
-    for(v in 1:length(taxon)){
+    vect<- which(taxon%in%taxa$taxon)
+    for(v in vect){
 
-    if(verbose){
-      if(v %in% c(seq(0, length(taxon), 10), length(taxon))){
-        cat(paste0(round((v/length(taxon)*100),2), "% completed.\n"))
-      }
+    if(verbose & (v %in% c(seq(0, length(taxon), 10), length(taxon)))){
+        cat(paste0(round((v/length(taxon)*100),2), "% completed.\n"))}
 
-    }
+
+
 
     if(taxon[v]%in%tree$tip.label){
       MDCC.vect[v]<- "Tip"
@@ -430,8 +429,8 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
       MDCC.phyletictype.vect[v]<-randtip::MDCC.phyleticity(DF1 = DF1, tree =  tree,
                MDCC.info = list(level=MDCC.lev.vect[v], MDCC=MDCC.vect[v]), trim = T)}
     }
-  }}}
-
+  }}
+}
 
   return(list(MDCC=MDCC.vect,MDCC.levels=MDCC.lev.vect, MDCC.phylstat=MDCC.phyletictype.vect) )
 }
