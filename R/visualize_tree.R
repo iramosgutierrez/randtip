@@ -1,6 +1,7 @@
 #' Function to obtain tree cut from MDCC
 #' @export
-split.MDCC<- function(tree, DF1, MDCC.info=list("level"=NA, "MDCC"=NA), DF2=NULL){
+getClade<- function(tree, DF1, cladeinfo=list("level"=NA, "clade"=NA), DF2=NULL){
+if(is.null(names(cladeinfo))){names(cladeinfo)<- c("level", "clade")}
 
   level<-MDCC.info$level
   MDCC<- MDCC.info$MDCC
