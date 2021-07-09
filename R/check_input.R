@@ -3,7 +3,7 @@
 #'
 #'
 
-check.input<- function(DF1, tree, verbose=F){
+check.input<- function(DF1, tree, verbose=F, sim=0.8, DF2=NULL){
 
   DF1<- randtip::correct.DF(DF1)
   tree$tip.label<- gsub(" ", "_", tree$tip.label)
@@ -12,7 +12,8 @@ check.input<- function(DF1, tree, verbose=F){
 
   DF<- DF1[,c("taxon",randtip::randtip_levels())]
   DF$PUT.status<- NA
-  DF$Name.simmilarity<- NA
+  DF$Typo<- F
+  DF$Typo.names<- NA
 
 
 
@@ -27,15 +28,16 @@ check.input<- function(DF1, tree, verbose=F){
   for(i in 1:nrow(DF)){
     if(DF$PUT.status[i]=="PUT"){
       tax<-DF$taxon[i]
-      sim.search<-tree.taxa[stringdist::stringsim(tree.taxa,tax)>0.8]
+      sim.search<-tree.taxa[stringdist::stringsim(tree.taxa,tax)>sim]
       if(length(sim.search)>0){
+        DF$Typo[i]<- TRUE
         sim.search<-paste0(sim.search, collapse = " / ")
-        DF$Name.simmilarity[i]<- sim.search}
+        DF$Typo.names[i]<- sim.search}
       rm(tax, sim.search)
     }}
 
-  if(length(DF$Name.simmilarity[!is.na(DF$Name.simmilarity)])>0){
-    message("There may be mistakenly written PUTs in your DF1! \nPlease check the Name.simmilarity column in the resultant dataframe")}
+  if(length(DF$Typo[DF$Typo==TRUE])>0){
+    message("There may be mistakenly written PUTs in your DF1! \nPlease check the Typo.names column in the resultant dataframe")}
 
 
 
@@ -50,7 +52,7 @@ check.input<- function(DF1, tree, verbose=F){
   DF$order_phyletic.status<-NA
   DF$class_phyletic.status<-NA
 
-
+if(!is.null(DF2)){DF1<- randtip::combineDF(DF1, DF2)}
 
 levels<-randtip::randtip_levels()
   for (level in levels){
@@ -66,7 +68,7 @@ levels<-randtip::randtip_levels()
    if(verbose){ cat(paste0(" Done!", "\U2713", "\n"))}
   }
 
-DF<-DF[,c("taxon", "PUT.status", "Name.simmilarity","genus", "genus_phyletic.status",
+DF<-DF[,c("taxon", "PUT.status", "Typo", "Typo.names","genus", "genus_phyletic.status",
           "subtribe" , "subtribe_phyletic.status","tribe" , "tribe_phyletic.status",
           "subfamily","subfamily_phyletic.status","family","family_phyletic.status",
       "superfamily","superfamily_phyletic.status", "order","order_phyletic.status",
