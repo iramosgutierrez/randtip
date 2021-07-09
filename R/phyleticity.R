@@ -11,7 +11,7 @@ phyleticity<- function(tree, genus){
     taxa.vector <- sp[randtip::firstword(sp)==genus]
 
     if(length(taxa.vector) == 0){
-        genus.type <- "Not included"
+        genus.type <- "Missing"
         return(genus.type)
     }
 
@@ -73,7 +73,7 @@ MDCC.phyleticity<-function(DF1, tree, MDCC.info=list("level"=NA, "MDCC"=NA), tri
    genera.in.tree<-MDCC.genera[MDCC.genera%in%genera.in.tree]
    spp.in.tree<- tree$tip.label[randtip::firstword(tree$tip.label)%in%genera.in.tree]
 
-   if(length(spp.in.tree)==0){MDCC.type<-"Not included"
+   if(length(spp.in.tree)==0){MDCC.type<-"Missing"
    return(MDCC.type) }
 
    if(length(spp.in.tree)==1){MDCC.type<-"Singleton MDCC"
