@@ -20,7 +20,7 @@ check.input<- function(DF1, tree, verbose=F){
   #1st we search included taxa
   for(i in 1:nrow(DF)){
     tax<- DF$taxon[i]
-    if(tax %in%tree.taxa){DF$PUT.status[i]<- "Tree tip"}else{DF$PUT.status[i]<- "PUT"}
+    if(tax %in%tree.taxa){DF$PUT.status[i]<- "Tip"}else{DF$PUT.status[i]<- "PUT"}
   }
 
   #2nd we look for name simmilarities
