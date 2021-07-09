@@ -603,3 +603,20 @@ sharingtaxa.descs<-function(tree, nodes, MDCC.genera){
   table<- table[table$number>0,]
   return(table)
 }
+
+combineDF<- function(largeDF, smallDF){
+  largeDF<- randtip::correct.DF(largeDF)
+  smallDF<- randtip::correct.DF(smallDF)
+  largeDF.names<-names(largeDF)
+  smallDF.names<-names(smallDF)
+  smallDF<- smallDF[,smallDF.names[smallDF.names%in%largeDF.names]]
+  notincl.names<- largeDF.names[!(largeDF.names%in%smallDF.names)]
+  DF.out<- smallDF
+  for(col in notincl.names){
+    DF.out[,col]<-NA
+  }
+  DF.out<-DF.out[,names(largeDF)]
+  DF.out<- DF.out[!(DF.out$taxon%in%largeDF$taxon),]
+  DF.out<- rbind(largeDF, DF.out)
+  return(DF.out)
+}
