@@ -1,7 +1,7 @@
 #' Function to create DF1 given a species vector(column)
 #' @export
 
-build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list"){
+build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list", genus=F){
 
 
   if(is.data.frame(species)){
@@ -36,6 +36,13 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list"){
         DF1$taxon[t]<-paste0(DF1$taxon[t], "_sp2.")}else{DF1$taxon[t]<-paste0(DF1$taxon[t], "_sp.")}
 
     }
+  }
+
+
+  if(isTRUE(genus)){
+    if(any(sapply(strsplit(species, "_"), length)>1)){stop("Taxa must specify only genera for \"genus\" mode")}
+    if(any(sapply(strsplit(tree$tip.label, "_"), length)>1)){stop("Tree tips must represent only genera for \"genus\" mode")}
+    DF1$taxon<- randtip::firstword(DF1$taxon)
   }
 
   DF1$genus<- randtip::firstword(species)
