@@ -1,7 +1,7 @@
 #' Function to create DF1 given a species vector(column)
 #' @export
 
-build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list", genus=F){
+build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list", DF2=NULL, genus=F){
 
 
   if(is.data.frame(species)){
@@ -113,12 +113,16 @@ complete.input<- function(DF0, tree, verbose=F){
   tree$tip.label <- gsub("_x_", "_x-", tree$tip.label)
   tree$tip.label <- gsub("_X_", "_x-", tree$tip.label)
 
-
+if(is.null(DF2)){
   DF1_search<- randtip::usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = tree, verbose)
+}else{
+  DF02<- randtip::combineDF(DF0, DF2)
+  DF1_search<- randtip::usingMDCCfinder(DF1 = DF02, taxon = DF1$taxon, tree = tree, verbose)
+
+  }
   DF1$using.MDCC     <- DF1_search[[1]]
   DF1$using.MDCC.lev <- DF1_search[[2]]
   DF1$using.MDCC.phylstat <- DF1_search[[3]]
-
   #3.2 Taxa with no MDCC
 
   not.included<- DF1[is.na(DF1$using.MDCC),]
