@@ -1,7 +1,7 @@
 #' Function to create DF1 given a species vector(column)
 #' @export
 
-build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list", DF2=NULL, genus=F){
+build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list",  genus=F){
 
 
   if(is.data.frame(species)){
@@ -18,7 +18,15 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list", D
   names_df <- c("taxon",  "taxon1", "taxon2",
                 randtip::randtip_levels(),
                 "agg.ssp","rand.type", "poly.ins",
-                "resp.mono", "resp.para", "resp.sing")
+                "resp.mono", "resp.para", "resp.sing", "keep.tip")
+
+
+  spp.in.tree<- tree$tip.label
+  spp.original<- species
+
+  if(mode=="phylomatic"){
+        species<- c(species, spp.in.tree[!(spp.in.tree%in%species)])
+  }
 
   DF1<- as.data.frame(matrix(nrow = length(species), ncol = length(names_df)))
   names(DF1)<- names_df
@@ -48,22 +56,7 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list", D
   DF1$genus<- randtip::firstword(species)
 
 
-
-
-
-  if(mode=="phylomatic"){
-
-    DF2<- as.data.frame(matrix(nrow = length(tree$tip.label), ncol = 9))
-    names(DF2)<- c("taxon", randtip::randtip_levels())
-
-    DF2$taxon<- tree$tip.label
-
-    DF2$genus<- stringr::word(tree$tip.label, 1, sep="_")
-  }
-
-
-  if(mode=="phylomatic"){genera<- unique(c(randtip::firstword(species), randtip::firstword(tree$tip.label)))}else{
-      genera<- unique(randtip::firstword(species))}
+  genera<- unique(randtip::firstword(species))
 
   searching.categories<- randtip::randtip_levels()[-1]
 
@@ -78,27 +71,21 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list", D
             DF1[DF1$genus==genera[i], cat]<- cats}
         }
 
-        if(mode=="phylomatic"){
-          for(cat in searching.categories){
-            if(length(search[which(search$rank==cat), "name"])==0){DF2[DF2$genus==genera[i], cat]<-NA}else{
-              cats<-search[which(search$rank==cat), "name"]
-              if(length(cats)>1){cats<-cats[1]}
-              DF2[DF2$genus==genera[i], cat]<- cats}
-          }}
-
 
       }, error=function(e){
         # Assign NA to fetching errors
         DF1[DF1$genus==genera[i], searching.categories] <- NA
-        if(mode=="phylomatic"){DF2[DF2$genus==genera[i], searching.categories] <- NA}
       })
 
       # Avoid ip blocks. Taxize allows only 3 searches per second.
       Sys.sleep(0.33)
     }}
 
-
-  if(mode=="phylomatic"){return(list("DF1"=DF1, "DF2"=DF2))}else{return(DF1)}
+  DF1[!(species%in%spp.original),
+      c("agg.ssp","rand.type", "poly.ins", "resp.mono", "resp.para", "resp.sing" )]<-"-"
+  DF1$keep.tip[!(species%in%spp.original)]<- 0
+  DF1$keep.tip[  species%in%spp.original ]<- 1
+  return(DF1)
 }
 
 #example<-build.input(species = phylo25.table$taxon, find.MDCC = T , mode = "list", tree=tree25)
@@ -113,13 +100,9 @@ complete.input<- function(DF0, tree, verbose=F){
   tree$tip.label <- gsub("_x_", "_x-", tree$tip.label)
   tree$tip.label <- gsub("_X_", "_x-", tree$tip.label)
 
-if(is.null(DF2)){
-  DF1_search<- randtip::usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = tree, verbose)
-}else{
-  DF02<- randtip::combineDF(DF0, DF2)
-  DF1_search<- randtip::usingMDCCfinder(DF1 = DF02, taxon = DF1$taxon, tree = tree, verbose)
 
-  }
+  DF1_search<- randtip::usingMDCCfinder(DF1 = DF1, taxon = DF1$taxon, tree = tree, verbose)
+
   DF1$using.MDCC     <- DF1_search[[1]]
   DF1$using.MDCC.lev <- DF1_search[[2]]
   DF1$using.MDCC.phylstat <- DF1_search[[3]]
@@ -127,7 +110,7 @@ if(is.null(DF2)){
 
   not.included<- DF1[is.na(DF1$using.MDCC),]
   if(length(not.included$taxon) > 0){
-    message("\n\nThe following taxa do not have a MDCC and cannot be randomized:\n",
+    message("The following taxa do not have a defined MDCC and cannot be randomized:\n",
             paste0(not.included$taxon, "\n"))}
 
   return(DF1)
