@@ -6,6 +6,7 @@
 check.input<- function(DF0, tree, sim=0.8, verbose=F){
 
   DF0<- randtip::correct.DF(DF0)
+  DF0[is.na(DF0$keep.tip)]<-"1"
   DF0<- DF0[DF0$keep.tip=="1",]
   tree$tip.label<- gsub(" ", "_", tree$tip.label)
   DF0.taxa<-DF0$taxon
