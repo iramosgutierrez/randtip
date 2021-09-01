@@ -1,17 +1,17 @@
-#' Function to check DF1 work
+#' Function to check DF0 work
 #' @export
 #'
 #'
 
-check.input<- function(DF1, tree, sim=0.8, verbose=F){
+check.input<- function(DF0, tree, sim=0.8, verbose=F){
 
-  DF1<- randtip::correct.DF(DF1)
-  DF1<- DF1[DF1$keep.tip=="1",]
+  DF0<- randtip::correct.DF(DF0)
+  DF0<- DF0[DF0$keep.tip=="1",]
   tree$tip.label<- gsub(" ", "_", tree$tip.label)
-  DF1.taxa<-DF1$taxon
+  DF0.taxa<-DF0$taxon
   tree.taxa<- tree$tip.label
 
-  DF<- DF1[,c("taxon",randtip::randtip_levels())]
+  DF<- DF0[,c("taxon",randtip::randtip_levels())]
   DF$PUT.status<- NA
   DF$Typo<- F
   DF$Typo.names<- NA
@@ -38,7 +38,7 @@ check.input<- function(DF1, tree, sim=0.8, verbose=F){
     }}
 
   if(length(DF$Typo[DF$Typo==TRUE])>0){
-    message("There may be mistakenly written PUTs in your DF1! \nPlease check the Typo.names column in the resultant dataframe")}
+    message("There may be mistakenly written PUTs in your DF0! \nPlease check the Typo.names column in the resultant dataframe")}
 
 
 
@@ -57,12 +57,12 @@ check.input<- function(DF1, tree, sim=0.8, verbose=F){
 
 levels<-randtip::randtip_levels()
   for (level in levels){
-    groups<- unique(DF1[,level])
+    groups<- unique(DF0[,level])
     groups<- randtip::notNA(groups)
 
     if(verbose){cat( paste0("Checking phyletic status at ", level, " level ... (", length(groups), " categories)"))}
     if (length(groups)>0){for(group in groups){
-      type<- randtip::MDCC.phyleticity(DF1, tree, MDCC.info = list("level"= level, "MDCC"= group))
+      type<- randtip::MDCC.phyleticity(DF0, tree, MDCC.info = list("level"= level, "MDCC"= group))
     DF[which(DF[,level]==group), paste0(level,"_phyletic.status")]<-type
 
       }}
@@ -99,5 +99,5 @@ if(length(subsp.tips)>0){
   return(DF)
 }
 
-#example.check<- check.input(DF1 =example , tree = tree25)
+#example.check<- check.input(DF0 =example , tree = tree25)
 
