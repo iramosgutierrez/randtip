@@ -28,20 +28,20 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list",  
         species<- c(species, spp.in.tree[!(spp.in.tree%in%species)])
   }
 
-  DF1<- as.data.frame(matrix(nrow = length(species), ncol = length(names_df)))
-  names(DF1)<- names_df
+  DF0<- as.data.frame(matrix(nrow = length(species), ncol = length(names_df)))
+  names(DF0)<- names_df
 
 
 
 
   species<- gsub(" ", "_", species)
 
-  DF1$taxon<- species
+  DF0$taxon<- species
   onlygenus<-which(sapply(strsplit(species, "_"), length)==1)
   if(length(onlygenus)>0){
     for(t in onlygenus){
-      if(paste0(DF1$taxon[t], "_sp.")%in% tree$tip.label){
-        DF1$taxon[t]<-paste0(DF1$taxon[t], "_sp2.")}else{DF1$taxon[t]<-paste0(DF1$taxon[t], "_sp.")}
+      if(paste0(DF0$taxon[t], "_sp.")%in% tree$tip.label){
+        DF0$taxon[t]<-paste0(DF0$taxon[t], "_sp2.")}else{DF0$taxon[t]<-paste0(DF0$taxon[t], "_sp.")}
 
     }
   }
@@ -50,10 +50,10 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list",  
   if(isTRUE(genus)){
     if(any(sapply(strsplit(species, "_"), length)>1)){stop("Taxa must specify only genera for \"genus\" mode")}
     if(any(sapply(strsplit(tree$tip.label, "_"), length)>1)){stop("Tree tips must represent only genera for \"genus\" mode")}
-    DF1$taxon<- randtip::firstword(DF1$taxon)
+    DF0$taxon<- randtip::firstword(DF0$taxon)
   }
 
-  DF1$genus<- randtip::firstword(species)
+  DF0$genus<- randtip::firstword(species)
 
 
   genera<- unique(randtip::firstword(species))
@@ -65,33 +65,34 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list",  
         search <- suppressMessages(taxize::classification(as.character(genera[i]), db = db))[[1]]
 
         for(cat in searching.categories){
-          if(length(search[which(search$rank==cat), "name"])==0){DF1[DF1$genus==genera[i], cat]<-NA}else{
+          if(length(search[which(search$rank==cat), "name"])==0){DF0[DF0$genus==genera[i], cat]<-NA}else{
             cats<-search[which(search$rank==cat), "name"]
             if(length(cats)>1){cats<-cats[1]}
-            DF1[DF1$genus==genera[i], cat]<- cats}
+            DF0[DF0$genus==genera[i], cat]<- cats}
         }
 
 
       }, error=function(e){
         # Assign NA to fetching errors
-        DF1[DF1$genus==genera[i], searching.categories] <- NA
+        DF0[DF0$genus==genera[i], searching.categories] <- NA
       })
 
       # Avoid ip blocks. Taxize allows only 3 searches per second.
       Sys.sleep(0.33)
     }}
 
-  DF1[!(species%in%spp.original),
+  DF0[!(species%in%spp.original),
       c("agg.ssp","rand.type", "poly.ins", "resp.mono", "resp.para", "resp.sing" )]<-"-"
-  DF1$keep.tip[!(species%in%spp.original)]<- 0
-  DF1$keep.tip[  species%in%spp.original ]<- 1
-  return(DF1)
+  DF0$keep.tip[!(species%in%spp.original)]<- 0
+  DF0$keep.tip[  species%in%spp.original ]<- 1
+  return(DF0)
 }
 
 #example<-build.input(species = phylo25.table$taxon, find.MDCC = T , mode = "list", tree=tree25)
 
-complete.input<- function(DF1, tree, verbose=F){
+complete.input<- function(DF0, tree, verbose=F){
 
+  DF1<-DF0
   tree$tip.label <- gsub(" ", "_", tree$tip.label)
   DF1<- randtip::correct.DF(DF1)
   DF1$taxon <- gsub(" ", "_", DF1$taxon)
