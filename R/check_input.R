@@ -3,9 +3,10 @@
 #'
 #'
 
-check.input<- function(DF1, tree, verbose=F, sim=0.8, DF2=NULL){
+check.input<- function(DF1, tree, sim=0.8, verbose=F){
 
   DF1<- randtip::correct.DF(DF1)
+  DF1<- DF1[DF1$keep.tip=="1",]
   tree$tip.label<- gsub(" ", "_", tree$tip.label)
   DF1.taxa<-DF1$taxon
   tree.taxa<- tree$tip.label
@@ -52,7 +53,7 @@ check.input<- function(DF1, tree, verbose=F, sim=0.8, DF2=NULL){
   DF$order_phyletic.status<-NA
   DF$class_phyletic.status<-NA
 
-if(!is.null(DF2)){DF1<- randtip::combineDF(DF1, DF2)}
+
 
 levels<-randtip::randtip_levels()
   for (level in levels){
