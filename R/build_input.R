@@ -90,10 +90,9 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list",  
 
 #example<-build.input(species = phylo25.table$taxon, find.MDCC = T , mode = "list", tree=tree25)
 
-complete.input<- function(DF0, tree, verbose=F){
+complete.input<- function(DF1, tree, verbose=F){
 
   tree$tip.label <- gsub(" ", "_", tree$tip.label)
-  DF1<-DF0
   DF1<- randtip::correct.DF(DF1)
   DF1$taxon <- gsub(" ", "_", DF1$taxon)
 
