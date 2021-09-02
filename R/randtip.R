@@ -1,13 +1,13 @@
 
 #' randtip RANDOMIZATION FUNCTIONS
 #' @export
-rand.list <- function(tree, DF1,
+rand.tip <- function(tree, DF1,
                     rand.type = "random",agg.ssp = FALSE, poly.ins="large",
                     resp.mono=FALSE, resp.para=FALSE, resp.sing=FALSE,
                     prob = TRUE, verbose = FALSE, prune=TRUE, forceultrametric=FALSE){
   if (!inherits(tree, "phylo")) {stop("object \"tree\" is not of class \"phylo\"")}
   if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
-  if(!(poly.ins %in% c("freq", "all", "large"))) {stop("poly.ins must be \"freq\", \"all\" or \"large\" ")}
+  if(!(poly.ins %in% c("freq", "complete", "large"))) {stop("poly.ins must be \"freq\", \"complete\" or \"large\" ")}
 
     start<- Sys.time()
 
@@ -256,7 +256,7 @@ rand.list <- function(tree, DF1,
                   }
 
               if(MDCC.type=="Polyphyletic"){
-                if(poly.ins=="all"){
+                if(poly.ins=="complete"){
                   MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
                   if(isTRUE(resp.mono)){
                     permitted.nodes<-randtip::get.permitted.nodes(tree=new.tree, node = MDCC.mrca)

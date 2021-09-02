@@ -15,7 +15,7 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T, resp.m
     new.tree <- tree
     new.tree.sp <- new.tree$tip.label
 
-    if(poly.ins == "all"){
+    if(poly.ins == "complete"){
         for(sp in new.tip){
             mrca <- phytools::findMRCA(new.tree, taxa.vector)
             if(isFALSE(resp.mono)) {nodes<- phytools::getDescendants(new.tree, mrca)}
