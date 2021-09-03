@@ -1,10 +1,7 @@
 #' Function to obtain tree cut from MDCC
 #' @export
-getClade<- function(tree, DF0, cladeinfo=list("level"=NA, "clade"=NA)){
-if(is.null(names(cladeinfo))){names(cladeinfo)<- c("level", "clade")}
+getClade<- function(tree, DF0, level, clade){
 
-  level<-cladeinfo$level
-  clade<- cladeinfo$clade
 
   spss<- DF0[which(DF0[,level]==clade),]
   genera<- unique(spss$genus)
