@@ -20,6 +20,7 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list",  
                 "agg.ssp","rand.type", "poly.ins",
                 "resp.mono", "resp.para", "resp.sing", "keep.tip")
 
+  species<- gsub(" ", "_", species)
 
   spp.in.tree<- tree$tip.label
   spp.original<- species
@@ -32,9 +33,6 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list",  
   names(DF0)<- names_df
 
 
-
-
-  species<- gsub(" ", "_", species)
 
   DF0$taxon<- species
   onlygenus<-which(sapply(strsplit(species, "_"), length)==1)
