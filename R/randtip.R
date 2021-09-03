@@ -1,7 +1,7 @@
 
 #' randtip RANDOMIZATION FUNCTIONS
 #' @export
-rand.tip <- function(tree, DF1,
+rand.tip <- function(DF1, tree,
                     rand.type = "random",agg.ssp = FALSE, poly.ins="large",
                     resp.mono=FALSE, resp.para=FALSE, resp.sing=FALSE,
                     prob = TRUE, verbose = FALSE, prune=TRUE, forceultrametric=TRUE){
