@@ -80,8 +80,8 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="backbone
     }}
 
   DF0[!(species%in%spp.original),
-      c("clup.PUTs","rand.type", "polyphyly.scheme", "resp.mono",
-        "resp.para", "use.paraphyletic","use.singleton" )]<-"-"
+      c("rand.type", "polyphyly.scheme","use.paraphyletic", "use.singleton",
+        "resp.mono","resp.para","clump.PUTs" )]<-"-"
   DF0$keep.tip[!(species%in%spp.original)]<- 0
   DF0$keep.tip[  species%in%spp.original ]<- 1
   return(DF0)
