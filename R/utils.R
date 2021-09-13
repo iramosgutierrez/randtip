@@ -69,26 +69,6 @@ get.parent.siblings <- function(tree, tip){
                 siblings = siblings))
 }
 
-get.taxa.to.use <- function(DF1){
-  DF1$using.taxa <- NA
-
-  for(i in 1:nrow(DF1)){
-    taxon <- as.character(DF1$taxon[i])
-    genus.name <- stringr::word(DF1$taxon[i],1, sep = "_")
-    sp.name <-    stringr::word(DF1$taxon[i],2, sep = "_")
-    if(DF1$agg.ssp[i]=="1"){
-      DF1$using.taxa[i] <- paste0(genus.name, "_", sp.name) }
-
-    if(DF1$agg.ssp[i]=="0"){
-      DF1$using.taxa[i] <- taxon}
-
-    # Identified with 0 are not clustered. 1 are clustered
-  }
-
-  return(DF1$using.taxa)
-
-}
-
 get.permitted.nodes <- function (tree, node, resp.para=F){
 
   nodes<- phytools::getDescendants(tree, node,curr = NULL)
@@ -233,74 +213,34 @@ get.intruder.nodes <- function (tree, DF1, level, MDCC){
   }
 }
 
-get.original.names <- function(tree, DF1, verbose = FALSE){
-  if(verbose){
-    cat("Starting name checking...", "\n")
+bind.clump<- function(newtree, tree, DF1, new.species){
+
+  sp<- paste0(stringr::word(new.species, 1,sep = "_"), "_", stringr::word(new.species, 2,sep = "_"))
+  treespp<- paste0(stringr::word(tree$tip.label, 1,sep = "_"), "_", stringr::word(tree$tip.label, 2,sep = "_"))
+  newtreespp<- paste0(stringr::word(newtree$tip.label, 1,sep = "_"), "_", stringr::word(newtree$tip.label, 2,sep = "_"))
+
+  if(sp%in%treespp){
+    DFspp<- paste0(stringr::word(DF1$taxon, 1,sep = "_"), "_", stringr::word(DF1$taxon, 2,sep = "_"))
+    clump<- tree$tip.label[treespp==sp]
+    clumpDF<-DF1[DF1$clump.PUTs==TRUE,]
+    clumpDF<-DF1$taxon[DFspp==sp]
+    clump<- unique(c(clump, clumpDF))
+    clump<- clump[clump%in%newtree$tip.label]
+    return(clump)
   }
 
-  for(n in 1:nrow(DF1)){
-    tip.label <- tree$tip.label
-    if(DF1$using.taxa[n] == DF1$taxon[n]) next
-    if(DF1$using.taxa[n] %in% tree$tip.label&
-       !(DF1$using.taxa[n] %in% DF1$taxon)){
-      correct.tip.loc <- tree$tip.label == DF1$using.taxa[n]
-      tree$tip.label[correct.tip.loc] <- DF1$taxon[n]
 
-    }
-  }
-  if(verbose){
-    cat("\U2713", "Names checking completed", "\n")
-  }
-  return(tree)
-}
 
-randtip.subsp <- function(tree, DF1.dupl, DF1, verbose = FALSE){
-  new.tree<-tree
-  DF1.dupl<- DF1.dupl[!(DF1.dupl$taxon%in%new.tree$tip.label),]
 
-  rep.taxa <- DF1.dupl$taxon
-  rep.taxa.species <- unique(DF1.dupl$using.taxa)
+  using.MDCC<-DF1[DF1$taxon==new.species,"using.MDCC"]
+  using.MDCC.lev<- DF1[DF1$taxon==new.species,"using.MDCC.lev"]
 
-  genus <- stringr::word(rep.taxa, 1, sep = "_")
-  sp <- stringr::word(rep.taxa, 2, sep= "_")
+  spp<-DF1$taxon[DF1[,using.MDCC.lev]==using.MDCC]
+  spp.in.newtree<- spp[spp%in%newtree$tip.label ]
+  spp.in.tree<- spp[spp  %in%  tree$tip.label ]
 
-  if(verbose){cat(paste0("Adding subspecies\n"))}
-  for(i in 1:length(rep.taxa.species)){
+  if(length(spp.in.tree)==0 & length(spp.in.newtree)>0){return(spp.in.newtree)}
 
-    if(verbose){cat(paste0(i, "/",length(rep.taxa.species),
-                           " Adding subspecies to ", rep.taxa.species[i],".\n" ))}
-
-    # Select subspecies
-    ssps <- rep.taxa[paste0(genus, "_", sp) == rep.taxa.species[i]]
-    ssps <- sample(ssps, length(ssps))
-    genus.tree <- stringr::word(new.tree$tip.label, 1, sep = "_")
-    sp.tree <-    stringr::word(new.tree$tip.label, 2, sep= "_")
-    sp.to.add <- new.tree$tip.label[rep.taxa.species[i]== paste0(genus.tree, "_", sp.tree)]
-
-    if(length(sp.to.add) > 1){
-      sp.to.add <- sp.to.add[sp.to.add == rep.taxa.species[i]]
-    }
-    if(length(sp.to.add) ==0){
-      sp.to.add <- new.tree$tip.label[rep.taxa.species[i]== paste0(genus.tree, "_", sp.tree)]
-      agg<-vector("character",length (sp.to.add))
-      for(s in seq_along(sp.to.add)){
-      if(length(randtip::DF1finder(DF1, sp.to.add[s], "agg.ssp"))>0){
-        agg[s]<-randtip::DF1finder(DF1, sp.to.add[s], "agg.ssp")}}
-
-      sp.to.add<- sp.to.add[agg=="1"]
-    }
-    if(!(rep.taxa.species[i]%in%new.tree$tip.label)){sp.to.add <- sample(sp.to.add,1)}
-
-    # Add subspecies as singleton
-    for(ssp in ssps){
-      singleton<-c(sp.to.add,ssps)
-      singleton<- singleton[singleton%in%new.tree$tip.label]
-      new.tree <- add.to.singleton(new.tree, singleton = singleton,
-                                   new.tips = ssp, resp.sing = T, resp.mono = T)}
-    #        }
-
-  }
-  return(new.tree)
 }
 
 usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
