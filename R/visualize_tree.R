@@ -1,6 +1,6 @@
 #' Function to obtain tree cut from MDCC
 #' @export
-getClade<- function(tree, DF0, level, clade){
+get.clade<- function(tree, DF0, level, clade){
 
 
   spss<- DF0[which(DF0[,level]==clade),]
@@ -14,13 +14,13 @@ getClade<- function(tree, DF0, level, clade){
   return(list("Tree"=subtree, "DF0"=DF0, "level"=level, "clade"=clade))
 }
 
-clade_col <- function(getClade.output, sharingtaxa.col="green",
+clade.col <- function(get.clade.output, sharingtaxa.col="green",
                       intruder.col="red",stowaway.col="black"){
 
-  CladeTree<-getClade.output$Tree
-  level <- getClade.output$level
-  clade <- getClade.output$clade
-  DF0   <- getClade.output$DF0
+  CladeTree<-get.clade.output$Tree
+  level <- get.clade.output$level
+  clade <- get.clade.output$clade
+  DF0   <- get.clade.output$DF0
 
   spss<- DF0[which(DF0[,level]==clade),]
   genera<- unique(spss$genus)
@@ -38,5 +38,3 @@ clade_col <- function(getClade.output, sharingtaxa.col="green",
 
 }
 
-#a<-getClade(tree, DF0, list("genus","Dendrolagus"))
-#plot(a[[1]], tip.color = clade_col(a))
