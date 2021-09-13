@@ -1,6 +1,6 @@
 #' Function to add tip to singleton
 #' @export
-add.to.singleton <- function(tree, singleton, new.tips, resp.sing=F, resp.mono=F){
+add.to.singleton <- function(tree, singleton, new.tips, resp.sing=F, resp.mono=F, resp.para=F){
   singleton<-gsub(" ", "_", singleton)
   singleton<-singleton[singleton%in%tree$tip.label]
 
@@ -49,10 +49,12 @@ add.to.singleton <- function(tree, singleton, new.tips, resp.sing=F, resp.mono=F
       if(!(randtip::isRoot(new.tree, mrca))){
       parent<- randtip::get.parent.siblings(new.tree, mrca)[[1]]
       if(isFALSE(resp.mono)){nodes<- phytools::getDescendants(new.tree, parent)}
-      if(isTRUE(resp.mono)) {nodes<- randtip::get.permitted.nodes(new.tree, parent)
+      if(isTRUE(resp.mono)& isFALSE(resp.para)){nodes<-get.permitted.nodes(new.tree, mrca, resp.para = F)}
+      if(isTRUE(resp.mono)& isTRUE(resp.para)) {nodes<-get.permitted.nodes(new.tree, mrca, resp.para = T)}
+
       nodes<- nodes[nodes!=parent]
       if(length(nodes)==0){nodes<-c(node,mrca)}
-      }}else{nodes<-c(node,mrca)}
+      }else{nodes<-c(node,mrca)}
 
       pos<- randtip::binding.position(new.tree, node = sample(nodes,1), insertion = "random",prob = T)
       new.tree <- phytools::bind.tip(new.tree,
