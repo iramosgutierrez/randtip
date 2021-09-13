@@ -1,6 +1,6 @@
 #' A function to stick species at random within a polyphyletic clade
 #' @export
-add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T, resp.mono=F, resp.para=F){
+add.to.polyphyletic <- function(tree, new.tip, polyphyly.scheme = "freq", prob=T, resp.mono=F, resp.para=F){
 
     new.tip <- gsub(" ", "_", new.tip)
     genus <- unique(randtip::firstword(new.tip))
@@ -15,7 +15,7 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T, resp.m
     new.tree <- tree
     new.tree.sp <- new.tree$tip.label
 
-    if(poly.ins == "complete"){
+    if(polyphyly.scheme == "complete"){
         for(sp in new.tip){
             mrca <- phytools::findMRCA(new.tree, taxa.vector)
             if(isFALSE(resp.mono)) {nodes<- phytools::getDescendants(new.tree, mrca)}
@@ -30,7 +30,7 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T, resp.m
         return(new.tree)
     }
 
-    if(poly.ins == "freq"){
+    if(polyphyly.scheme == "freq"){
 
 
 
@@ -73,7 +73,7 @@ add.to.polyphyletic <- function(tree, new.tip, poly.ins = "freq", prob=T, resp.m
       }
       }
 
-    if(poly.ins == "large"){
+    if(polyphyly.scheme == "large"){
 
 
         for(sp in new.tip){

@@ -1,13 +1,13 @@
 
 #' randtip RANDOMIZATION FUNCTIONS
 #' @export
-rand.tip <- function(DF1, tree,
-                    rand.type = "random",agg.ssp = FALSE, poly.ins="large", use.para=TRUE,
-                    resp.mono=FALSE, resp.para=FALSE, resp.sing=FALSE,
+rand.tip <- function(DF1, tree,rand.type = "random",
+                    polyphyly.scheme="large", use.paraphyletic=TRUE,use.singleton=FALSE,
+                    resp.mono=FALSE, resp.para=FALSE, agg.ssp = FALSE,
                     prob = TRUE, prune=TRUE, forceultrametric=TRUE, verbose = FALSE){
   if (!inherits(tree, "phylo")) {stop("object \"tree\" is not of class \"phylo\"")}
   if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
-  if(!(poly.ins %in% c("freq", "complete", "large"))) {stop("poly.ins must be \"freq\", \"complete\" or \"large\" ")}
+  if(!(polyphyly.scheme %in% c("freq", "complete", "large"))) {stop("polyphyly.scheme must be \"freq\", \"complete\" or \"large\" ")}
 
     start<- Sys.time()
 
@@ -57,18 +57,18 @@ rand.tip <- function(DF1, tree,
 
     if(isTRUE(agg.ssp)){DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"1"}else{DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"0"}
     if(rand.type=="random"){DF1$rand.type[is.na(DF1$rand.type)]<-"random"}else{DF1$rand.type[is.na(DF1$rand.type)]<-"polytomy"}
-    {DF1$poly.ins[is.na(DF1$poly.ins)]<-poly.ins}
+    {DF1$polyphyly.scheme[is.na(DF1$polyphyly.scheme)]<-polyphyly.scheme}
 
-    DF1[is.na(DF1$use.para) , "use.para"] <- use.para
+    DF1[is.na(DF1$use.paraphyletic) , "use.paraphyletic"] <- use.paraphyletic
     DF1[is.na(DF1$resp.mono), "resp.mono"]<- resp.mono
     DF1[is.na(DF1$resp.para), "resp.para"]<- resp.para
-    DF1[is.na(DF1$resp.sing), "resp.sing"]<- resp.sing
+    DF1[is.na(DF1$use.singleton), "use.singleton"]<- use.singleton
 
 
-    DF1$use.para  <- as.logical(DF1$use.para)
+    DF1$use.paraphyletic  <- as.logical(DF1$use.paraphyletic)
     DF1$resp.mono <- as.logical(DF1$resp.mono)
     DF1$resp.para <- as.logical(DF1$resp.para)
-    DF1$resp.sing <- as.logical(DF1$resp.sing)
+    DF1$use.singleton <- as.logical(DF1$use.singleton)
 
 
 
@@ -109,9 +109,9 @@ rand.tip <- function(DF1, tree,
 
             resp.mono <- as.logical(randtip::DF1finder(DF1.rand.bind, PUT, "resp.mono"))
             resp.para <- as.logical(randtip::DF1finder(DF1.rand.bind, PUT, "resp.para"))
-            resp.sing <- as.logical(randtip::DF1finder(DF1.rand.bind, PUT, "resp.sing"))
+            use.singleton <- as.logical(randtip::DF1finder(DF1.rand.bind, PUT, "use.singleton"))
 
-            poly.ins<- as.character(randtip::DF1finder(DF1.rand.bind,PUT, "poly.ins"))
+            polyphyly.scheme<- as.character(randtip::DF1finder(DF1.rand.bind,PUT, "polyphyly.scheme"))
 
 
             if(verbose){
@@ -166,20 +166,20 @@ rand.tip <- function(DF1, tree,
             new.tree<-add.to.monophyletic(tree = new.tree, new.tip = PUT, prob=prob)
 
             }else if(MDCC.type=="Paraphyletic"){
-            if(isFALSE(use.para)){new.tree<-add.to.monophyletic(tree = new.tree, new.tip = PUT, prob=prob)}
-            if(isTRUE (use.para)){new.tree <- add.to.paraphyletic(tree = new.tree,
+            if(isFALSE(use.paraphyletic)){new.tree<-add.to.monophyletic(tree = new.tree, new.tip = PUT, prob=prob)}
+            if(isTRUE (use.paraphyletic)){new.tree <- add.to.paraphyletic(tree = new.tree,
                                                     new.tip = PUT, prob = prob)}
             }else if(MDCC.type=="Polyphyletic"){
 
               new.tree<- add.to.polyphyletic(tree = new.tree, new.tip = PUT,
-                                               poly.ins , prob, resp.mono=resp.mono, resp.para=resp.para)
+                                               polyphyly.scheme , prob, resp.mono=resp.mono, resp.para=resp.para)
             }else if(MDCC.type=="Singleton MDCC"){
                 # All tips added in one step
                 singleton <- new.tree$tip.label[(randtip::firstword(new.tree$tip.label) == MDCC)]
 
                 new.tree <- add.to.singleton(tree = new.tree,
                               singleton = singleton, new.tips = PUT,
-                              resp.sing = resp.sing, resp.mono = resp.mono,resp.para=resp.para)}
+                              use.singleton = use.singleton, resp.mono = resp.mono,resp.para=resp.para)}
             }
             #Add to other taxonomic MDCC
             if(level%in% randtip::randtip_levels()[-1]){
@@ -195,7 +195,7 @@ rand.tip <- function(DF1, tree,
                 singleton<-c(MDCC.taxa, MDCC.intree)
                 singleton<-unique(singleton[singleton%in%new.tree$tip.label])
                 new.tree<- randtip::add.to.singleton(new.tree, singleton , PUT,
-                                                     resp.sing, resp.mono, resp.para)}
+                                                     use.singleton, resp.mono, resp.para)}
 
               if(MDCC.type=="Monophyletic"){
               MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
@@ -217,7 +217,7 @@ rand.tip <- function(DF1, tree,
 
               if(MDCC.type=="Paraphyletic"){
 
-                if(isFALSE(use.para)){
+                if(isFALSE(use.paraphyletic)){
                   MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
                   if(isTRUE(resp.mono)){
                     permitted.nodes<-randtip::get.permitted.nodes(tree=new.tree, node = MDCC.mrca, )
@@ -257,7 +257,7 @@ rand.tip <- function(DF1, tree,
                   }
 
               if(MDCC.type=="Polyphyletic"){
-                if(poly.ins=="complete"){
+                if(polyphyly.scheme=="complete"){
                   MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
                   if(isTRUE(resp.mono)){
                     permitted.nodes<-randtip::get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
@@ -273,7 +273,7 @@ rand.tip <- function(DF1, tree,
                                                   insertion = "random", prob = prob)
                   new.tree<- phytools::bind.tip(new.tree, PUT, pos$length, pos$where, pos$position)
                 }#same as monophyletic
-                if(poly.ins=="freq"){
+                if(polyphyly.scheme=="freq"){
                   mrca<- ape::getMRCA(new.tree, MDCC.intree)
                   descs<- phytools::getDescendants(new.tree, mrca,curr = NULL)
                   forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, DF1, level, MDCC)
@@ -298,7 +298,7 @@ rand.tip <- function(DF1, tree,
 
 
                 }
-                if(poly.ins=="large"){
+                if(polyphyly.scheme=="large"){
                   mrca<- ape::getMRCA(new.tree, MDCC.intree)
                   descs<- phytools::getDescendants(new.tree, mrca,curr = NULL)
                   forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, DF1, level, MDCC)
