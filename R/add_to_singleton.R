@@ -1,6 +1,6 @@
 #' Function to add tip to singleton
 #' @export
-add.to.singleton <- function(tree, singleton, new.tips, resp.sing=F, resp.mono=F, resp.para=F){
+add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, resp.mono=F, resp.para=F){
   singleton<-gsub(" ", "_", singleton)
   singleton<-singleton[singleton%in%tree$tip.label]
 
@@ -10,14 +10,14 @@ add.to.singleton <- function(tree, singleton, new.tips, resp.sing=F, resp.mono=F
 
     node<-which(new.tree$tip.label==singleton)
 
-   if(isTRUE(resp.sing)){
+   if(isTRUE(use.singleton)){
      pos<- randtip::binding.position(new.tree, node = node, insertion = "random",prob = T)
      new.tree <- phytools::bind.tip(new.tree,
                                        new.tips,
                                        edge.length = pos$length,
                                        where = pos$where,
                                        position = pos$position) }
-   if(isFALSE(resp.sing)){
+   if(isFALSE(use.singleton)){
      if(!(randtip::isRoot(new.tree, node))){
      parent<- randtip::get.parent.siblings(new.tree, node)[[1]]
      if(isFALSE(resp.mono)){nodes<- phytools::getDescendants(new.tree, parent)}
@@ -37,7 +37,7 @@ add.to.singleton <- function(tree, singleton, new.tips, resp.sing=F, resp.mono=F
     node<-which(new.tree$tip.label%in%singleton)
     mrca<- ape::getMRCA(new.tree, singleton)
 
-    if(isTRUE(resp.sing)){
+    if(isTRUE(use.singleton)){
       nodes<- c(mrca, node)
       pos<- randtip::binding.position(new.tree, node = sample(nodes,1), insertion = "random",prob = T)
       new.tree <- phytools::bind.tip(new.tree,
@@ -45,7 +45,7 @@ add.to.singleton <- function(tree, singleton, new.tips, resp.sing=F, resp.mono=F
                                      edge.length = pos$length,
                                      where = pos$where,
                                      position = pos$position) }
-    if(isFALSE(resp.sing)){
+    if(isFALSE(use.singleton)){
       if(!(randtip::isRoot(new.tree, mrca))){
       parent<- randtip::get.parent.siblings(new.tree, mrca)[[1]]
       if(isFALSE(resp.mono)){nodes<- phytools::getDescendants(new.tree, parent)}
