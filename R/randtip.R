@@ -3,7 +3,7 @@
 #' @export
 rand.tip <- function(DF1, tree,rand.type = "random",
                     polyphyly.scheme="large", use.paraphyletic=TRUE,use.singleton=FALSE,
-                    resp.mono=FALSE, resp.para=FALSE, agg.ssp = FALSE,
+                    resp.mono=FALSE, resp.para=FALSE, clump.PUTs = FALSE,
                     prob = TRUE, prune=TRUE, forceultrametric=TRUE, verbose = FALSE){
   if (!inherits(tree, "phylo")) {stop("object \"tree\" is not of class \"phylo\"")}
   if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
