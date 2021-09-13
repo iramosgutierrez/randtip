@@ -3,7 +3,7 @@
 #' @export
 rand.tip <- function(DF1, tree,rand.type = "random",
                     polyphyly.scheme="large", use.paraphyletic=TRUE,use.singleton=FALSE,
-                    resp.mono=FALSE, resp.para=FALSE, clump.PUTs = FALSE,
+                    resp.mono=TRUE, resp.para=TRUE, clump.PUTs = FALSE,
                     prob = TRUE, prune=TRUE, forceultrametric=TRUE, verbose = FALSE){
   if (!inherits(tree, "phylo")) {stop("object \"tree\" is not of class \"phylo\"")}
   if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
@@ -29,7 +29,7 @@ rand.tip <- function(DF1, tree,rand.type = "random",
 
     DF1.rand <- NULL
     DF1.poly <- NULL
-    DF1.dupl <- NULL
+
 
 
     if(prune){
@@ -55,40 +55,33 @@ rand.tip <- function(DF1, tree,rand.type = "random",
         trimming.species<- randtip::notNA(trimming.species)
         new.tree <- ape::keep.tip(new.tree, trimming.species)}
 
-    if(isTRUE(agg.ssp)){DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"1"}else{DF1$agg.ssp[is.na(DF1$agg.ssp)]<-"0"}
-    if(rand.type=="random"){DF1$rand.type[is.na(DF1$rand.type)]<-"random"}else{DF1$rand.type[is.na(DF1$rand.type)]<-"polytomy"}
-    {DF1$polyphyly.scheme[is.na(DF1$polyphyly.scheme)]<-polyphyly.scheme}
-
+    DF1[is.na(DF1$rand.type), "rand.type"]<-rand.type
+    DF1[is.na(DF1$polyphyly.scheme), "polyphyly.scheme"]<-polyphyly.scheme
     DF1[is.na(DF1$use.paraphyletic) , "use.paraphyletic"] <- use.paraphyletic
+    DF1[is.na(DF1$clump.PUTs) , "clump.PUTs"] <- clump.PUTs
     DF1[is.na(DF1$resp.mono), "resp.mono"]<- resp.mono
     DF1[is.na(DF1$resp.para), "resp.para"]<- resp.para
     DF1[is.na(DF1$use.singleton), "use.singleton"]<- use.singleton
 
 
     DF1$use.paraphyletic  <- as.logical(DF1$use.paraphyletic)
+    DF1$use.singleton <- as.logical(DF1$use.singleton)
+    DF1$use.paraphyletic <- as.logical(DF1$use.paraphyletic)
+    DF1$clump.PUTs <- as.logical(DF1$clump.PUTs)
     DF1$resp.mono <- as.logical(DF1$resp.mono)
     DF1$resp.para <- as.logical(DF1$resp.para)
-    DF1$use.singleton <- as.logical(DF1$use.singleton)
 
 
 
     DF1.poly    <- DF1[DF1$rand.type=="polytomy",]
-    DF1.nonpoly <- DF1[DF1$rand.type=="random",]
+    DF1.rand    <- DF1[DF1$rand.type=="random",]
 
 
-    if(nrow(DF1.nonpoly)>0){
-    DF1.nonpoly$using.taxa <- get.taxa.to.use(DF1.nonpoly)
-    DF1.nonpoly <- DF1.nonpoly[order(DF1.nonpoly$taxon),]
-    is.duplicated <- duplicated(DF1.nonpoly$using.taxa)
-    DF1.dupl <- DF1.nonpoly[ is.duplicated,]
-    DF1.rand <- DF1.nonpoly[!is.duplicated,]
-    }
 
-
-    #Phase 1. Random insertions, non-aggregated
+    #Phase 1. Random insertions
     if(!is.null(DF1.rand)){if(nrow(DF1.rand)>0){
 
-        DF1.rand.bind<- DF1.rand[!(DF1.rand$using.taxa %in% new.tree$tip.label),]
+        DF1.rand.bind<- DF1.rand[!(DF1.rand$taxon %in% new.tree$tip.label),]
         DF1.rand.bind<- DF1.rand.bind[!is.na(DF1.rand.bind$using.MDCC),]
 
         manual.mdcc.taxa<-DF1.rand.bind$taxon[!is.na(DF1.rand.bind$taxon1)|!is.na(DF1.rand.bind$taxon2)]
@@ -107,11 +100,15 @@ rand.tip <- function(DF1, tree,rand.type = "random",
             level <- randtip::DF1finder(DF1.rand.bind,PUT, "using.MDCC.lev")
             MDCC.type <- randtip::DF1finder(DF1.rand.bind,PUT, "using.MDCC.phylstat")
 
+            use.singleton <- as.logical(randtip::DF1finder(DF1.rand.bind, PUT, "use.singleton"))
+            polyphyly.scheme<- as.character(randtip::DF1finder(DF1.rand.bind,PUT, "polyphyly.scheme"))
+
             resp.mono <- as.logical(randtip::DF1finder(DF1.rand.bind, PUT, "resp.mono"))
             resp.para <- as.logical(randtip::DF1finder(DF1.rand.bind, PUT, "resp.para"))
-            use.singleton <- as.logical(randtip::DF1finder(DF1.rand.bind, PUT, "use.singleton"))
 
-            polyphyly.scheme<- as.character(randtip::DF1finder(DF1.rand.bind,PUT, "polyphyly.scheme"))
+            clump.PUT.i<-as.logical(randtip::DF1finder(DF1.rand.bind, PUT, "clump.PUTs"))
+
+
 
 
             if(verbose){
@@ -148,15 +145,13 @@ rand.tip <- function(DF1, tree,rand.type = "random",
 
             #Automatically searched MDCCs additions
             #Add to genus
-            if(isTRUE(resp.sing)){
-              if(length(sp.genus.in.tree(tree, randtip::firstword(PUT)))==0 &
-                 length(sp.genus.in.tree(new.tree, randtip::firstword(PUT)))> 0){
-                singleton<-sp.genus.in.tree(new.tree, randtip::firstword(PUT))
-                except<- DF1[randtip::firstword(DF1$taxon)==randtip::firstword(PUT)&DF1$resp.sing=="FALSE",]
-                singleton<- singleton[!(singleton%in%except)]
-                new.tree<- add.to.singleton(new.tree, singleton, PUT, T, T)
+            if(isTRUE(clump.PUT.i)){
+              clump<- randtip::bind.clump(new.tree, tree, DF1, PUT)
+              if(!is.null(clump)){
+                newtree<- add.to.singleton(new.tree, clump, PUT, resp.sing = T)
                 next
               }}
+
 
             if(level=="genus"){
               MDCC.type <- randtip::MDCC.phyleticity(DF1, new.tree,
@@ -178,7 +173,7 @@ rand.tip <- function(DF1, tree,rand.type = "random",
                 singleton <- new.tree$tip.label[(randtip::firstword(new.tree$tip.label) == MDCC)]
 
                 new.tree <- add.to.singleton(tree = new.tree,
-                              singleton = singleton, new.tips = PUT,
+                                singleton = singleton, new.tips = PUT,
                               use.singleton = use.singleton, resp.mono = resp.mono,resp.para=resp.para)}
             }
             #Add to other taxonomic MDCC
@@ -326,19 +321,7 @@ rand.tip <- function(DF1, tree,rand.type = "random",
 
               }}}
         }}
-
-    #Phase 2 - Random insertions, aggregated subspecies
-    if(!is.null(DF1.dupl)){if(nrow(DF1.dupl)>0){
-      DF1.masdupl<- DF1.rand[(DF1.rand$using.taxa%in%tree$tip.label) &
-                             !(DF1.rand$taxon%in%tree$tip.label) , ]
-      DF1.dupl<- rbind(DF1.dupl, DF1.masdupl)
-      new.tree <- randtip.subsp(tree = new.tree, DF1.dupl,DF1, verbose)
-            }}
-
-    if(verbose){cat("\n")}
-    if(nrow(DF1.nonpoly)>0){new.tree <- get.original.names(tree = new.tree, DF1 = DF1.nonpoly, verbose=F )}
-
-
+#aqui estaba antes getoriginalnames, comprobar que funciona bien
     #Polytomies
     if(nrow(DF1.poly)>0){
       if(verbose){
