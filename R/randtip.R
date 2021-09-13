@@ -21,6 +21,7 @@ rand.tip <- function(DF1, tree,
     tree$tip.label <- gsub("_X_", "_x-", tree$tip.label)
 
     new.tree <- tree
+    if(is.null(tree$edge.length)){new.tree$edge.length<-rep(1, nrow(new.tree$edge))}
 
     if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
     if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
@@ -390,7 +391,7 @@ rand.tip <- function(DF1, tree,
         message("The following taxa were not included in the tree:\n", paste0(not.included, "\n"))}
 
     if(isTRUE(prune)){new.tree <- ape::keep.tip(new.tree, complete.taxa.list.in.tree)}
-
+    if(is.null(tree$edge.length)){new.tree$edge.length<-NULL}
 
     end <- Sys.time()
 
