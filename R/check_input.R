@@ -96,6 +96,11 @@ if(length(subsp.tips)>0){
   }
 }
 
+#5. Tree ultrametricity evaluation
+if(!ape::is.ultrametric(tree)){
+  message("Specified tree is not ultrametric.")}
+
+
 DF0<- DF0[DF0$keep.tip=="1",]
   return(DF)
 }
