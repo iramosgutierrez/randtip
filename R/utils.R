@@ -89,7 +89,7 @@ get.taxa.to.use <- function(DF1){
 
 }
 
-get.permitted.nodes <- function (tree, node){
+get.permitted.nodes <- function (tree, node, resp.para=F){
 
   nodes<- phytools::getDescendants(tree, node,curr = NULL)
   if(length(nodes)==0){stop("Node ", node, " is not present in the given tree")}
@@ -120,7 +120,7 @@ get.permitted.nodes <- function (tree, node){
 
   permitted.nodes<- rep(NA, times= length(nodes))
 
-
+#extract monophyletic groups and tips
   for(i in seq_along(nodes)){
     node.i <- nodes[i]
 
@@ -128,37 +128,39 @@ get.permitted.nodes <- function (tree, node){
     if(randtip::is.tip(tree, node.i)){
       tip<- tree$tip.label[node.i]
       tip.genus<- randtip::firstword(tip)
-      sp.in.tree<-randtip::sp.genus.in.tree(tree, tip.genus)
-
-      if(length(sp.in.tree)!=1){permitted.nodes[i]<-FALSE}
-      if(tip%in%paraphyletic.intruders){permitted.nodes[i]<-FALSE}
-
-    }else{
-
-      descs<- phytools::getDescendants(tree, node.i,curr = NULL)
-      descs<-randtip::notNA (tree$tip.label[descs])
-      descs.genera<- unique(randtip::firstword(descs))
-
       siblings<-randtip::get.parent.siblings(tree, node.i)$siblings
       siblings.genera<- unique(randtip::firstword(siblings))
+      if(all(siblings.genera %in% tip.genus)){permitted.nodes[i]<-FALSE}
+      }else{
 
-      if(all(siblings.genera %in% descs.genera)){permitted.nodes[i]<-FALSE}
+        descs<- phytools::getDescendants(tree, node.i,curr = NULL)
+        descs<-randtip::notNA (tree$tip.label[descs])
+        descs.genera<- unique(randtip::firstword(descs))
 
+        if(length(descs.genera)>1){next}
+        siblings<-randtip::get.parent.siblings(tree, node.i)$siblings
+        siblings.genera<- unique(randtip::firstword(siblings))
 
-    }
+        if(all(siblings.genera %in% descs.genera)){permitted.nodes[i]<-FALSE}
+      }
 
 
   }
 
+
+#extract paraphyletic groups and tips
+  if(resp.para){
   paraphyletic.genera<-as.vector(which(tip.types.genera=="Paraphyletic") )
+  paraphyletic.tips <- which(tree$tip.label%in%paraphyletic.intruders)
   for(g in paraphyletic.genera){
     gen<-names(tip.types.genera[g])
     gentips<- tree$tip.label[randtip::firstword(tree$tip.label)==gen]
     mrca<- ape::getMRCA(tree, gentips)
     mrcadescs<-phytools::getDescendants(tree, mrca,curr = NULL)
+    mrcadescs<- mrcadescs[!(mrcadescs%in%paraphyletic.tips)]
 
     permitted.nodes[which(nodes %in% mrcadescs)]<- FALSE
-  }
+  }}
 
 
   permitted.nodes[is.na(permitted.nodes)]<-TRUE
