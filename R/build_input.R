@@ -15,10 +15,10 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="backbone
 
 
 
-  names_df <- c("taxon",  "taxon1", "taxon2",
-                randtip::randtip_levels(),
-                "agg.ssp","rand.type", "poly.ins",
-                "resp.mono", "resp.para", "resp.sing", "keep.tip")
+  names_df <- c("taxon", randtip::randtip_levels(),
+               "taxon1", "taxon2","rand.type","polyphyly.scheme", "use.paraphyletic",
+               "use.singleton","resp.mono", "resp.para","clump.PUTs",
+               "keep.tip")
 
   species<- gsub(" ", "_", species)
 
@@ -80,7 +80,8 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="backbone
     }}
 
   DF0[!(species%in%spp.original),
-      c("agg.ssp","rand.type", "poly.ins", "resp.mono", "resp.para", "resp.sing" )]<-"-"
+      c("clup.PUTs","rand.type", "polyphyly.scheme", "resp.mono",
+        "resp.para", "use.paraphyletic","use.singleton" )]<-"-"
   DF0$keep.tip[!(species%in%spp.original)]<- 0
   DF0$keep.tip[  species%in%spp.original ]<- 1
   return(DF0)
