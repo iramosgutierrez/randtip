@@ -1,7 +1,7 @@
 #' Function to create DF1 given a species vector(column)
 #' @export
 
-build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list",  genus=F){
+build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="backbone",  genus=F){
 
 
   if(is.data.frame(species)){
@@ -11,7 +11,7 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list",  
   if(is.list(species) ){stop("Species list must be a vector or a single-column dataframe!")}
   if(is.null(tree)){stop("A tree must be provided.")}
   if (!inherits(tree, "phylo")) { stop("tree should be an object of class \"phylo\".")}
-  if(!(mode %in% c("list", "phylomatic"))) {stop("type must be \"list\" or \"phylomatic\" ")}
+  if(!(mode %in% c("list", "backbone"))) {stop("type must be \"list\" or \"backbone\" ")}
 
 
 
@@ -25,7 +25,7 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="list",  
   spp.in.tree<- tree$tip.label
   spp.original<- species
 
-  if(mode=="phylomatic"){
+  if(mode=="backbone"){
         species<- c(species, spp.in.tree[!(spp.in.tree%in%species)])
   }
 
