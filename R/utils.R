@@ -26,7 +26,7 @@ binding.position<- function(tree, node, df=NULL, insertion,  prob){
   if(is.null(df)){df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2], "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )}
 
   if(ape::is.ultrametric(tree)){position$length<-NULL}else{
-    position$length<-abs(rnorm(1, mean=mean(tree$edge.length), sd= sd(tree$edge.length) ))}
+    position$length<-abs(runif(1, 0, max(tree$edge.length)))}
 
     df<- df[df$node==node,]
     position$where<- node
