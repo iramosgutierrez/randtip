@@ -5,7 +5,7 @@
 #'        (mrca of species pairs). Note that a pair of nodes may not
 #'        necessarily define one single branch but a set of them
 #' @export
-stick.to.branch <- function(tree, edges, new.tip, rand.type="random"){
+custom.branch <- function(tree, edges, new.tip, rand.type="random"){
 
     df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
                      "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
@@ -70,7 +70,7 @@ stick.to.branch <- function(tree, edges, new.tip, rand.type="random"){
 #' @export
 #' @examples
 #' set.seed(1)
-permitted.branches_col<- function(tree, edges,  rand.type="random",
+custom.branch_col<- function(tree, edges,  rand.type="random",
                               permitted.col="red", forbidden.col="black"){
 
   df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
