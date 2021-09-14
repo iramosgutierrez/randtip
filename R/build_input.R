@@ -92,7 +92,7 @@ build.input<- function(species, tree, find.ranks=FALSE, db="ncbi", mode="backbon
 complete.input<- function(DF0, tree, verbose=F){
 
   DF1<-DF0
-  DF1[is.na(DF1$keep.tip)]<-"1"
+  DF1[is.na(DF1$keep.tip), "keep.tip"]<-"1"
   tree$tip.label <- gsub(" ", "_", tree$tip.label)
   DF1<- randtip::correct.DF(DF1)
   DF1$taxon <- gsub(" ", "_", DF1$taxon)
