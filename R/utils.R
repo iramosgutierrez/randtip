@@ -226,6 +226,12 @@ bind.clump<- function(newtree, tree, DF1, new.species){
     clumpDF<-DF1$taxon[DFspp==sp]
     clump<- unique(c(clump, clumpDF))
     clump<- clump[clump%in%newtree$tip.label]
+    if(length(clump)>1){
+      mrca<- ape::getMRCA(newtree, clump)
+      descs<- newtree$tip.label[phytools::getDescendants(newtree, mrca, curr=F)]
+      descs<-randtip::notNA(descs)
+      if(any(!(descs%in%clump))){clump<- sample(clump, 1)}
+    }
     return(clump)
   }
 
