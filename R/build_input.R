@@ -1,7 +1,7 @@
 #' Function to create DF1 given a species vector(column)
 #' @export
 
-build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="backbone",  genus=F){
+build.input<- function(species, tree, find.ranks=FALSE, db="ncbi", mode="backbone",  genus=F){
 
 
   if(is.data.frame(species)){
@@ -58,7 +58,7 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="backbone
 
   searching.categories<- randtip::randtip_levels()[-1]
 
-    if(find.MDCC){for(i in 1:length(genera)){
+    if(find.ranks){for(i in 1:length(genera)){
       tryCatch({
         search <- suppressMessages(taxize::classification(as.character(genera[i]), db = db))[[1]]
 
@@ -87,7 +87,7 @@ build.input<- function(species, tree, find.MDCC=FALSE, db="ncbi", mode="backbone
   return(DF0)
 }
 
-#example<-build.input(species = phylo25.table$taxon, find.MDCC = T , mode = "list", tree=tree25)
+#example<-build.input(species = phylo25.table$taxon, find.ranks = T , mode = "list", tree=tree25)
 
 complete.input<- function(DF0, tree, verbose=F){
 
