@@ -1,7 +1,7 @@
 #' Function to create DF1 given a species vector(column)
 #' @export
 
-build.input<- function(species, tree, find.ranks=FALSE, db="ncbi", mode="backbone",  genus=F){
+build.input<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone",  genus=F){
 
 
   if(is.data.frame(species)){
