@@ -4,7 +4,7 @@
 \alias{phyleticity}
 \title{function phyleticity retrieves genus type given a certain tree}
 \usage{
-phyleticity(tree, genus, sep = "_")
+phyleticity(tree, genus)
 }
 \description{
 function phyleticity retrieves genus type given a certain tree

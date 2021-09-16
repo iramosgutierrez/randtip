@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_to_paraphyletic.R
 \name{add.to.paraphyletic}
 \alias{add.to.paraphyletic}
-\title{Same process than paraphyletic node, bt detecting automatically the deep and shallow nodes}
+\title{Insert in paraphyletic. i no nodes are given, they will be automatically searched.}
 \usage{
 add.to.paraphyletic(
   tree,
@@ -13,14 +13,14 @@ add.to.paraphyletic(
 )
 }
 \arguments{
-\item{intern.node}{node of the clade to insert the new tip. It must be used in conjuction
+\item{intern.node}{mrca node of the clade where not to insert the new tip. It must be used in conjuction
 with group node}
 
-\item{group.node}{mrca node of the paraphyletic clade. If no intern.node is supplied, a random
-internal node is selected}
+\item{group.node}{mrca node of the paraphyletic clade. It must be used in conjuction
+with intern node}
 }
 \description{
-Same process than paraphyletic node, bt detecting automatically the deep and shallow nodes
+Insert in paraphyletic. i no nodes are given, they will be automatically searched.
 }
 \examples{
 #add.to.paraphyletic(Tree, "Achillea_3_inventatus")

@@ -4,7 +4,7 @@
 \alias{add.to.monophyletic}
 \title{Function to add tips at random monophyletic clade}
 \usage{
-add.to.monophyletic(tree, new.tip)
+add.to.monophyletic(tree, new.tip, prob = T)
 }
 \description{
 Function to add tips at random monophyletic clade

@@ -4,7 +4,14 @@
 \alias{add.to.singleton}
 \title{Function to add tip to singleton}
 \usage{
-add.to.singleton(tree, singleton, new.tips)
+add.to.singleton(
+  tree,
+  singleton,
+  new.tips,
+  use.singleton = F,
+  resp.mono = F,
+  resp.para = F
+)
 }
 \description{
 Function to add tip to singleton

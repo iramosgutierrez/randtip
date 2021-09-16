@@ -6,8 +6,11 @@
 \usage{
 add.to.polyphyletic(
   tree,
-  species,
-  polyphyletic.insertion = c("freq", "large", "all")
+  new.tip,
+  polyphyly.scheme = "freq",
+  prob = T,
+  resp.mono = F,
+  resp.para = F
 )
 }
 \description{

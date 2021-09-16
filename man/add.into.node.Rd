@@ -4,7 +4,7 @@
 \alias{add.into.node}
 \title{Function to add tips at random from a given node}
 \usage{
-add.into.node(tree, node, new.tip, exception.list = NULL)
+add.into.node(tree, node, new.tip, exception.list = NULL, prob = T)
 }
 \description{
 Function to add tips at random from a given node
