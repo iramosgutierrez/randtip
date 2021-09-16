@@ -1,7 +1,7 @@
 #' Function to create DF1 given a species vector(column)
 #' @export
 
-build.input<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone",  genus=F){
+build.Info1<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone",  genus=F){
 
 
   if(is.data.frame(species)){
@@ -60,7 +60,7 @@ build.input<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone
 
     if(find.ranks){for(i in 1:length(genera)){
       tryCatch({
-        search <- suppressMessages(taxize::classification(as.character(genera[i]), db = db))[[1]]
+        search <- suppressMessages(taxize::classification(as.character(genera[i]), db = db, rows=Inf))[[1]]
 
         for(cat in searching.categories){
           if(length(search[which(search$rank==cat), "name"])==0){DF0[DF0$genus==genera[i], cat]<-NA}else{
@@ -87,9 +87,8 @@ build.input<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone
   return(DF0)
 }
 
-#example<-build.input(species = phylo25.table$taxon, find.ranks = T , mode = "list", tree=tree25)
-
-complete.input<- function(DF0, tree, verbose=F){
+#' @export
+Info1toInfo2<- function(DF0, tree, verbose=F){
 
   DF1<-DF0
   DF1[is.na(DF1$keep.tip), "keep.tip"]<-"1"
