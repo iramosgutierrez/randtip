@@ -148,7 +148,7 @@ rand.tip <- function(input, tree,rand.type = "random",
             if(isTRUE(clump.PUT.i)){
               clump<- randtip::bind.clump(new.tree, tree, input, PUT)
               if(!is.null(clump)){
-                newtree<- add.to.singleton(new.tree, clump, PUT, resp.sing = T)
+                newtree<- add.to.singleton(new.tree, clump, PUT, use.singleton = T)
                 next
               }}
 

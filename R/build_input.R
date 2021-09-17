@@ -17,7 +17,7 @@ build.info<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone"
 
   names_df <- c("taxon", randtip::randtip_ranks(),
                "taxon1", "taxon2","rand.type","polyphyly.scheme", "use.paraphyletic",
-               "use.singleton","resp.mono", "resp.para","clump.PUTs",
+               "use.singleton","respect.mono", "respect.para","clump.PUTs",
                "keep.tip")
 
   species<- gsub(" ", "_", species)
@@ -81,7 +81,7 @@ build.info<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone"
 
   info[!(species%in%spp.original),
       c("rand.type", "polyphyly.scheme","use.paraphyletic", "use.singleton",
-        "resp.mono","resp.para","clump.PUTs" )]<-"-"
+        "respect.mono","respect.para","clump.PUTs" )]<-"-"
   info$keep.tip[!(species%in%spp.original)]<- 0
   info$keep.tip[  species%in%spp.original ]<- 1
   return(info)

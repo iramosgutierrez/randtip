@@ -1,6 +1,6 @@
 #' A function to stick species at random within a polyphyletic clade
 #' @export
-add.to.polyphyletic <- function(tree, new.tip, polyphyly.scheme = "freq", prob=T, resp.mono=F, resp.para=F){
+add.to.polyphyletic <- function(tree, new.tip, polyphyly.scheme = "freq", prob=T, respect.mono=F, respect.para=F){
 
     new.tip <- gsub(" ", "_", new.tip)
     genus <- unique(randtip::firstword(new.tip))
@@ -18,9 +18,9 @@ add.to.polyphyletic <- function(tree, new.tip, polyphyly.scheme = "freq", prob=T
     if(polyphyly.scheme == "complete"){
         for(sp in new.tip){
             mrca <- phytools::findMRCA(new.tree, taxa.vector)
-            if(isFALSE(resp.mono)) {nodes<- phytools::getDescendants(new.tree, mrca)}
-            if(isTRUE(resp.mono)& isFALSE(resp.para)){nodes<-get.permitted.nodes(new.tree, mrca, resp.para = F)}
-            if(isTRUE(resp.mono)& isTRUE(resp.para)) {nodes<-get.permitted.nodes(new.tree, mrca, resp.para = T)}
+            if(isFALSE(respect.mono)) {nodes<- phytools::getDescendants(new.tree, mrca)}
+            if(isTRUE(respect.mono)& isFALSE(respect.para)){nodes<-get.permitted.nodes(new.tree, mrca, respect.para = F)}
+            if(isTRUE(respect.mono)& isTRUE(respect.para)) {nodes<-get.permitted.nodes(new.tree, mrca, respect.para = T)}
             bpos<-binding.position(new.tree, node = sample(nodes,1), insertion="random", prob=prob)
 
             new.tree <- phytools::bind.tip(tree = new.tree, tip.label = sp, edge.length = bpos$length,

@@ -1,6 +1,6 @@
 #' Function to add tip to singleton
 #' @export
-add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, resp.mono=F, resp.para=F){
+add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, respect.mono=F, respect.para=F){
   singleton<-gsub(" ", "_", singleton)
   singleton<-singleton[singleton%in%tree$tip.label]
 
@@ -20,8 +20,8 @@ add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, resp.mo
    if(isFALSE(use.singleton)){
      if(!(randtip::isRoot(new.tree, node))){
      parent<- randtip::get.parent.siblings(new.tree, node)[[1]]
-     if(isFALSE(resp.mono)){nodes<- phytools::getDescendants(new.tree, parent)}
-     if(isTRUE(resp.mono)) {nodes<- randtip::get.permitted.nodes(new.tree, parent)
+     if(isFALSE(respect.mono)){nodes<- phytools::getDescendants(new.tree, parent)}
+     if(isTRUE(respect.mono)) {nodes<- randtip::get.permitted.nodes(new.tree, parent)
      nodes<- nodes[nodes!=parent]
      if(length(nodes)==0){nodes<-node}
      }}else{nodes<-node}
@@ -48,9 +48,9 @@ add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, resp.mo
     if(isFALSE(use.singleton)){
       if(!(randtip::isRoot(new.tree, mrca))){
       parent<- randtip::get.parent.siblings(new.tree, mrca)[[1]]
-      if(isFALSE(resp.mono)){nodes<- phytools::getDescendants(new.tree, parent)}
-      if(isTRUE(resp.mono)& isFALSE(resp.para)){nodes<-get.permitted.nodes(new.tree, mrca, resp.para = F)}
-      if(isTRUE(resp.mono)& isTRUE(resp.para)) {nodes<-get.permitted.nodes(new.tree, mrca, resp.para = T)}
+      if(isFALSE(respect.mono)){nodes<- phytools::getDescendants(new.tree, parent)}
+      if(isTRUE(respect.mono)& isFALSE(respect.para)){nodes<-get.permitted.nodes(new.tree, mrca, respect.para = F)}
+      if(isTRUE(respect.mono)& isTRUE(respect.para)) {nodes<-get.permitted.nodes(new.tree, mrca, respect.para = T)}
 
       nodes<- nodes[nodes!=parent]
       if(length(nodes)==0){nodes<-c(node,mrca)}
