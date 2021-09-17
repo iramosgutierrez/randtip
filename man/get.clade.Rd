@@ -4,7 +4,7 @@
 \alias{get.clade}
 \title{Function to obtain tree cut from MDCC}
 \usage{
-get.clade(tree, DF0, level, clade)
+get.clade(tree, info, rank, clade)
 }
 \description{
 Function to obtain tree cut from MDCC

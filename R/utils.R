@@ -69,7 +69,7 @@ get.parent.siblings <- function(tree, tip){
                 siblings = siblings))
 }
 
-get.permitted.nodes <- function (tree, node, resp.para=F){
+get.permitted.nodes <- function (tree, node, respect.para=F){
 
   nodes<- phytools::getDescendants(tree, node,curr = NULL)
   if(length(nodes)==0){stop("Node ", node, " is not present in the given tree")}
@@ -129,7 +129,7 @@ get.permitted.nodes <- function (tree, node, resp.para=F){
 
 
 #extract paraphyletic groups and tips
-  if(resp.para){
+  if(respect.para){
   paraphyletic.genera<-as.vector(which(tip.types.genera=="Paraphyletic") )
   paraphyletic.tips <- which(tree$tip.label%in%paraphyletic.intruders)
   for(g in paraphyletic.genera){

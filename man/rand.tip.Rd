@@ -5,7 +5,7 @@
 \title{randtip RANDOMIZATION FUNCTIONS}
 \usage{
 rand.tip(
-  DF1,
+  input,
   tree,
   rand.type = "random",
   polyphyly.scheme = "large",
