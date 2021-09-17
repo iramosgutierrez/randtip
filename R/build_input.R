@@ -1,7 +1,8 @@
 #' Function to create info given a species vector(column)
 #' @export
 
-build.info<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone",  genus=F){
+build.info<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone",
+                      interactive=F,genus=F){
 
 
   if(is.data.frame(species)){
@@ -60,7 +61,12 @@ build.info<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone"
 
     if(find.ranks){for(i in 1:length(genera)){
       tryCatch({
-        search <- suppressMessages(taxize::classification(as.character(genera[i]), db = db, rows=Inf))[[1]]
+        if(interactive){
+          search <- suppressMessages(taxize::classification(as.character(genera[i]),
+                                                            db = db))[[1]]
+        }else{
+        search <- suppressMessages(taxize::classification(as.character(genera[i]),
+                                                          db = db, rows=Inf))[[1]]}
 
         for(cat in searching.categories){
           if(length(search[which(search$rank==cat), "name"])==0){info[info$genus==genera[i], cat]<-NA}else{
@@ -114,3 +120,5 @@ info2input<- function(info, tree, verbose=F){
 
   return(input)
 }
+
+
