@@ -3,7 +3,7 @@
 #'
 #'
 
-check.input<- function(info, tree, sim=0.8, verbose=F){
+check.info<- function(info, tree, sim=0.8, verbose=F){
 
   info<- randtip::correct.DF(info)
   info[is.na(info$keep.tip)]<-"1"
