@@ -80,7 +80,8 @@ ranks<-randtip::randtip_ranks()
         cat(strrep("*", times=v[which(groups==group)])
       }else{
       if(which(groups==group)%in% ceiling(seq(from=0, to=length(groups),
-                                              by=(length(groups)/40)))){cat("*")}}
+                                              by=(length(groups)/40)))){cat("*")}
+        }
 
       if(group ==groups[length(groups)]){cat("\n")}
       }
