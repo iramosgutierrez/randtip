@@ -70,8 +70,9 @@ custom.branch <- function(tree, edges, new.tip, rand.type="random"){
 #' @export
 #' @examples
 #' set.seed(1)
-custom.branch_col<- function(tree, edges,  rand.type="random",
-                              permitted.col="#C23B23", forbidden.col="black"){
+plot.custom.branch<- function(tree, edges,  rand.type="random",
+                              permitted.col="#03C03C", forbidden.col="black",
+                              permitted.lwd=1, forbidden.lwd=1,...){
 
   df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
                    "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
@@ -121,6 +122,12 @@ custom.branch_col<- function(tree, edges,  rand.type="random",
   col[1:length(col)] <- forbidden.col
   col[df$node%in%permittednodes]<- permitted.col
 
-  return(col)
+  lwd <- vector(mode = "character", length(tree$edge[,1]))
+  lwd[1:length(lwd)] <- forbidden.lwd
+  lwd[df$node%in%permittednodes]<- permitted.lwd
+
+
+
+  return(ape::plot.phylo(tree, edge.color = col, edge.width = lwd, ...))
 }
 
