@@ -22,9 +22,9 @@ plot.clade<- function(get.clade.out, corankedtaxa.col="#03C03C",
     stop("Please feed this function with the returned object from get.clade function")
   }
 
-  edgecol<- randtip::clade.col(get.clade.out, corankedtaxa.col=corankedtaxa.col,
+  tipcol<- randtip::clade.col(get.clade.out, corankedtaxa.col=corankedtaxa.col,
                                intruder.col=intruder.col, stowaway.col=stowaway.col)
-  return(ape::plot.phylo(get.clade.out$Tree, edge.color = edgecol, ...))
+  return(ape::plot.phylo(get.clade.out$Tree, tip.color = tipcol, ...))
 }
 
 
