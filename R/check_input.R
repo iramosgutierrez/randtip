@@ -71,7 +71,7 @@ ranks<-randtip::randtip_ranks()
       type<- randtip::MDCC.phyleticity(info, tree, MDCC.info = list("rank"= rank, "MDCC"= group))
       DF[which(DF[,rank]==group), paste0(rank,"_phyletic.status")]<-type
 
-      if(which(groups==group)%in% ceiling(seq(from=1, to=length(groups), by=(length(groups)/40)))){cat("*")}
+      if(which(groups==group)%in% ceiling(seq(from=0, to=length(groups), by=(length(groups)/40)))){cat("*")}
       if(group ==groups[length(groups)]){cat("\n")}
       }}
 
