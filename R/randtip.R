@@ -26,6 +26,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
     if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
       message("Specified tree is not ultrametric. \nTo force the randomization as an ultrametric tree plase set forceultrametric=TRUE")}
+    prob=T
 
     input.rand <- NULL
     input.poly <- NULL
