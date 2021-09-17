@@ -15,7 +15,7 @@ build.info<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone"
 
 
 
-  names_df <- c("taxon", randtip::randtip_levels(),
+  names_df <- c("taxon", randtip::randtip_ranks(),
                "taxon1", "taxon2","rand.type","polyphyly.scheme", "use.paraphyletic",
                "use.singleton","resp.mono", "resp.para","clump.PUTs",
                "keep.tip")
@@ -56,7 +56,7 @@ build.info<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone"
 
   genera<- unique(randtip::firstword(species))
 
-  searching.categories<- randtip::randtip_levels()[-1]
+  searching.categories<- randtip::randtip_ranks()[-1]
 
     if(find.ranks){for(i in 1:length(genera)){
       tryCatch({
