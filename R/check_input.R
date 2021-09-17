@@ -61,13 +61,20 @@ ranks<-randtip::randtip_ranks()
     groups<- unique(info[,rank])
     groups<- randtip::notNA(groups)
 
-    if(verbose){cat( paste0("Checking phyletic status at ", rank, " rank ... (", length(groups), " categories)"))}
-    if (length(groups)>0){for(group in groups){
-      type<- randtip::MDCC.phyleticity(info, tree, MDCC.info = list("rank"= rank, "MDCC"= group))
-    DF[which(DF[,rank]==group), paste0(rank,"_phyletic.status")]<-type
+    if (length(groups)>0){
+      if(verbose){cat( paste0("Checking phyletic status at ", rank, " level ... (", length(groups), " categories)\n"))}
 
+      cat(paste0("0%       25%       50%       75%       100%", "\n",
+                 "|---------|---------|---------|---------|", "\n"))
+      for(group in groups){
+        if(group ==groups[1]){cat("*")}
+      type<- randtip::MDCC.phyleticity(info, tree, MDCC.info = list("rank"= rank, "MDCC"= group))
+      DF[which(DF[,rank]==group), paste0(rank,"_phyletic.status")]<-type
+
+      if(which(groups==group)%in% ceiling(seq(from=1, to=length(groups), by=(length(groups)/40)))){cat("*")}
+      if(group ==groups[length(groups)]){cat("\n")}
       }}
-   if(verbose){ cat(paste0(" Done!", "\U2713", "\n"))}
+
   }
 
 DF<-DF[,c("taxon", "PUT.status", "Typo", "Typo.names","genus", "genus_phyletic.status",
@@ -106,4 +113,3 @@ info<- info[info$keep.tip=="1",]
 }
 
 #example.check<- check.input(info =example , tree = tree25)
-
