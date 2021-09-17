@@ -1,9 +1,9 @@
 #' Function to obtain tree cut from MDCC
 #' @export
-get.clade<- function(tree, DF0, level, clade){
+get.clade<- function(tree, info, rank, clade){
 
 
-  spss<- DF0[which(DF0[,level]==clade),]
+  spss<- info[which(info[,rank]==clade),]
   genera<- unique(spss$genus)
 
   cut.list<- tree$tip.label[randtip::firstword(tree$tip.label)%in% genera]
@@ -11,14 +11,14 @@ get.clade<- function(tree, DF0, level, clade){
   if(length(cut.list)==1){stop("Specified clade is related to just 1 tree tip!")}
   cut.node<- ape::getMRCA(tree, tip =cut.list )
   subtree<-  phytools::splitTree(tree, split = list("node"=cut.node, "bp"=0))[[2]]
-  return(list("Tree"=subtree, "DF0"=DF0, "level"=level, "clade"=clade))
+  return(list("Tree"=subtree, "info"=info, "rank"=rank, "clade"=clade))
 }
 
 #' Function to plot subtree
 #' @export
 plot.clade<- function(get.clade.out, corankedtaxa.col="#03C03C",
                       intruder.col="#C23B23",stowaway.col="black", ...){
-  if(!(is.list(get.clade.out)|all(names(get.clade.out)==c("Tree","DF0","level","clade")))){
+  if(!(is.list(get.clade.out)|all(names(get.clade.out)==c("Tree","info","rank","clade")))){
     stop("Please feed this function with the returned object from get.clade function")
   }
 
@@ -32,15 +32,15 @@ clade.col <- function(get.clade.out, corankedtaxa.col,
                       intruder.col,stowaway.col){
 
   CladeTree<-get.clade.out$Tree
-  level <- get.clade.out$level
+  rank <- get.clade.out$rank
   clade <- get.clade.out$clade
-  DF0   <- get.clade.out$DF0
+  info   <- get.clade.out$info
 
-  spss<- DF0[which(DF0[,level]==clade),]
+  spss<- info[which(info[,rank]==clade),]
   genera<- unique(spss$genus)
 
 
-  intruders<- DF0[which(DF0[,level]!=clade),]
+  intruders<- info[which(info[,rank]!=clade),]
   intrudergenera<- unique(intruders$genus)
 
   colours<- vector("character", length(CladeTree$tip.label))

@@ -148,22 +148,22 @@ get.permitted.nodes <- function (tree, node, resp.para=F){
   if(length(nodes[(permitted.nodes)==TRUE])>0){return(nodes[(permitted.nodes)==TRUE])}else{return(node)}
 }
 
-get.forbidden.MDCC.nodes <- function(tree,DF1, level, MDCC){
-  DF1<- randtip::correct.DF(DF1)
-  DF1.mdcc<- DF1[!is.na(DF1[,level]),]
-  DF1.mdcc<- DF1.mdcc[DF1.mdcc[,level]==MDCC,]
+get.forbidden.MDCC.nodes <- function(tree,input, rank, MDCC){
+  input<- randtip::correct.DF(input)
+  input.mdcc<- input[!is.na(input[,rank]),]
+  input.mdcc<- input.mdcc[input.mdcc[,rank]==MDCC,]
   forbidden.nodes<- as.numeric(NULL)
-  if(level=="genus"){return(NULL)}
-  for(i in 2:which(randtip::randtip_levels()==level)){
-    lv<-randtip::randtip_levels()[i]
+  if(rank=="genus"){return(NULL)}
+  for(i in 2:which(randtip::randtip_ranks()==rank)){
+    lv<-randtip::randtip_ranks()[i]
     col.lev<- as.character(lv)
-    MDCCs<-unique(DF1.mdcc[,col.lev])
+    MDCCs<-unique(input.mdcc[,col.lev])
     MDCCs<-randtip::notNA(MDCCs)
     for(lev in MDCCs){
-      phylstat<-randtip::MDCC.phyleticity(DF1, tree = tree,
-                                          MDCC.info = list(level=col.lev, MDCC=lev), trim=F )
+      phylstat<-randtip::MDCC.phyleticity(input, tree = tree,
+                                          MDCC.info = list(rank=col.lev, MDCC=lev), trim=F )
       if(phylstat%in%c("Monophyletic","Paraphyletic")){
-        mdcc.gen<-DF1.mdcc[DF1.mdcc[,col.lev]==lev,"taxon"]
+        mdcc.gen<-input.mdcc[input.mdcc[,col.lev]==lev,"taxon"]
         mdcc.gen<-randtip::firstword(randtip::notNA(mdcc.gen))
         mdcc.sppintree<-sp.genus.in.tree(tree, mdcc.gen)
         mdcc.sppintree.mrca<-ape::getMRCA(tree, tip = mdcc.sppintree)
@@ -176,12 +176,12 @@ get.forbidden.MDCC.nodes <- function(tree,DF1, level, MDCC){
   return(unique(forbidden.nodes))
 }
 
-get.intruder.nodes <- function (tree, DF1, level, MDCC){
-  DF1<- randtip::correct.DF(DF1)
-  DF1.mdcc<- DF1[!is.na(DF1[,level]),]
-  DF1.mdcc<- DF1.mdcc[DF1.mdcc[,level]==MDCC,]
+get.intruder.nodes <- function (tree, input, rank, MDCC){
+  input<- randtip::correct.DF(input)
+  input.mdcc<- input[!is.na(input[,rank]),]
+  input.mdcc<- input.mdcc[input.mdcc[,rank]==MDCC,]
 
-  mdcc.genera<- randtip::firstword(DF1.mdcc$taxon)
+  mdcc.genera<- randtip::firstword(input.mdcc$taxon)
   mdcc.intree<- randtip::sp.genus.in.tree(tree, mdcc.genera)
   mdcc.mrca<- ape::getMRCA(tree, mdcc.intree)
 
@@ -189,8 +189,8 @@ get.intruder.nodes <- function (tree, DF1, level, MDCC){
   descendants<- tree$tip.label[descendants]
   descendants<- randtip::notNA(descendants)
 
-  non.mdcc <- DF1[!is.na(DF1[,level]),]
-  non.mdcc <- non.mdcc[non.mdcc[,level]!=MDCC,]
+  non.mdcc <- input[!is.na(input[,rank]),]
+  non.mdcc <- non.mdcc[non.mdcc[,rank]!=MDCC,]
   non.mdcc.genera<- unique(randtip::firstword(non.mdcc$taxon))
 
   intruders<- descendants[randtip::firstword(descendants)%in%non.mdcc.genera ]
@@ -213,17 +213,17 @@ get.intruder.nodes <- function (tree, DF1, level, MDCC){
   }
 }
 
-bind.clump<- function(newtree, tree, DF1, new.species){
+bind.clump<- function(newtree, tree, input, new.species){
 
   sp<- paste0(stringr::word(new.species, 1,sep = "_"), "_", stringr::word(new.species, 2,sep = "_"))
   treespp<- paste0(stringr::word(tree$tip.label, 1,sep = "_"), "_", stringr::word(tree$tip.label, 2,sep = "_"))
   newtreespp<- paste0(stringr::word(newtree$tip.label, 1,sep = "_"), "_", stringr::word(newtree$tip.label, 2,sep = "_"))
 
   if(sp%in%treespp){
-    DFspp<- paste0(stringr::word(DF1$taxon, 1,sep = "_"), "_", stringr::word(DF1$taxon, 2,sep = "_"))
+    DFspp<- paste0(stringr::word(input$taxon, 1,sep = "_"), "_", stringr::word(input$taxon, 2,sep = "_"))
     clump<- tree$tip.label[treespp==sp]
-    clumpDF<-DF1[DF1$clump.PUTs==TRUE,]
-    clumpDF<-DF1$taxon[DFspp==sp]
+    clumpDF<-input[input$clump.PUTs==TRUE,]
+    clumpDF<-input$taxon[DFspp==sp]
     clump<- unique(c(clump, clumpDF))
     clump<- clump[clump%in%newtree$tip.label]
     if(length(clump)>1){
@@ -238,10 +238,10 @@ bind.clump<- function(newtree, tree, DF1, new.species){
 
 
 
-  using.MDCC<-DF1[DF1$taxon==new.species,"using.MDCC"]
-  using.MDCC.lev<- DF1[DF1$taxon==new.species,"using.MDCC.lev"]
+  using.MDCC<-input[input$taxon==new.species,"using.MDCC"]
+  using.MDCC.lev<- input[input$taxon==new.species,"using.MDCC.lev"]
 
-  spp<-DF1$taxon[DF1[,using.MDCC.lev]==using.MDCC]
+  spp<-input$taxon[input[,using.MDCC.lev]==using.MDCC]
   spp.in.newtree<- spp[spp%in%newtree$tip.label ]
   spp.in.tree<- spp[spp  %in%  tree$tip.label ]
 
@@ -249,10 +249,10 @@ bind.clump<- function(newtree, tree, DF1, new.species){
 
 }
 
-usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
+usingMDCCfinder<- function(input, taxon=NULL, tree, verbose=F){
 
-  if(is.null(taxon)){taxon<- DF1$taxon}
-  DF1<-randtip::correct.DF(DF1)
+  if(is.null(taxon)){taxon<- input$taxon}
+  input<-randtip::correct.DF(input)
   MDCC.vect<- vector( mode="character", length = length(taxon))
   MDCC.lev.vect<- vector(mode="character", length = length(taxon))
   MDCC.phyletictype.vect<- vector(mode="character", length = length(taxon))
@@ -262,7 +262,7 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
   }
 
   #manual MDCC search
-  taxa<- DF1[!is.na(DF1$taxon1)|!is.na(DF1$taxon2),]
+  taxa<- input[!is.na(input$taxon1)|!is.na(input$taxon2),]
   if(nrow(taxa)>0){
     for(tx in seq_along(taxa$taxon)){
       if(isTRUE(length(strsplit( taxa$taxon1[tx], "_")[[1]])==1 &
@@ -326,8 +326,8 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
   }
 
   #automatic MDCC search
-  levels<- randtip::randtip_levels()
-  taxa<- DF1[!(!is.na(DF1$taxon1)|!is.na(DF1$taxon2)),]
+  ranks<- randtip::randtip_ranks()
+  taxa<- input[!(!is.na(input$taxon1)|!is.na(input$taxon2)),]
 
   if(nrow(taxa)>0){
     vect<- which(taxon%in%taxa$taxon)
@@ -345,21 +345,21 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
       MDCC.phyletictype.vect[v]<-"Tip"
       next
       }
-    i<- which(DF1$taxon==taxon[v])
+    i<- which(input$taxon==taxon[v])
     if((MDCC.vect[v])==""){
 
       MDCC<-as.character(NA)
-      MDCC.levels<-as.character(NA)
+      MDCC.ranks<-as.character(NA)
 
-      for(level in levels){
+      for(rank in ranks){
         if(is.na(MDCC)){
-          MDCC<-as.character(DF1[i, level])
-          if(!is.na(MDCC)){phyleticity<-randtip::MDCC.phyleticity(DF1, tree = tree,
-                                         MDCC.info = list(level=level, MDCC= MDCC))
+          MDCC<-as.character(input[i, rank])
+          if(!is.na(MDCC)){phyleticity<-randtip::MDCC.phyleticity(input, tree = tree,
+                                         MDCC.info = list(rank=rank, MDCC= MDCC))
           if(phyleticity=="Missing"){MDCC<-NA}
           }
 
-          lev<-level
+          lev<-rank
         }else{next}
       }
       MDCC.vect[v]<-as.character(MDCC)
@@ -374,17 +374,17 @@ usingMDCCfinder<- function(DF1, taxon=NULL, tree, verbose=F){
         ps<-taxa$using.MDCC.phylstat[taxa$using.MDCC==MDCC][1]
         MDCC.phyletictype.vect[v]<-MDCC.phyletictype.vect[ps]
       }else{
-      MDCC.phyletictype.vect[v]<-randtip::MDCC.phyleticity(DF1 = DF1, tree =  tree,
-               MDCC.info = list(level=MDCC.lev.vect[v], MDCC=MDCC.vect[v]), trim = T)}
+      MDCC.phyletictype.vect[v]<-randtip::MDCC.phyleticity(input = input, tree =  tree,
+               MDCC.info = list(rank=MDCC.lev.vect[v], MDCC=MDCC.vect[v]), trim = T)}
     }
   }}
 }
 
-  return(list(MDCC=MDCC.vect,MDCC.levels=MDCC.lev.vect, MDCC.phylstat=MDCC.phyletictype.vect) )
+  return(list(MDCC=MDCC.vect,MDCC.ranks=MDCC.lev.vect, MDCC.phylstat=MDCC.phyletictype.vect) )
 }
 
-DF1finder<- function(DF1, taxon, column){
-  return(as.character(DF1[DF1$taxon==taxon, column]))
+inputfinder<- function(input, taxon, column){
+  return(as.character(input[input$taxon==taxon, column]))
 }
 
 firstword<- function(string, sep="_"){
@@ -533,7 +533,7 @@ PUT_TIP_col<- function(newtree, oldtree, TIPcol="black", PUTcol="red"){
 
 }
 
-randtip_levels<- function(){
+randtip_ranks<- function(){
   return(as.vector(c("genus","subtribe","tribe","subfamily","family","superfamily","order","class")))
 }
 
@@ -567,4 +567,30 @@ combineDF<- function(largeDF, smallDF){
   DF.out<- DF.out[!(DF.out$taxon%in%largeDF$taxon),]
   DF.out<- rbind(largeDF, DF.out)
   return(DF.out)
+}
+
+#' this function reveals if a given node at a given tree is an internal node
+#' @export
+is.node<-function(tree, node){
+  if(!(node %in% tree$edge)){
+    stop("Node number is not in your tree")
+  }
+  if(length(phytools::getDescendants(tree = tree, node = node )) > 1){
+    return(TRUE)
+  }else{
+    return(FALSE)
+  }
+}
+
+#' this function reveals if a given node at a given tree is a tip
+#' @export
+is.tip <-function(tree, node){
+  if(!(node %in% tree$edge)){
+    stop("Node number is not in your tree")
+  }
+  if(length(phytools::getDescendants(tree = tree, node = node)) == 1){
+    return(TRUE)
+  }else{
+    return(FALSE)
+  }
 }

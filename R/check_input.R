@@ -1,18 +1,18 @@
-#' Function to check DF0 work
+#' Function to check info work
 #' @export
 #'
 #'
 
-check.input<- function(DF0, tree, sim=0.8, verbose=F){
+check.input<- function(info, tree, sim=0.8, verbose=F){
 
-  DF0<- randtip::correct.DF(DF0)
-  DF0[is.na(DF0$keep.tip)]<-"1"
+  info<- randtip::correct.DF(info)
+  info[is.na(info$keep.tip)]<-"1"
 
   tree$tip.label<- gsub(" ", "_", tree$tip.label)
-  DF0.taxa<-DF0$taxon
+  info.taxa<-info$taxon
   tree.taxa<- tree$tip.label
 
-  DF<- DF0[,c("taxon",randtip::randtip_levels())]
+  DF<- info[,c("taxon",randtip::randtip_ranks())]
   DF$PUT.status<- NA
   DF$Typo<- F
   DF$Typo.names<- NA
@@ -39,7 +39,7 @@ check.input<- function(DF0, tree, sim=0.8, verbose=F){
     }}
 
   if(length(DF$Typo[DF$Typo==TRUE])>0){
-    message("There may be mistakenly written PUTs in your DF0! \nPlease check the Typo.names column in the resultant dataframe")}
+    message("There may be mistakenly written PUTs in your info! \nPlease check the Typo.names column in the resultant dataframe")}
 
 
 
@@ -56,15 +56,15 @@ check.input<- function(DF0, tree, sim=0.8, verbose=F){
 
 
 
-levels<-randtip::randtip_levels()
-  for (level in levels){
-    groups<- unique(DF0[,level])
+ranks<-randtip::randtip_ranks()
+  for (rank in ranks){
+    groups<- unique(info[,rank])
     groups<- randtip::notNA(groups)
 
-    if(verbose){cat( paste0("Checking phyletic status at ", level, " level ... (", length(groups), " categories)"))}
+    if(verbose){cat( paste0("Checking phyletic status at ", rank, " rank ... (", length(groups), " categories)"))}
     if (length(groups)>0){for(group in groups){
-      type<- randtip::MDCC.phyleticity(DF0, tree, MDCC.info = list("level"= level, "MDCC"= group))
-    DF[which(DF[,level]==group), paste0(level,"_phyletic.status")]<-type
+      type<- randtip::MDCC.phyleticity(info, tree, MDCC.info = list("rank"= rank, "MDCC"= group))
+    DF[which(DF[,rank]==group), paste0(rank,"_phyletic.status")]<-type
 
       }}
    if(verbose){ cat(paste0(" Done!", "\U2713", "\n"))}
@@ -101,9 +101,9 @@ if(!ape::is.ultrametric(tree)){
   message("Specified tree is not ultrametric.")}
 
 
-DF0<- DF0[DF0$keep.tip=="1",]
+info<- info[info$keep.tip=="1",]
   return(DF)
 }
 
-#example.check<- check.input(DF0 =example , tree = tree25)
+#example.check<- check.input(info =example , tree = tree25)
 
