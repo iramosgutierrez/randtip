@@ -71,7 +71,7 @@ custom.branch <- function(tree, edges, new.tip, rand.type="random"){
 #' @examples
 #' set.seed(1)
 custom.branch_col<- function(tree, edges,  rand.type="random",
-                              permitted.col="red", forbidden.col="black"){
+                              permitted.col="#C23B23", forbidden.col="black"){
 
   df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
                    "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
