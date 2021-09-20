@@ -3,7 +3,7 @@
 #' @export
 rand.tip <- function(input, tree,rand.type = "random",
                     polyphyly.scheme="largest", use.paraphyletic=TRUE,use.singleton=TRUE,
-                    respect.mono=TRUE, respect.para=TRUE, clump.PUTs = TRUE,
+                    respect.mono=TRUE, respect.para=TRUE, clump.puts = TRUE,
                     prune=TRUE, forceultrametric=TRUE, verbose = FALSE){
   if (!inherits(tree, "phylo")) {stop("object \"tree\" is not of class \"phylo\"")}
   if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
@@ -59,7 +59,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     input[is.na(input$rand.type), "rand.type"]<-rand.type
     input[is.na(input$polyphyly.scheme), "polyphyly.scheme"]<-polyphyly.scheme
     input[is.na(input$use.paraphyletic) , "use.paraphyletic"] <- use.paraphyletic
-    input[is.na(input$clump.PUTs) , "clump.PUTs"] <- clump.PUTs
+    input[is.na(input$clump.puts) , "clump.puts"] <- clump.puts
     input[is.na(input$respect.mono), "respect.mono"]<- respect.mono
     input[is.na(input$respect.para), "respect.para"]<- respect.para
     input[is.na(input$use.singleton), "use.singleton"]<- use.singleton
@@ -68,7 +68,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     input$use.paraphyletic  <- as.logical(input$use.paraphyletic)
     input$use.singleton <- as.logical(input$use.singleton)
     input$use.paraphyletic <- as.logical(input$use.paraphyletic)
-    input$clump.PUTs <- as.logical(input$clump.PUTs)
+    input$clump.puts <- as.logical(input$clump.puts)
     input$respect.mono <- as.logical(input$respect.mono)
     input$respect.para <- as.logical(input$respect.para)
 
@@ -107,7 +107,7 @@ rand.tip <- function(input, tree,rand.type = "random",
             respect.mono <- as.logical(randtip::inputfinder(input.rand.bind, PUT, "respect.mono"))
             respect.para <- as.logical(randtip::inputfinder(input.rand.bind, PUT, "respect.para"))
 
-            clump.PUT.i<-as.logical(randtip::inputfinder(input.rand.bind, PUT, "clump.PUTs"))
+            clump.PUT.i<-as.logical(randtip::inputfinder(input.rand.bind, PUT, "clump.puts"))
 
 
 
