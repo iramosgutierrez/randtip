@@ -333,9 +333,20 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, verbose=F){
     vect<- which(taxon%in%taxa$taxon)
     for(v in vect){
 
-    if(verbose & (v %in% c(seq(0, length(taxon), 10), length(taxon)))){
-        cat(paste0(round((v/length(taxon)*100),2), "% completed.\n"))}
+      if(verbose & v==1){
+       cat(paste0("0%       25%       50%       75%       100%", "\n",
+                 "|---------|---------|---------|---------|", "\n","*"))}
 
+
+
+      if(verbose){
+        vec<- seq(from=0, to=40, by=40/length(vect))
+        vec<-ceiling(vec)
+        vec<- diff(vec)
+        cat(strrep("*", times=vec[which(vect==v)]))
+
+       if(v ==vect[length(vect)]&verbose){cat("\n")}
+        }
 
 
 
