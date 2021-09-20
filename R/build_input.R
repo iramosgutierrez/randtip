@@ -1,7 +1,7 @@
 #' Function to create info given a species vector(column)
 #' @export
 
-build.info<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone",
+build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi", mode="backbone",
                       interactive=F,genus=F){
 
 
@@ -10,8 +10,8 @@ build.info<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone"
   species<- as.vector(species)
   if(!(is.vector(species) )){stop("Species list must be a vector or a single-column dataframe!")}
   if(is.list(species) ){stop("Species list must be a vector or a single-column dataframe!")}
-  if(is.null(tree)){stop("A tree must be provided.")}
-  if (!inherits(tree, "phylo")) { stop("tree should be an object of class \"phylo\".")}
+  if(is.null(tree) & mode=="backbone"){stop("A tree must be provided for \"backbone\" mode.")}
+  if (!is.null(tree) & !inherits(tree, "phylo")) { stop("tree should be an object of class \"phylo\".")}
   if(!(mode %in% c("list", "backbone"))) {stop("type must be \"list\" or \"backbone\" ")}
 
 
@@ -94,7 +94,7 @@ build.info<- function(species, tree, find.ranks=TRUE, db="ncbi", mode="backbone"
 }
 
 #' @export
-info2input<- function(info, tree, verbose=F){
+info2input<- function(info, tree){
 
   input<-info
   input[is.na(input$keep.tip), "keep.tip"]<-"1"
@@ -106,7 +106,7 @@ info2input<- function(info, tree, verbose=F){
   tree$tip.label <- gsub("_X_", "_x-", tree$tip.label)
 
 
-  input_search<- randtip::usingMDCCfinder(input = input, taxon = input$taxon, tree = tree, verbose)
+  input_search<- randtip::usingMDCCfinder(input = input, taxon = input$taxon, tree = tree)
 
   input$using.MDCC     <- input_search[[1]]
   input$using.MDCC.lev <- input_search[[2]]
