@@ -70,9 +70,9 @@ custom.branch <- function(tree, edges, new.tip, rand.type="random"){
 #' @export
 #' @examples
 #' set.seed(1)
-plot.custom.branch<- function(tree, edges,  rand.type="random",
-                              permitted.col="#03C03C", forbidden.col="black",
-                              permitted.lwd=1, forbidden.lwd=1,...){
+plot.custom.branch<- function(tree, edges,
+                              candidate.col="#03C03C", forbidden.col="black",
+                              candidate.lwd=1, forbidden.lwd=1,...){
 
   df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
                    "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
@@ -120,11 +120,11 @@ plot.custom.branch<- function(tree, edges,  rand.type="random",
 
   col <- vector(mode = "character", length(tree$edge[,1]))
   col[1:length(col)] <- forbidden.col
-  col[df$node%in%permittednodes]<- permitted.col
+  col[df$node%in%permittednodes]<- candidate.col
 
   lwd <- vector(mode = "character", length(tree$edge[,1]))
   lwd[1:length(lwd)] <- forbidden.lwd
-  lwd[df$node%in%permittednodes]<- permitted.lwd
+  lwd[df$node%in%permittednodes]<- candidate.lwd
 
 
 
