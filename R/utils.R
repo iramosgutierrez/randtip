@@ -249,7 +249,7 @@ bind.clump<- function(newtree, tree, input, new.species){
 
 }
 
-usingMDCCfinder<- function(input, taxon=NULL, tree, verbose=F){
+usingMDCCfinder<- function(input, taxon=NULL, tree){
 
   if(is.null(taxon)){taxon<- input$taxon}
   input<-randtip::correct.DF(input)
@@ -257,9 +257,9 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, verbose=F){
   MDCC.lev.vect<- vector(mode="character", length = length(taxon))
   MDCC.phyletictype.vect<- vector(mode="character", length = length(taxon))
 
-  if(verbose){
+
     cat(paste0("Searching MDCCs... ", "\n"))
-  }
+
 
   #manual MDCC search
   taxa<- input[!is.na(input$taxon1)|!is.na(input$taxon2),]
@@ -333,20 +333,20 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, verbose=F){
     vect<- which(taxon%in%taxa$taxon)
     for(v in vect){
 
-      if(verbose & v==1){
+      if(v==1){
        cat(paste0("0%       25%       50%       75%       100%", "\n",
-                 "|---------|---------|---------|---------|", "\n","*"))}
+                  "|---------|---------|---------|---------|",   "\n","*"))}
 
 
 
-      if(verbose){
+
         vec<- seq(from=0, to=40, by=40/length(vect))
         vec<-ceiling(vec)
         vec<- diff(vec)
         cat(strrep("*", times=vec[which(vect==v)]))
 
-       if(v ==vect[length(vect)]&verbose){cat("\n")}
-        }
+       if(v ==vect[length(vect)]){cat("\n")}
+
 
 
 
