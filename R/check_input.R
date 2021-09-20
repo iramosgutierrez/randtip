@@ -5,6 +5,9 @@
 
 check.info<- function(info, tree, sim=0.8){
 
+  if(is.null(info)){stop("A 'info' data frame must be provided.")}
+  if(is.null(tree)){stop("A tree must be provided.")}
+
   info<- randtip::correct.DF(info)
   info[is.na(info$keep.tip)]<-"1"
 
