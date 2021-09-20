@@ -12,7 +12,7 @@ check.info<- function(info, tree, sim=0.8, verbose=F){
   info.taxa<-info$taxon
   tree.taxa<- tree$tip.label
 
-  DF<- info[,c("taxon",randtip::randtip_ranks())]
+  DF<- info[info$keep.tip=="1",c("taxon",randtip::randtip_ranks())]
   DF$PUT.status<- NA
   DF$Typo<- F
   DF$Typo.names<- NA
@@ -58,7 +58,7 @@ check.info<- function(info, tree, sim=0.8, verbose=F){
 
 ranks<-randtip::randtip_ranks()
   for (rank in ranks){
-    groups<- unique(info[,rank])
+    groups<- unique(DF[,rank])
     groups<- randtip::notNA(groups)
 
     if (length(groups)>0){
