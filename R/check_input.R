@@ -3,7 +3,7 @@
 #'
 #'
 
-check.info<- function(info, tree, sim=0.8, verbose=F){
+check.info<- function(info, tree, sim=0.8){
 
   info<- randtip::correct.DF(info)
   info[is.na(info$keep.tip)]<-"1"
@@ -62,26 +62,25 @@ ranks<-randtip::randtip_ranks()
     groups<- randtip::notNA(groups)
 
     if (length(groups)>0){
-      if(verbose){cat( paste0("Checking phyletic status at ", rank, " level ... (", length(groups), " categories)\n"))
+      cat( paste0("Checking phyletic status at ", rank, " level ... (", length(groups), " categories)\n"))
 
       cat(paste0("0%       25%       50%       75%       100%", "\n",
-                 "|---------|---------|---------|---------|", "\n"))}
+                 "|---------|---------|---------|---------|", "\n"))
+
       for(group in groups){
-        if(group ==groups[1]&verbose){cat("*")}
+        if(group ==groups[1]){cat("*")}
       type<- randtip::MDCC.phyleticity(info, tree, MDCC.info = list("rank"= rank, "MDCC"= group))
       DF[which(DF[,rank]==group), paste0(rank,"_phyletic.status")]<-type
 
 
-      if(verbose){if(length(groups)<40){
         v<- seq(from=0, to=40, by=40/length(groups))
         v<-ceiling(v)
         v<- diff(v)
         cat(strrep("*", times=v[which(groups==group)]))
-      }else{
-      if(which(groups==group)%in% ceiling(seq(from=0, to=length(groups),
-                                              by=(length(groups)/40)))){cat("*")}}}
+
+        if(group ==groups[length(groups)]){cat("\n")}
       }
-      if(group ==groups[length(groups)]&verbose){cat("\n")}
+
       }
 
   }
