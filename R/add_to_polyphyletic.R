@@ -1,6 +1,6 @@
 #' A function to stick species at random within a polyphyletic clade
 #' @export
-add.to.polyphyletic <- function(tree, new.tip, polyphyly.scheme = "freq", prob=T, respect.mono=F, respect.para=F){
+add.to.polyphyletic <- function(tree, new.tip, polyphyly.scheme = "frequentist", prob=T, respect.mono=F, respect.para=F){
 
     new.tip <- gsub(" ", "_", new.tip)
     genus <- unique(randtip::firstword(new.tip))
@@ -30,7 +30,7 @@ add.to.polyphyletic <- function(tree, new.tip, polyphyly.scheme = "freq", prob=T
         return(new.tree)
     }
 
-    if(polyphyly.scheme == "freq"){
+    if(polyphyly.scheme == "frequentist"){
 
 
 
@@ -73,7 +73,7 @@ add.to.polyphyletic <- function(tree, new.tip, polyphyly.scheme = "freq", prob=T
       }
       }
 
-    if(polyphyly.scheme == "large"){
+    if(polyphyly.scheme == "largest"){
 
 
         for(sp in new.tip){

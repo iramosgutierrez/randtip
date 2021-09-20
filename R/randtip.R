@@ -2,12 +2,12 @@
 #' randtip RANDOMIZATION FUNCTIONS
 #' @export
 rand.tip <- function(input, tree,rand.type = "random",
-                    polyphyly.scheme="large", use.paraphyletic=TRUE,use.singleton=TRUE,
+                    polyphyly.scheme="largest", use.paraphyletic=TRUE,use.singleton=TRUE,
                     respect.mono=TRUE, respect.para=TRUE, clump.PUTs = TRUE,
                     prune=TRUE, forceultrametric=TRUE, verbose = FALSE){
   if (!inherits(tree, "phylo")) {stop("object \"tree\" is not of class \"phylo\"")}
   if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
-  if(!(polyphyly.scheme %in% c("freq", "complete", "large"))) {stop("polyphyly.scheme must be \"freq\", \"complete\" or \"large\" ")}
+  if(!(polyphyly.scheme %in% c("frequentist", "complete", "largest"))) {stop("polyphyly.scheme must be \"frequentist\", \"complete\" or \"largest\" ")}
 
     start<- Sys.time()
 
@@ -269,7 +269,7 @@ rand.tip <- function(input, tree,rand.type = "random",
                                                   insertion = "random", prob = prob)
                   new.tree<- phytools::bind.tip(new.tree, PUT, pos$length, pos$where, pos$position)
                 }#same as monophyletic
-                if(polyphyly.scheme=="freq"){
+                if(polyphyly.scheme=="frequentist"){
                   mrca<- ape::getMRCA(new.tree, MDCC.intree)
                   descs<- phytools::getDescendants(new.tree, mrca,curr = NULL)
                   forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, input, rank, MDCC)
@@ -294,7 +294,7 @@ rand.tip <- function(input, tree,rand.type = "random",
 
 
                 }
-                if(polyphyly.scheme=="large"){
+                if(polyphyly.scheme=="largest"){
                   mrca<- ape::getMRCA(new.tree, MDCC.intree)
                   descs<- phytools::getDescendants(new.tree, mrca,curr = NULL)
                   forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, input, rank, MDCC)
