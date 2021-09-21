@@ -109,7 +109,7 @@ if(length(subsp.tips)>0){
     if(paste0(nomials[1], "_", nomials[2])%in%tips &
        any(nomials[3:length(nomials)]==nomials[2])){
       message("\nTips ", ssp, " and " , paste0(nomials[1], "_", nomials[2]),
-              " are synonyms, and are both included in the tree" )
+              " are synonyms, and are both included in the tree." )
     }
   }
 }
