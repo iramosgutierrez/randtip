@@ -65,8 +65,9 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi", mode="back
           search <- suppressMessages(taxize::classification(as.character(genera[i]),
                                                             db = db))[[1]]
         }else{
-        search <- suppressMessages(taxize::classification(as.character(genera[i]),
-                                                          db = db, rows=Inf))[[1]]}
+        out<-capture.output(suppressMessages(
+          search <- taxize::classification(as.character(genera[i]),
+                                                          db = db, rows=Inf)[[1]]))}
 
         for(cat in searching.categories){
           if(length(search[which(search$rank==cat), "name"])==0){info[info$genus==genera[i], cat]<-NA}else{
@@ -83,6 +84,23 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi", mode="back
 
       # Avoid ip blocks. Taxize allows only 3 searches per second.
       Sys.sleep(0.33)
+
+      if(!interactive){
+
+        if(i==1){
+          cat(paste0("Retrieveng taxonomic information from ", db, " database.\n",
+                     "0%       25%       50%       75%       100%", "\n",
+                     "|---------|---------|---------|---------|", "\n", "*")) }
+
+          v<- seq(from=0, to=40, by=40/length(genera))
+          v<-ceiling(v)
+          v<- diff(v)
+          cat(strrep("*", times=v[i]))
+
+          if(i ==length(genera)){cat("\n")}
+
+
+      }
     }}
 
   info[!(species%in%spp.original),
@@ -122,3 +140,4 @@ info2input<- function(info, tree){
 }
 
 
+build.info(specieslist, tree, mode="list")
