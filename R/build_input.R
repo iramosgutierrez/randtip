@@ -88,7 +88,7 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi", mode="back
       if(!interactive){
 
         if(i==1){
-          cat(paste0("Retrieveng taxonomic information from ", db, " database.\n",
+          cat(paste0("Retrieving taxonomic information from ", db, " database.\n",
                      "0%       25%       50%       75%       100%", "\n",
                      "|---------|---------|---------|---------|", "\n", "*")) }
 
