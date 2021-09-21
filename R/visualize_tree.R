@@ -30,20 +30,20 @@ get.clade<- function(tree, info, clade){
 
 #' Function to plot subtree
 #' @export
-plot.clade<- function(get.clade.out, corankedtaxa.col="#03C03C",
-                      intruder.col="#C23B23",stowaway.col="black", ...){
+plot.clade<- function(get.clade.out, coranked.col="#4a8a21",
+                      noncoranked.col="#48bce0",unknown.col="#d4c744", ...){
   if(!(is.list(get.clade.out)|all(names(get.clade.out)==c("Tree","info","rank","clade")))){
     stop("Please feed this function with the returned object from get.clade function")
   }
 
-  tipcol<- randtip::clade.col(get.clade.out, corankedtaxa.col=corankedtaxa.col,
-                               intruder.col=intruder.col, stowaway.col=stowaway.col)
+  tipcol<- randtip::clade.col(get.clade.out, coranked.col=coranked.col,
+                               noncoranked.col=noncoranked.col, unknown.col=unknown.col)
   return(ape::plot.phylo(get.clade.out$Tree, tip.color = tipcol, ...))
 }
 
 
-clade.col <- function(get.clade.out, corankedtaxa.col,
-                      intruder.col,stowaway.col){
+clade.col <- function(get.clade.out, coranked.col,
+                      noncoranked.col,unknown.col){
 
   CladeTree<-get.clade.out$Tree
   rank <- get.clade.out$rank
@@ -58,9 +58,9 @@ clade.col <- function(get.clade.out, corankedtaxa.col,
   intrudergenera<- unique(intruders$genus)
 
   colours<- vector("character", length(CladeTree$tip.label))
-  colours[]<- stowaway.col
-  colours[randtip::firstword(CladeTree$tip.label)%in%intrudergenera]<- intruder.col
-  colours[randtip::firstword(CladeTree$tip.label)%in%        genera]<- corankedtaxa.col
+  colours[]<- unknown.col
+  colours[randtip::firstword(CladeTree$tip.label)%in%intrudergenera]<- noncoranked.col
+  colours[randtip::firstword(CladeTree$tip.label)%in%        genera]<- coranked.col
 
   return(colours)
 
