@@ -8,7 +8,7 @@ get.clade<- function(tree, info, clade){
   rankDF.withclade<-as.data.frame(rankDF[,]==clade)
   rankDF.withclade<- as.vector(colSums(rankDF.withclade, na.rm = T))
   ranks<- which(rankDF.withclade>0)
-  if(length(ranks)==0){stop("Specified clade is not reflected in the tree!")}
+  if(length(ranks)==0){stop("Specified clade is not reflected in the 'info' data frame")}
   if(length(ranks)> 1){stop("Specified clade reflects several ranks. Please correct your 'info' data frame!")}
   rank<-names(rankDF)[ranks]
 
