@@ -1,6 +1,6 @@
 #' Function to obtain tree cut from MDCC
 #' @export
-get.clade<- function(tree, info, clade){
+get.clade<- function(info, tree, clade){
 
 
   rankDF<-info[,c("taxon", randtip::randtip_ranks())]
