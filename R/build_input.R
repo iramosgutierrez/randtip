@@ -140,4 +140,4 @@ info2input<- function(info, tree){
 }
 
 
-build.info(specieslist, tree, mode="list")
+
