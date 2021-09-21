@@ -4,7 +4,7 @@
 rand.tip <- function(input, tree,rand.type = "random",
                     polyphyly.scheme="largest", use.paraphyletic=TRUE,use.singleton=TRUE,
                     respect.mono=TRUE, respect.para=TRUE, clump.puts = TRUE,
-                    prune=TRUE, forceultrametric=TRUE, verbose = FALSE){
+                    prune=TRUE, forceultrametric=FALSE, verbose = FALSE){
   if (!inherits(tree, "phylo")) {stop("object \"tree\" is not of class \"phylo\"")}
   if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
   if(!(polyphyly.scheme %in% c("frequentist", "complete", "largest"))) {stop("polyphyly.scheme must be \"frequentist\", \"complete\" or \"largest\" ")}
