@@ -325,7 +325,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     #Polytomies
     if(nrow(input.poly)>0){
       if(verbose){
-        cat(paste0("\n","Starting polytomic PUT binding \n"))
+        cat(paste0("\n","Starting polytomies PUT binding \n"))
       }
       input.poly<-input.poly[!(input.poly$taxon %in% new.tree$tip.label),]
 
