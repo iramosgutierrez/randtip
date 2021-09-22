@@ -99,7 +99,8 @@ rand.tip <- function(input, tree,rand.type = "random",
 
             MDCC  <- randtip::inputfinder(input.rand.bind,PUT, "using.MDCC")
             rank <- randtip::inputfinder(input.rand.bind,PUT, "using.MDCC.lev")
-            MDCC.type <- randtip::inputfinder(input.rand.bind,PUT, "using.MDCC.phylstat")
+            MDCC.type <- randtip::MDCC.phyleticity(input, new.tree,
+                                                   MDCC.info = list(rank=rank,MDCC=MDCC), trim=F)
 
             use.singleton <- as.logical(randtip::inputfinder(input.rand.bind, PUT, "use.singleton"))
             polyphyly.scheme<- as.character(randtip::inputfinder(input.rand.bind,PUT, "polyphyly.scheme"))
@@ -155,8 +156,7 @@ rand.tip <- function(input, tree,rand.type = "random",
 
 
             if(rank=="genus"){
-              MDCC.type <- randtip::MDCC.phyleticity(input, new.tree,
-                                                     MDCC.info = list(rank=rank,MDCC=MDCC), trim=F)
+
             if(MDCC.type=="Monophyletic"){
 
             new.tree<-add.to.monophyletic(tree = new.tree, new.tip = PUT, prob=prob)
@@ -179,8 +179,7 @@ rand.tip <- function(input, tree,rand.type = "random",
             }
             #Add to other taxonomic MDCC
             if(rank%in% randtip::randtip_ranks()[-1]){
-              MDCC.type <- randtip::MDCC.phyleticity(input, new.tree,
-                              MDCC.info = list(rank=rank,MDCC=MDCC), trim=F)
+
 
               input.mdcc<-  input[!is.na(input[,rank]),]
               MDCC.taxa<- input.mdcc$taxon[input.mdcc[,rank]==MDCC]
@@ -301,8 +300,8 @@ rand.tip <- function(input, tree,rand.type = "random",
                   descs<- descs[!(descs%in%forbidden.nodes)]
                   table<-sharingtaxa.descs(tree=new.tree, nodes=descs, MDCC.genera = MDCC.genera)
                   table<- table[table$number==max(table$number),]
-                  table.row<- sample(1:length(table$node), size = 1)
-                  node<-table[table.row,"node"]
+                  table<- table[table$tot.number==min(table$tot.number),]
+                  node<-table[,"node"]
 
                   if(isTRUE(respect.mono)){
                     nodes<- randtip::get.permitted.nodes(new.tree, node)
@@ -336,12 +335,17 @@ rand.tip <- function(input, tree,rand.type = "random",
         input.poly<- input.poly[!is.na(input.poly$using.MDCC),]
         MDCCs.i.rank<- unique(input.poly$using.MDCC.lev[input.poly[,"using.MDCC"]==MDCCs.i])
 
+        MDCC.type <- randtip::MDCC.phyleticity(input, new.tree,
+                                               MDCC.info = list(rank=MDCCs.i.rank,MDCC=MDCCs.i), trim=F)
+
 
         MDCC.taxa.toAdd <- input.poly$taxon[input.poly[,"using.MDCC"]==MDCCs.i]
         MDCC.taxa.ininput <- input$taxon[input[, MDCCs.i.rank]==MDCCs.i]
         MDCC.genera <- unique(randtip::firstword(MDCC.taxa.ininput))
         MDCC.genera <- randtip::notNA(MDCC.genera)
         MDCC.taxa.inTree<- randtip::sp.genus.in.tree(new.tree, MDCC.genera)
+
+
 
         if(verbose){
           cat(paste0(which(MDCCs==MDCCs.i), "/", length(MDCCs),
@@ -356,6 +360,24 @@ rand.tip <- function(input, tree,rand.type = "random",
 
         if(length(MDCC.taxa.inTree)>1) {
           MDCC.mrca<- ape::getMRCA(new.tree, MDCC.taxa.inTree)
+          if(MDCC.type=="Polyphyletic"){
+            if(length(unique(input.poly[input.poly$taxon%in%MDCC.taxa.toAdd, "polyphyly.scheme"]))==1){
+              polyphyly.scheme<- unique(input.poly[input.poly$taxon%in%MDCC.taxa.toAdd, "polyphyly.scheme"])
+              if(polyphyly.scheme=="largest"){
+
+                mrca<- ape::getMRCA(new.tree, MDCC.taxa.inTree)
+                descs<- phytools::getDescendants(new.tree, mrca,curr = NULL)
+                forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, input, rank, MDCC)
+                descs<- descs[!(descs%in%forbidden.nodes)]
+                table<-sharingtaxa.descs(tree=new.tree, nodes=descs, MDCC.genera = MDCC.genera)
+                table<- table[table$number==max(table$number),]
+                table<- table[table$tot.number==min(table$tot.number),]
+                node<-table[,"node"]
+                MDCC.mrca<-node
+
+              }
+            }
+          }
           new.tree<- randtip::polytomy.into.node(tree=new.tree,
                             new.tip =MDCC.taxa.toAdd, node =  MDCC.mrca)}
             }

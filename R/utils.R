@@ -549,11 +549,12 @@ randtip_ranks<- function(){
 }
 
 sharingtaxa.descs<-function(tree, nodes, MDCC.genera){
-  table<- data.frame("node"=as.numeric(nodes), "number"=rep(NA, length(nodes)))
+  table<- data.frame("node"=as.numeric(nodes), "number"=rep(NA, length(nodes)), "tot.number"=rep(NA, length(nodes)))
   for(i in seq_along(table$node)){
     node<- table$node[i]
-    if(randtip::is.tip(tree,node)){table$number[i]<-1; next}
+    if(randtip::is.tip(tree,node)){table$number[i]<-1;table$tot.number[i]<-1; next}
     descs<- phytools::getDescendants(tree, node,curr = NULL)
+    table$tot.number[i]<-length(descs)
     descs<- tree$tip.label[descs]
     descs<- randtip::notNA(descs)
     descs<- descs[randtip::firstword(descs)%in%MDCC.genera]
