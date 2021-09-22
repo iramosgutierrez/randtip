@@ -1,14 +1,11 @@
 #' Function to add species at specified branches.
 #' #' @param tree "phylo" object used as backbone tree.
-#'
-#'    @param edges matrix with 4 columns character vectors.
+#'    @param edges matrix with 4 columns character vectors.\n
 #'        Columns 1 and 2 define the stem node of candidate branches and
 #'        columns 3 and 4 define the crown node
 #'        (mrca of species pairs). Note that a pair of nodes may not
 #'        necessarily define one single branch but a set of them.
-#'
 #'   @param new.tip Name of the PUT to bind to the specified candidate branches.
-#'
 #'   @param rand.type "random" or "polytomy"
 #'
 #' @export
