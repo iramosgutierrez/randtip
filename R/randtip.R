@@ -91,7 +91,7 @@ rand.tip <- function(input, tree,rand.type = "random",
         rand.PUTs<- c(rand.PUTs[rand.PUTs%in%manual.mdcc.taxa], rand.PUTs[!(rand.PUTs%in%manual.mdcc.taxa)])
 
         if( verbose){
-          cat(paste0("\n", "STARTING RANDOMIZATION \n"))
+          cat(paste0("\n", "Starting random PUT binding \n"))
         }
 
         for(i in seq_along(rand.PUTs)){
@@ -322,11 +322,10 @@ rand.tip <- function(input, tree,rand.type = "random",
 
               }}}
         }}
-#aqui estaba antes getoriginalnames, comprobar que funciona bien
     #Polytomies
     if(nrow(input.poly)>0){
       if(verbose){
-        cat(paste0("\n","Starting polytomies addition \n"))
+        cat(paste0("\n","Starting polytomic PUT binding \n"))
       }
       input.poly<-input.poly[!(input.poly$taxon %in% new.tree$tip.label),]
 
