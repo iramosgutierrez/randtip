@@ -128,7 +128,7 @@ info2input<- function(info, tree){
 
   input$using.MDCC     <- input_search[[1]]
   input$using.MDCC.lev <- input_search[[2]]
-  input$using.MDCC.phylstat <- input_search[[3]]
+  #input$using.MDCC.phylstat <- input_search[[3]]
   #3.2 Taxa with no MDCC
 
   not.included<- input[is.na(input$using.MDCC),]

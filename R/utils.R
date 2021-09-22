@@ -255,7 +255,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree){
   input<-randtip::correct.DF(input)
   MDCC.vect<- vector( mode="character", length = length(taxon))
   MDCC.lev.vect<- vector(mode="character", length = length(taxon))
-  MDCC.phyletictype.vect<- vector(mode="character", length = length(taxon))
+  #MDCC.phyletictype.vect<- vector(mode="character", length = length(taxon))
 
 
     cat(paste0("Searching MDCCs... ", "\n"))
@@ -273,7 +273,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree){
         pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon1[tx]
         MDCC.lev.vect[pos] <- "Sister genus"
-        MDCC.phyletictype.vect[pos]<-"-"
+        #MDCC.phyletictype.vect[pos]<-"-"
         next
       }
 
@@ -287,7 +287,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree){
         pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon1[tx]
         MDCC.lev.vect[pos] <- "Sister species"
-        MDCC.phyletictype.vect[pos]<-"-"
+        #MDCC.phyletictype.vect[pos]<-"-"
         next
       }
 
@@ -298,7 +298,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree){
         pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- paste0("Clade (", taxa$taxon1[tx], "-", taxa$taxon2[tx], ")")
         MDCC.lev.vect[pos] <- "Manual clade"
-        MDCC.phyletictype.vect[pos]<-"-"
+        #MDCC.phyletictype.vect[pos]<-"-"
         next
       }
 
@@ -308,7 +308,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree){
         pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon1[tx]
         MDCC.lev.vect[pos] <- "Sister species"
-        MDCC.phyletictype.vect[pos]<-"-"
+        #MDCC.phyletictype.vect[pos]<-"-"
         next
       }
 
@@ -318,7 +318,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree){
         pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon2[tx]
         MDCC.lev.vect[pos] <- "Sister species"
-        MDCC.phyletictype.vect[pos]<-"-"
+        #MDCC.phyletictype.vect[pos]<-"-"
         next
       }
 
@@ -353,7 +353,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree){
     if(taxon[v]%in%tree$tip.label){
       MDCC.vect[v]<- "Tip"
       MDCC.lev.vect[v]<-"Tip"
-      MDCC.phyletictype.vect[v]<-"Tip"
+      #MDCC.phyletictype.vect[v]<-"Tip"
       next
       }
     i<- which(input$taxon==taxon[v])
@@ -379,19 +379,19 @@ usingMDCCfinder<- function(input, taxon=NULL, tree){
 
 
 
-    if(is.na(MDCC.vect[v])|is.na(MDCC.lev.vect[v])){MDCC.phyletictype.vect[v]<-NA}else{
-
-      if(MDCC%in%taxa$using.MDCC[-which(taxa$taxon==taxon[v])]){
-        ps<-taxa$using.MDCC.phylstat[taxa$using.MDCC==MDCC][1]
-        MDCC.phyletictype.vect[v]<-MDCC.phyletictype.vect[ps]
-      }else{
-      MDCC.phyletictype.vect[v]<-randtip::MDCC.phyleticity(input = input, tree =  tree,
-               MDCC.info = list(rank=MDCC.lev.vect[v], MDCC=MDCC.vect[v]), trim = T)}
-    }
+    #if(is.na(MDCC.vect[v])|is.na(MDCC.lev.vect[v])){MDCC.phyletictype.vect[v]<-NA}else{
+    #
+    # if(MDCC%in%taxa$using.MDCC[-which(taxa$taxon==taxon[v])]){
+    #   ps<-taxa$using.MDCC.phylstat[taxa$using.MDCC==MDCC][1]
+    #   MDCC.phyletictype.vect[v]<-MDCC.phyletictype.vect[ps]
+    # }else{
+    # MDCC.phyletictype.vect[v]<-randtip::MDCC.phyleticity(input = input, tree =  tree,
+    #          MDCC.info = list(rank=MDCC.lev.vect[v], MDCC=MDCC.vect[v]), trim = T)}
+    #}
   }}
 }
 
-  return(list(MDCC=MDCC.vect,MDCC.ranks=MDCC.lev.vect, MDCC.phylstat=MDCC.phyletictype.vect) )
+  return(list(MDCC=MDCC.vect,MDCC.ranks=MDCC.lev.vect) )#, MDCC.phylstat=MDCC.phyletictype.vect
 }
 
 inputfinder<- function(input, taxon, column){
