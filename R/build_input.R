@@ -22,6 +22,8 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi", mode="back
                "keep.tip")
 
   species<- gsub(" ", "_", species)
+  tree$tip.label <- gsub("_x_", "_x-", tree$tip.label)
+  tree$tip.label <- gsub("_X_", "_x-", tree$tip.label)
 
   spp.in.tree<- tree$tip.label
   spp.original<- species
@@ -123,11 +125,17 @@ info2input<- function(info, tree){
   tree$tip.label <- gsub("_x_", "_x-", tree$tip.label)
   tree$tip.label <- gsub("_X_", "_x-", tree$tip.label)
 
+  input$using.MDCC     <- as.character(NA)
+  input$using.MDCC.lev <- as.character(NA)
 
-  input_search<- randtip::usingMDCCfinder(input = input, taxon = input$taxon, tree = tree)
+  input$using.MDCC[input$taxon%in%tree$tip.label]     <- "Tip"
+  input$using.MDCC.lev[input$taxon%in%tree$tip.label] <- "Tip"
 
-  input$using.MDCC     <- input_search[[1]]
-  input$using.MDCC.lev <- input_search[[2]]
+
+  input_search<- randtip::usingMDCCfinder(input = input, taxon = input$taxon[!(input$taxon%in%tree$tip.label)], tree = tree)
+
+  input$using.MDCC[!(input$taxon%in%tree$tip.label)]     <- input_search[[1]]
+  input$using.MDCC.lev[!(input$taxon%in%tree$tip.label)] <- input_search[[2]]
   #input$using.MDCC.phylstat <- input_search[[3]]
   #3.2 Taxa with no MDCC
 
