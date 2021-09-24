@@ -36,14 +36,14 @@ plot.clade<- function(get.clade.out, ppcr.col="#4a8a21",
     stop("Please feed this function with the returned object from get.clade function")
   }
 
-  tipcol<- randtip::clade.col(get.clade.out, coranked.col=coranked.col,
-                               noncoranked.col=noncoranked.col, unknown.col=unknown.col)
+  tipcol<- randtip::clade.col(get.clade.out, ppcr.col=ppcr.col,
+                               nonppcr.col=nonppcr.col, unknown.col=unknown.col)
   return(ape::plot.phylo(get.clade.out$Tree, tip.color = tipcol, ...))
 }
 
 
-clade.col <- function(get.clade.out, coranked.col,
-                      noncoranked.col,unknown.col){
+clade.col <- function(get.clade.out, ppcr.col,
+                      nonppcr.col,unknown.col){
 
   CladeTree<-get.clade.out$Tree
   rank <- get.clade.out$rank
@@ -59,8 +59,8 @@ clade.col <- function(get.clade.out, coranked.col,
 
   colours<- vector("character", length(CladeTree$tip.label))
   colours[]<- unknown.col
-  colours[randtip::firstword(CladeTree$tip.label)%in%intrudergenera]<- noncoranked.col
-  colours[randtip::firstword(CladeTree$tip.label)%in%        genera]<- coranked.col
+  colours[randtip::firstword(CladeTree$tip.label)%in%intrudergenera]<- nonppcr.col
+  colours[randtip::firstword(CladeTree$tip.label)%in%        genera]<- ppcr.col
 
   return(colours)
 
