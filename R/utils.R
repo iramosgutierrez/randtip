@@ -536,10 +536,10 @@ findRoot<- function(tree){
 }
 
 #' @export
-put.tip.col<- function(newtree, oldtree, ppt.col="#C23B23", put.col="#3d3d3d"){
+put.tip.col<- function(newtree, oldtree, placed.col="#C23B23", put.col="#3d3d3d"){
   col<- vector("character", length(newtree$tip.label))
   col[1:length(col)]<- put.col
-  col[newtree$tip.label%in%oldtree$tip.label]<-tip.col
+  col[newtree$tip.label%in%oldtree$tip.label]<-placed.col
   return(col)
 
 }
