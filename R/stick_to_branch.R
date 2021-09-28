@@ -75,7 +75,7 @@ custom.branch <- function(tree, edges, new.tip, rand.type="random"){
 #' @examples
 #' set.seed(1)
 plot.custom.branch<- function(tree, edges,
-                              candidate.col="#4a8a21", forbidden.col="3d3d3d",
+                              candidate.col="#4a8a21", forbidden.col="#3d3d3d",
                               candidate.lwd=1, forbidden.lwd=1,...){
 
   df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
