@@ -42,8 +42,8 @@ plot.clade<- function(get.clade.out, ppcr.col="#4a8a21",
 }
 
 
-clade.col <- function(get.clade.out, ppcr.col,
-                      nonppcr.col,unknown.col){
+clade.col <- function(get.clade.out, ppcr.col="#4a8a21",
+                      nonppcr.col="#48bce0",unknown.col="#d4c744"){
 
   CladeTree<-get.clade.out$Tree
   rank <- get.clade.out$rank
