@@ -15,6 +15,7 @@ custom.branch <- function(tree, edges, new.tip, rand.type="random"){
                      "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
     permittednodes<- as.numeric(NULL)
     root<- randtip::findRoot(tree)
+    new.tip  <- gsub(" ", "_", new.tip)
     edges[,1]<- gsub(" ", "_", edges[,1])
     edges[,2]<- gsub(" ", "_", edges[,2])
     edges[,3]<- gsub(" ", "_", edges[,3])
