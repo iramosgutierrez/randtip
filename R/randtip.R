@@ -337,9 +337,14 @@ rand.tip <- function(input, tree,rand.type = "random",
 
         input.poly<- input.poly[!is.na(input.poly$using.MDCC),]
         MDCCs.i.rank<- unique(input.poly$using.MDCC.lev[input.poly[,"using.MDCC"]==MDCCs.i])
+        if(!MDCCs.i.rank%in%randtip::randtip_ranks()){
+          MDCCs.i.rank<- "using.MDCC"
+          MDCC.type<- "Manual clade"
+        }else{
 
         MDCC.type <- randtip::MDCC.phyleticity(input, new.tree,
                                                MDCC.info = list(rank=MDCCs.i.rank,MDCC=MDCCs.i), trim=F)
+        }
 
 
         MDCC.taxa.toAdd <- input.poly$taxon[input.poly[,"using.MDCC"]==MDCCs.i]
@@ -370,7 +375,7 @@ rand.tip <- function(input, tree,rand.type = "random",
 
                 mrca<- ape::getMRCA(new.tree, MDCC.taxa.inTree)
                 descs<- phytools::getDescendants(new.tree, mrca,curr = NULL)
-                forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, input, rank, MDCC)
+                forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, input, MDCCs.i.rank, MDCC.type)
                 descs<- descs[!(descs%in%forbidden.nodes)]
                 table<-sharingtaxa.descs(tree=new.tree, nodes=descs, MDCC.genera = MDCC.genera)
                 table<- table[table$number==max(table$number),]
