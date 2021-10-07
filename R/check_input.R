@@ -10,6 +10,7 @@ check.info<- function(info, tree, sim=0.8){
 
   info<- randtip::correct.DF(info)
   info[is.na(info$keep.tip)]<-"1"
+  info$taxon<- gsub(" ", "_", info$taxon)
 
   tree$tip.label<- gsub(" ", "_", tree$tip.label)
   info.taxa<-info$taxon
