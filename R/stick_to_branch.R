@@ -9,7 +9,7 @@
 #'   @param rand.type "random" or "polytomy"
 #'
 #' @export
-custom.branch <- function(tree, edges, new.tip, rand.type="random"){
+custom.branch <- function(tree, edges, new.tip, rand.type="random", prob=T){
 
     df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
                      "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
@@ -58,8 +58,8 @@ custom.branch <- function(tree, edges, new.tip, rand.type="random"){
 
     df<- df[df$node%in%permittednodes,]
 
-    nd<-sample(df$node, 1, prob=df$length)
-    if(rand.type=="polytomy"){nd<-sample(df$parent, 1, prob=df$length)}
+    if(prob){nd<-sample(df$node, 1, prob=df$length)}else{nd<-sample(df$node, 1)}
+    if(rand.type=="polytomy"){if(prob){nd<-sample(df$parent, 1, prob=df$length)}else{nd<-sample(df$parent, 1)}}
     bp<-randtip::binding.position(tree, node = nd, insertion = rand.type)
     new.tree<- phytools::bind.tip(tree, new.tip, bp$length, bp$where, bp$position)
 
