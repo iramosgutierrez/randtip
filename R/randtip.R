@@ -99,8 +99,11 @@ rand.tip <- function(input, tree,rand.type = "random",
 
             MDCC  <- randtip::inputfinder(input.rand.bind,PUT, "using.MDCC")
             rank <- randtip::inputfinder(input.rand.bind,PUT, "using.MDCC.lev")
+            if(rank%in%randtip::randtip_ranks()){
             MDCC.type <- randtip::MDCC.phyleticity(input, new.tree,
-                                                   MDCC.info = list(rank=rank,MDCC=MDCC), trim=F)
+                                                   MDCC.info = list(rank=rank,MDCC=MDCC), trim=F)}else{
+            MDCC.type <- rank
+                                                   }
 
             use.singleton <- as.logical(randtip::inputfinder(input.rand.bind, PUT, "use.singleton"))
             polyphyly.scheme<- as.character(randtip::inputfinder(input.rand.bind,PUT, "polyphyly.scheme"))
