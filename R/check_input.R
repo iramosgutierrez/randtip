@@ -42,9 +42,6 @@ check.info<- function(info, tree, sim=0.8){
       rm(tax, sim.search)
     }}
 
-  if(length(DF$Typo[DF$Typo==TRUE])>0){
-    message("There may be mistakenly written PUTs in your info! \nPlease check the Typo.names column in the resultant dataframe")}
-
 
 
 
@@ -88,6 +85,9 @@ ranks<-randtip::randtip_ranks()
       }
 
   }
+if(length(DF$Typo[DF$Typo==TRUE])>0){
+  message("There may be misspelling errors in your species list. Please, check the outputted data frame.")}
+
 
 DF<-DF[,c("taxon", "PUT.status", "Typo", "Typo.names","genus", "genus_phyletic.status",
           "subtribe" , "subtribe_phyletic.status","tribe" , "tribe_phyletic.status",
@@ -100,7 +100,7 @@ DF<-DF[,c("taxon", "PUT.status", "Typo", "Typo.names","genus", "genus_phyletic.s
 tips<- tree$tip.label
 
 if(length(tips[duplicated(tips)])>0){
-  message("Tips ", tips[duplicated(tips)], " is duplicated in your tree!")}
+  message("Tips ", tips[duplicated(tips)], " are duplicated in the phylogenetic tips")}
 
 subsp.tips<- tips[sapply(strsplit(tips, "_"), length)>2]
 
@@ -117,7 +117,7 @@ if(length(subsp.tips)>0){
 
 #5. Tree ultrametricity evaluation
 if(!ape::is.ultrametric(tree)){
-  message("Specified tree is not ultrametric.")}
+  message("The backbone tree is not ultrametric.")}
 
 
 info<- info[info$keep.tip=="1",]
