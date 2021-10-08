@@ -86,7 +86,7 @@ ranks<-randtip::randtip_ranks()
 
   }
 if(length(DF$Typo[DF$Typo==TRUE])>0){
-  message("There may be misspelling errors in your species list. Please, check the outputted data frame.")}
+  message("There may be misspelling errors in your species list. Please, check the outputted data frame.\n")}
 
 
 DF<-DF[,c("taxon", "PUT.status", "Typo", "Typo.names","genus", "genus_phyletic.status",
@@ -100,7 +100,7 @@ DF<-DF[,c("taxon", "PUT.status", "Typo", "Typo.names","genus", "genus_phyletic.s
 tips<- tree$tip.label
 
 if(length(tips[duplicated(tips)])>0){
-  message("Tips ", tips[duplicated(tips)], " are duplicated in the phylogenetic tips")}
+  message("Tips ", tips[duplicated(tips)], " are duplicated in the phylogenetic tips.\n")}
 
 subsp.tips<- tips[sapply(strsplit(tips, "_"), length)>2]
 
@@ -109,8 +109,8 @@ if(length(subsp.tips)>0){
     nomials<-strsplit(ssp, split="_")[[1]]
     if(paste0(nomials[1], "_", nomials[2])%in%tips &
        any(nomials[3:length(nomials)]==nomials[2])){
-      message("\nTips ", ssp, " and " , paste0(nomials[1], "_", nomials[2]),
-              " are synonyms, and are both included in the tree." )
+      message("Tips ", ssp, " and " , paste0(nomials[1], "_", nomials[2]),
+              " are synonyms, and are both included in the tree.\n" )
     }
   }
 }
