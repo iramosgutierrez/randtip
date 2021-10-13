@@ -9,7 +9,7 @@ check.info<- function(info, tree, sim=0.8){
   if(is.null(tree)){stop("A tree must be provided.")}
 
   info<- randtip::correct.DF(info)
-  info[is.na(info$keep.tip)]<-"1"
+  info$keep.tip[is.na(info$keep.tip)]<-"1"
   info$taxon<- gsub(" ", "_", info$taxon)
 
   tree$tip.label<- gsub(" ", "_", tree$tip.label)
