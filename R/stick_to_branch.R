@@ -9,12 +9,16 @@
 #'   @param rand.type "random" or "polytomy"
 #'
 #' @export
-custom.branch <- function(tree, edges, new.tip, rand.type="random", prob=T){
+custom.branch <- function(tree, edge.info, rand.type="random", prob=T){
+  new.tree<- tree
+  for(i in 1:length(edge.info)){
+    new.tip<- edge.info[[i]]$new.tip
+    edges   <-edge.info[[i]]$edges
 
-    df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
-                     "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
+    df <- data.frame("parent"=new.tree$edge[,1], "node"=new.tree$edge[,2],
+                     "length"= new.tree$edge.length, "id"=1:length(new.tree$edge[,1]) )
     permittednodes<- as.numeric(NULL)
-    root<- randtip::findRoot(tree)
+    root<- randtip::findRoot(new.tree)
     new.tip  <- gsub(" ", "_", new.tip)
     edges[,1]<- gsub(" ", "_", edges[,1])
     edges[,2]<- gsub(" ", "_", edges[,2])
@@ -23,15 +27,15 @@ custom.branch <- function(tree, edges, new.tip, rand.type="random", prob=T){
 
 
     for(i in 1:nrow(edges)){
-      if(!all(c(edges[i,1],edges[i,2],edges[i,3],edges[i,4])%in%tree$tip.label)){
+      if(!all(c(edges[i,1],edges[i,2],edges[i,3],edges[i,4])%in%new.tree$tip.label)){
         message("Row ", i, " has species not included in the tree and will not be used.")
         next}
 
-    if(edges[i,1]==edges[i,2]){basenode<- which(tree$tip.label==edges[i,1])}else{
-      basenode<- ape::getMRCA(tree, c(edges[i,1], edges[i,2]))}
+    if(edges[i,1]==edges[i,2]){basenode<- which(new.tree$tip.label==edges[i,1])}else{
+      basenode<- ape::getMRCA(new.tree, c(edges[i,1], edges[i,2]))}
 
-    if(edges[i,3]==edges[i,4]){parnode<- which(tree$tip.label==edges[i,3])}else{
-      parnode<- ape::getMRCA(tree, c(edges[i,3], edges[i,4]))}
+    if(edges[i,3]==edges[i,4]){parnode<- which(new.tree$tip.label==edges[i,3])}else{
+      parnode<- ape::getMRCA(new.tree, c(edges[i,3], edges[i,4]))}
 
     if(parnode==basenode){
       message("Row ", i, " specifies a unique node and not a branch, so it will not be used.")
@@ -60,9 +64,9 @@ custom.branch <- function(tree, edges, new.tip, rand.type="random", prob=T){
 
     if(prob){nd<-sample(df$node, 1, prob=df$length)}else{nd<-sample(df$node, 1)}
     if(rand.type=="polytomy"){if(prob){nd<-sample(df$parent, 1, prob=df$length)}else{nd<-sample(df$parent, 1)}}
-    bp<-randtip::binding.position(tree, node = nd, insertion = rand.type)
-    new.tree<- phytools::bind.tip(tree, new.tip, bp$length, bp$where, bp$position)
-
+    bp<-randtip::binding.position(new.tree, node = nd, insertion = rand.type)
+    new.tree<- phytools::bind.tip(new.tree, new.tip, bp$length, bp$where, bp$position)
+}
     return(new.tree)
 }
 
