@@ -9,8 +9,13 @@
 #'   @param rand.type "random" or "polytomy"
 #'
 #' @export
-custom.branch <- function(tree, edge.info, rand.type="random", prob=T){
+custom.branch <- function(tree, edge.info, rand.type="random", forceultrametric=F, prob=T){
+
   new.tree<- tree
+  if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
+  if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
+    message("Specified tree is not ultrametric. \nTo force the randomization as an ultrametric tree plase set forceultrametric=TRUE")}
+
   for(i in 1:length(edge.info)){
     new.tip<- edge.info[[i]]$new.tip
     edges   <-edge.info[[i]]$edges
@@ -81,8 +86,8 @@ custom.branch <- function(tree, edge.info, rand.type="random", prob=T){
 #' @examples
 #' set.seed(1)
 plot.custom.branch<- function(tree, edges,
-                              candidate.col="#4a8a21", forbidden.col="#3d3d3d",
-                              candidate.lwd=1, forbidden.lwd=1,...){
+                              candidate.col="#bf2828", forbidden.col="#3d3d3d",
+                              candidate.lwd=2, forbidden.lwd=1,...){
 
   df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
                    "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
