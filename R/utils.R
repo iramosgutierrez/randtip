@@ -173,7 +173,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree){
     vect<- which(taxon%in%taxa$taxon)
     for(v in vect){
 
-      if(v==1){
+      if(v==vect[1]){
        cat(paste0("0%       25%       50%       75%       100%", "\n",
                   "|---------|---------|---------|---------|",   "\n","*"))}
 
