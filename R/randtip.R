@@ -4,7 +4,7 @@
 rand.tip <- function(input, tree,rand.type = "random",
                     polyphyly.scheme="largest", use.paraphyletic=TRUE,use.singleton=TRUE,
                     respect.mono=TRUE, respect.para=TRUE, clump.puts = TRUE,
-                    prune=TRUE, forceultrametric=FALSE, verbose = FALSE){
+                    prune=TRUE, forceultrametric=FALSE, verbose = TRUE){
   if (!inherits(tree, "phylo")) {stop("object \"tree\" is not of class \"phylo\"")}
   if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
   if(!(polyphyly.scheme %in% c("frequentist", "complete", "largest"))) {stop("polyphyly.scheme must be \"frequentist\", \"complete\" or \"largest\" ")}
@@ -184,7 +184,7 @@ rand.tip <- function(input, tree,rand.type = "random",
             if(rank%in% randtip::randtip_ranks()[-1]){
 
 
-              input.mdcc<-  input[!is.na(input[,rank]),]
+              input.mdcc<-  input[!is.na(input[,rank]),]#cambiar al nuevo formato
               MDCC.taxa<- input.mdcc$taxon[input.mdcc[,rank]==MDCC]
               MDCC.genera<- randtip::notNA(unique(randtip::firstword(MDCC.taxa)))
               MDCC.intree<- sp.genus.in.tree(new.tree, MDCC.genera)
