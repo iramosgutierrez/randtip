@@ -416,85 +416,6 @@ sharingtaxa.descs<-function(tree, nodes, MDCC.genera){
   return(table)
 }
 
-get.permitted.nodes <- function (tree, node, respect.para=F){
-
-  nodes<- phytools::getDescendants(tree, node,curr = NULL)
-  if(length(nodes)==0){stop("Node ", node, " is not present in the given tree")}
-
-  tip.names<- randtip::notNA(tree$tip.label[nodes])
-  tip.names.genera<- unique(randtip::firstword(tip.names))
-  tip.types.genera<- rep(list(NA), times=length(tip.names.genera))
-  names(tip.types.genera)<-tip.names.genera
-
-  tip.nodes.genera<- rep(list(NA), times=length(tip.names.genera))
-  names(tip.nodes.genera)<-tip.names.genera
-
-  paraphyletic.intruders <- rep(NA, 1)
-  for(g in seq_along(tip.names.genera)){
-    gen<- tip.names.genera[g]
-    type<- randtip::phyleticity(tree, gen)
-    tip.types.genera[g]<-type
-    if(type=="Paraphyletic"){
-      gen.spp<- tree$tip.label[randtip::firstword(tree$tip.label)==gen]
-      mrca<- ape::getMRCA(tree, gen.spp)
-      para.descs<- phytools::getDescendants(tree, mrca,curr = NULL)
-      para.descs<-randtip::notNA(tree$tip.label[para.descs])
-      intruders<-para.descs[randtip::firstword(para.descs)!=gen]
-      paraphyletic.intruders <-c(paraphyletic.intruders, intruders)
-    }
-    paraphyletic.intruders<- randtip::notNA(paraphyletic.intruders)
-  }
-
-  permitted.nodes<- rep(NA, times= length(nodes))
-
-#extract monophyletic groups and tips
-  for(i in seq_along(nodes)){
-    node.i <- nodes[i]
-
-
-    if(randtip::is.tip(tree, node.i)){
-      tip<- tree$tip.label[node.i]
-      tip.genus<- randtip::firstword(tip)
-      siblings<-randtip::get.parent.siblings(tree, node.i)$siblings
-      siblings.genera<- unique(randtip::firstword(siblings))
-      if(all(siblings.genera %in% tip.genus)){permitted.nodes[i]<-FALSE}
-      }else{
-
-        descs<- phytools::getDescendants(tree, node.i,curr = NULL)
-        descs<-randtip::notNA (tree$tip.label[descs])
-        descs.genera<- unique(randtip::firstword(descs))
-
-        if(length(descs.genera)>1){next}
-        siblings<-randtip::get.parent.siblings(tree, node.i)$siblings
-        siblings.genera<- unique(randtip::firstword(siblings))
-
-        if(all(siblings.genera %in% descs.genera)){permitted.nodes[i]<-FALSE}
-      }
-
-
-  }
-
-
-#extract paraphyletic groups and tips
-  if(respect.para){
-  paraphyletic.genera<-as.vector(which(tip.types.genera=="Paraphyletic") )
-  paraphyletic.tips <- which(tree$tip.label%in%paraphyletic.intruders)
-  for(g in paraphyletic.genera){
-    gen<-names(tip.types.genera[g])
-    gentips<- tree$tip.label[randtip::firstword(tree$tip.label)==gen]
-    mrca<- ape::getMRCA(tree, gentips)
-    mrcadescs<-phytools::getDescendants(tree, mrca,curr = NULL)
-    mrcadescs<- mrcadescs[!(mrcadescs%in%paraphyletic.tips)]
-
-    permitted.nodes[which(nodes %in% mrcadescs)]<- FALSE
-  }}
-
-
-  permitted.nodes[is.na(permitted.nodes)]<-TRUE
-
-  if(length(nodes[(permitted.nodes)==TRUE])>0){return(nodes[(permitted.nodes)==TRUE])}else{return(node)}
-}
-
 get.forbidden.MDCC.nodes <- function(tree,input, rank, MDCC){
   input<- randtip::correct.DF(input)
   input.mdcc<- input[!is.na(input[,rank]),]
@@ -597,10 +518,88 @@ bind.clump<- function(newtree, tree, input, new.species){
 }
 
 
+#WORKING SPACE####
 
 
 
+get.permitted.nodes <- function (tree, node, MDCC, rank, MDCC.type, respect.mono, resp.para){
 
+  nodes<- phytools::getDescendants(tree, node,curr = NULL)
+  if(length(nodes)==0){stop("Node ", node, " is not present in the given tree")}
+
+  tip.names<- randtip::notNA(tree$tip.label[nodes])
+  tip.names.genera<- unique(randtip::firstword(tip.names))
+  tip.types.genera<- rep(list(NA), times=length(tip.names.genera))
+  names(tip.types.genera)<-tip.names.genera
+
+  tip.nodes.genera<- rep(list(NA), times=length(tip.names.genera))
+  names(tip.nodes.genera)<-tip.names.genera
+
+  paraphyletic.intruders <- rep(NA, 1)
+  for(g in seq_along(tip.names.genera)){
+    gen<- tip.names.genera[g]
+    type<- randtip::phyleticity(tree, gen)
+    tip.types.genera[g]<-type
+    if(type=="Paraphyletic"){
+      gen.spp<- tree$tip.label[randtip::firstword(tree$tip.label)==gen]
+      mrca<- ape::getMRCA(tree, gen.spp)
+      para.descs<- phytools::getDescendants(tree, mrca,curr = NULL)
+      para.descs<-randtip::notNA(tree$tip.label[para.descs])
+      intruders<-para.descs[randtip::firstword(para.descs)!=gen]
+      paraphyletic.intruders <-c(paraphyletic.intruders, intruders)
+    }
+    paraphyletic.intruders<- randtip::notNA(paraphyletic.intruders)
+  }
+
+  permitted.nodes<- rep(NA, times= length(nodes))
+
+  #extract monophyletic groups and tips
+  for(i in seq_along(nodes)){
+    node.i <- nodes[i]
+
+
+    if(randtip::is.tip(tree, node.i)){
+      tip<- tree$tip.label[node.i]
+      tip.genus<- randtip::firstword(tip)
+      siblings<-randtip::get.parent.siblings(tree, node.i)$siblings
+      siblings.genera<- unique(randtip::firstword(siblings))
+      if(all(siblings.genera %in% tip.genus)){permitted.nodes[i]<-FALSE}
+    }else{
+
+      descs<- phytools::getDescendants(tree, node.i,curr = NULL)
+      descs<-randtip::notNA (tree$tip.label[descs])
+      descs.genera<- unique(randtip::firstword(descs))
+
+      if(length(descs.genera)>1){next}
+      siblings<-randtip::get.parent.siblings(tree, node.i)$siblings
+      siblings.genera<- unique(randtip::firstword(siblings))
+
+      if(all(siblings.genera %in% descs.genera)){permitted.nodes[i]<-FALSE}
+    }
+
+
+  }
+
+
+  #extract paraphyletic groups and tips
+  if(respect.para){
+    paraphyletic.genera<-as.vector(which(tip.types.genera=="Paraphyletic") )
+    paraphyletic.tips <- which(tree$tip.label%in%paraphyletic.intruders)
+    for(g in paraphyletic.genera){
+      gen<-names(tip.types.genera[g])
+      gentips<- tree$tip.label[randtip::firstword(tree$tip.label)==gen]
+      mrca<- ape::getMRCA(tree, gentips)
+      mrcadescs<-phytools::getDescendants(tree, mrca,curr = NULL)
+      mrcadescs<- mrcadescs[!(mrcadescs%in%paraphyletic.tips)]
+
+      permitted.nodes[which(nodes %in% mrcadescs)]<- FALSE
+    }}
+
+
+  permitted.nodes[is.na(permitted.nodes)]<-TRUE
+
+  if(length(nodes[(permitted.nodes)==TRUE])>0){return(nodes[(permitted.nodes)==TRUE])}else{return(node)}
+}
 
 
 
