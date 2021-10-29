@@ -688,19 +688,46 @@ if(respect.para){
 
       if(tip.par!=nd){forbidden.nodes<- c(forbidden.nodes, descs.nd[which(descs.nd!=tip.n)] ); next}}
 
+    rk.vals.mrca<- vector("numeric", length = length(genera))
+    rk.vals.desc<- list( NA)
+    for(v in genera){
+
+      ds <- descs[randtip::firstword(descs)%in%v]
+      if(length(ds)==1){
+        rk.vals.mrca[which(genera==v)]<-which(tree$tip.label==ds)
+        rk.vals.desc[[which(genera==v)]]<- NA
+        next}
+
+      ds.mrca<- ape::getMRCA(tree, ds)
+      rk.vals.mrca[which(genera==v)]<-ds.mrca
+      rk.vals.desc[[which(genera==v)]]<- phytools::getDescendants(tree, ds.mrca, curr=NULL)
+    }
+
+    nest<- genera[which(rk.vals.mrca==nd)]
+    nested<- descs[randtip::firstword(descs)!=nest]
+    if(!any(firstword(nested)==nest)){
+      para.nodes<- rk.vals.desc[[which(rk.vals.mrca==nd)]]
+      intr.nodes <- rk.vals.desc
+      intr.nodes[[which(rk.vals.mrca==nd)]]<-NA
+      intr.nodes<- randtip::notNA(unlist(intr.nodes))
+      para.nodes<- para.nodes[!(para.nodes%in%intr.nodes)]
+      forbidden.nodes<- c(forbidden.nodes, para.nodes ); next}
+
+#VOY POR AQUI, HASTA GENERO YA HECHO, FALTA ADECUAR LO SUPERIOR
       sub.input <- input[firstword(input$taxon)%in%genera,]
 
-      for( rk in randtip::randtip_ranks()[1:(which(randtip::randtip_ranks()==rank)-1)]){
+      for( rk in randtip::randtip_ranks()[2:(which(randtip::randtip_ranks()==rank)-1)]){
         rk.vals<-randtip::notNA(unique(sub.input[,rk]))
-
          if(length(rk.vals)>1){
 
            rk.vals.mrca<- vector("numeric", length = length(rk.vals))
+           rk.vals.desc<- list( NA)
            for(v in rk.vals){
              gen <- unique(randtip::firstword(sub.input$taxon[sub.input[,rk]==v]))
              ds <- descs[randtip::firstword(descs)%in%gen]
              ds.mrca<- ape::getMRCA(tree, ds)
              rk.vals.mrca[which(rk.vals==v)]<-ds.mrca
+             rk.vals.desc[[which(rk.vals==v)]]<- phytools::getDescendants(tree, ds.mrca, curr=NULL)
            }
            if(!any(rk.vals.mrca==nd)){next}
 
