@@ -738,7 +738,7 @@ if(respect.para){
   }
 
   }
-}
+
 
 
   return(unique(forbidden.nodes))
