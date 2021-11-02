@@ -149,7 +149,7 @@ rand.tip <- function(input, tree,rand.type = "random",
 
 
             #Automatically searched MDCCs additions
-            #Add to genus
+
             if(isTRUE(clump.PUT.i)){
               clump<- randtip::bind.clump(new.tree, tree, input, PUT)
               if(!is.null(clump)){
@@ -157,172 +157,11 @@ rand.tip <- function(input, tree,rand.type = "random",
                 next
               }}
 
+            perm.nodes<- get.permitted.nodes(new.tree, input, MDCC, rank, MDCC.type,
+                                            polyphyly.scheme, use.paraphyletic, use.singleton)
+            forbidden.nodes<- get.forbidden.nodes(tree, input, )
 
-            if(rank=="genus"){
-
-            if(MDCC.type=="Monophyletic"){
-
-            new.tree<-add.to.monophyletic(tree = new.tree, new.tip = PUT, prob=prob)
-
-            }else if(MDCC.type=="Paraphyletic"){
-            if(isFALSE(use.paraphyletic)){new.tree<-add.to.monophyletic(tree = new.tree, new.tip = PUT, prob=prob)}
-            if(isTRUE (use.paraphyletic)){new.tree <- add.to.paraphyletic(tree = new.tree,
-                                                    new.tip = PUT, prob = prob)}
-            }else if(MDCC.type=="Polyphyletic"){
-
-              new.tree<- add.to.polyphyletic(tree = new.tree, new.tip = PUT,
-                                               polyphyly.scheme , prob, respect.mono=respect.mono, respect.para=respect.para)
-            }else if(MDCC.type=="Singleton MDCC"){
-                # All tips added in one step
-                singleton <- new.tree$tip.label[(randtip::firstword(new.tree$tip.label) == MDCC)]
-
-                new.tree <- add.to.singleton(tree = new.tree,
-                                singleton = singleton, new.tips = PUT,
-                              use.singleton = use.singleton, respect.mono = respect.mono,respect.para=respect.para)}
-            }
-            #Add to other taxonomic MDCC
-            if(rank%in% randtip::randtip_ranks()[-1]){
-
-
-              input.mdcc<-  input[!is.na(input[,rank]),]#cambiar al nuevo formato
-              MDCC.taxa<- input.mdcc$taxon[input.mdcc[,rank]==MDCC]
-              MDCC.genera<- randtip::notNA(unique(randtip::firstword(MDCC.taxa)))
-              MDCC.intree<- sp.genus.in.tree(new.tree, MDCC.genera)
-
-              if(MDCC.type=="Singleton MDCC"){
-                singleton<-c(MDCC.taxa, MDCC.intree)
-                singleton<-unique(singleton[singleton%in%new.tree$tip.label])
-                new.tree<- randtip::add.to.singleton(new.tree, singleton , PUT,
-                                                     use.singleton, respect.mono, respect.para)}
-
-              if(MDCC.type=="Monophyletic"){
-              MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
-              if(isTRUE(respect.mono)){
-              permitted.nodes<-randtip::get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
-              forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, input, rank, MDCC)
-              if(!all(permitted.nodes%in%forbidden.nodes)){
-              permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}
-              }
-              if(isFALSE(respect.mono)){
-                permitted.nodes<- phytools::getDescendants(new.tree, MDCC.mrca,curr = NULL)
-              }
-              if(length(permitted.nodes)==1){nd<-permitted.nodes}else{
-                nd<-sample(permitted.nodes,1)}
-              pos<- randtip::binding.position(new.tree, node = nd,df = NULL,
-                                              insertion = "random", prob = prob)
-              new.tree<- phytools::bind.tip(new.tree, PUT, pos$length, pos$where, pos$position)
-              }
-
-              if(MDCC.type=="Paraphyletic"){
-
-                if(isFALSE(use.paraphyletic)){
-                  MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
-                  if(isTRUE(respect.mono)){
-                    permitted.nodes<-randtip::get.permitted.nodes(tree=new.tree, node = MDCC.mrca, )
-                    forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, input, rank, MDCC)
-                    if(!all(permitted.nodes%in%forbidden.nodes)){
-                      permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}}
-                  if(isFALSE(respect.mono)){
-                    permitted.nodes<- phytools::getDescendants(new.tree, MDCC.mrca,curr = NULL)
-                  }
-                  if(length(permitted.nodes)==1){nd<-permitted.nodes}else{
-                    nd<-sample(permitted.nodes,1)}
-                  pos<- randtip::binding.position(new.tree, node = nd,df = NULL,
-                                                  insertion = "random", prob = prob)
-                  new.tree<- phytools::bind.tip(new.tree, PUT, pos$length, pos$where, pos$position)
-                }#same as monophyletic
-                if(isTRUE (respect.para)){
-                  MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
-
-                  permitted.nodes<- get.permitted.nodes(new.tree, MDCC.mrca)
-                  forbidden.nodes<- randtip::get.intruder.nodes(new.tree, input, rank, MDCC)
-                  if(!all(permitted.nodes%in%forbidden.nodes)){
-                    permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}
-                  if(randtip::findRoot(new.tree)%in%permitted.nodes){
-                    permitted.nodes<-permitted.nodes[-which(permitted.nodes==randtip::findRoot(new.tree))]}
-
-                  if(length(permitted.nodes)==0){
-                    new.tree<-add.over.node(new.tree, new.tip = unit.taxa, node = MDCC.mrca)
-                  }else{
-                    if(length(permitted.nodes)==1){nd<-permitted.nodes}else{
-                      nd<-sample(permitted.nodes,1)}
-                    pos<- randtip::binding.position(new.tree, nd,df = NULL,
-                                    "random", prob = prob)
-                    new.tree<-phytools::bind.tip(new.tree, PUT, pos$length, pos$where, pos$position)
-
-                  }
-                  }
-                  }
-
-              if(MDCC.type=="Polyphyletic"){
-                if(polyphyly.scheme=="complete"){
-                  MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
-                  if(isTRUE(respect.mono)){
-                    permitted.nodes<-randtip::get.permitted.nodes(tree=new.tree, node = MDCC.mrca)
-                    forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, input, rank, MDCC)
-                    if(!all(permitted.nodes%in%forbidden.nodes)){
-                      permitted.nodes<- permitted.nodes[!(permitted.nodes%in%forbidden.nodes)]}}
-                  if(isFALSE(respect.mono)){
-                    permitted.nodes<- phytools::getDescendants(new.tree, MDCC.mrca,curr = NULL)
-                  }
-                  if(length(permitted.nodes)==1){nd<-permitted.nodes}else{
-                    nd<-sample(permitted.nodes,1)}
-                  pos<- randtip::binding.position(new.tree, node = nd,df = NULL,
-                                                  insertion = "random", prob = prob)
-                  new.tree<- phytools::bind.tip(new.tree, PUT, pos$length, pos$where, pos$position)
-                }#same as monophyletic
-                if(polyphyly.scheme=="frequentist"){
-                  mrca<- ape::getMRCA(new.tree, MDCC.intree)
-                  descs<- phytools::getDescendants(new.tree, mrca,curr = NULL)
-                  forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, input, rank, MDCC)
-                  descs<- descs[!(descs%in%forbidden.nodes)]
-                  table<-sharingtaxa.descs(tree=new.tree, nodes=descs, MDCC.genera = MDCC.genera)
-                  table.row<- sample(1:length(table$node), 1, prob=as.numeric(table$number))
-                  node<-table[table.row,"node"]
-
-
-                  if(isTRUE(respect.mono)){
-                    nodes<- randtip::get.permitted.nodes(new.tree, node)
-                  }
-                  if(isFALSE(respect.mono)){
-                    nodes<- phytools::getDescendants(new.tree, node,curr = NULL)
-
-                  }
-                  if(length(nodes)==1){nd<-nodes}else{
-                    nd<-sample(nodes,1)}
-                  pos<- randtip::binding.position(new.tree, nd,df = NULL,
-                                  insertion = "random", prob=prob)
-                  new.tree<-phytools::bind.tip(new.tree, PUT, pos$length, pos$where, pos$position)
-
-
-                }
-                if(polyphyly.scheme=="largest"){
-                  mrca<- ape::getMRCA(new.tree, MDCC.intree)
-                  descs<- phytools::getDescendants(new.tree, mrca,curr = NULL)
-                  forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, input, rank, MDCC)
-                  descs<- descs[!(descs%in%forbidden.nodes)]
-                  table<-sharingtaxa.descs(tree=new.tree, nodes=descs, MDCC.genera = MDCC.genera)
-                  table<- table[table$number==max(table$number),]
-                  table<- table[table$tot.number==min(table$tot.number),]
-                  node<-table[,"node"]
-
-                  if(isTRUE(respect.mono)){
-                    nodes<- randtip::get.permitted.nodes(new.tree, node)
-                  }
-                  if(isFALSE(respect.mono)){
-                    nodes<- phytools::getDescendants(new.tree, node,curr = NULL)
-
-                  }
-                  if(length(nodes)==1){nd<-nodes}else{
-                    nd<-sample(nodes,1)}
-                  pos<- randtip::binding.position(new.tree, nd,df = NULL,
-                                                  insertion = "random", prob=prob)
-                  new.tree<-phytools::bind.tip(new.tree, PUT, pos$length, pos$where, pos$position)
-
-
-                }
-
-              }}}
+        }
         }}
     #Polytomies
     if(nrow(input.poly)>0){
