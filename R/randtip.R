@@ -162,16 +162,20 @@ rand.tip <- function(input, tree,rand.type = "random",
             forbidden.nodes<- get.forbidden.nodes(new.tree,input, MDCC, rank, perm.nodes,
                                                   respect.mono, respect.para)
 
-            perm.nodes<- perm.nodes[!(perm.nodes%in%forbidden.nodes)]
+              #if(all(perm.nodes%in%forbidden.nodes)){
+              #perm.nodes <- ????
+              #}else{
+              perm.nodes<- perm.nodes[!(perm.nodes%in%forbidden.nodes)]
+              #}
 
-            adding.DF<- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2], "length"= tree$edge.length )
+            adding.DF<- data.frame("parent"=new.tree$edge[,1], "node"=new.tree$edge[,2], "length"= new.tree$edge.length )
             adding.DF<- adding.DF[adding.DF$node %in% perm.nodes,]
             adding.DF$id<- 1:nrow(adding.DF)
             if(nrow(adding.DF)==1){node <- adding.DF$node}
             if(nrow(adding.DF) >1 & prob) {node<-sample(adding.DF$node, 1, prob = adding.DF$length)}
             if(nrow(adding.DF) >1 & !prob){node<-sample(adding.DF$node, 1)}
 
-            bind.pos<- randtip::binding.position(tree, node,  insertion = "random",  prob)
+            bind.pos<- randtip::binding.position(new.tree, node,  insertion = "random",  prob)
 
             new.tree <- phytools::bind.tip(new.tree, PUT, edge.length = bind.pos$length,
                                            where = bind.pos$where , position = bind.pos$position )
