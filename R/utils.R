@@ -419,8 +419,8 @@ sharingtaxa.descs<-function(tree, nodes, MDCC.genera){
 get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
                                  polyphyly.scheme, use.paraphyletic, use.singleton){
 
-  input.mdcc<-  input[!is.na(input[,rank]),]
-  MDCC.taxa<- input.mdcc$taxon[input.mdcc[,rank]==MDCC]
+  input.mdcc <-  input[!is.na(input[,rank]),]
+  MDCC.taxa  <- input.mdcc$taxon[input.mdcc[,rank]==MDCC]
   MDCC.genera<- randtip::notNA(unique(randtip::firstword(MDCC.taxa)))
   MDCC.intree<- sp.genus.in.tree(tree, MDCC.genera)
 
@@ -462,6 +462,10 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
   if(MDCC.type%in% c("Singleton", "Singleton MDCC")){
     if (use.singleton){
       nodes<- which(tree$tip.label==MDCC.intree)
+      if(length(nodes)>1){
+
+        nodes<- phytools::getDescendants(ape::getMRCA(tree, MDCC.intree))
+      }
     }
     if(!use.singleton){
       tip<- which(tree$tip.label==MDCC.intree)
