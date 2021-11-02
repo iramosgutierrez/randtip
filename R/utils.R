@@ -592,13 +592,13 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
       if(length(genera)==1){forbidden.nodes<- c(forbidden.nodes, descs.nd ); next}
 
       sub.input <- input[firstword(input$taxon)%in%genera,]
-      #if(rank!="genus"){
+
       for( rk in randtip::randtip_ranks()[2:(which(randtip::randtip_ranks()==rank)-1)]){
-        rk.vals<-randtip::notNA(unique(sub.input[,rk]))
+        rk.vals<-unique(sub.input[,rk])
         if(length(rk.vals)==1){
           forbidden.nodes<- c(forbidden.nodes, descs.nd ); next}
 
-        #}
+
 
       }
     }}
