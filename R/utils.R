@@ -364,10 +364,9 @@ if(randtip::isRoot(tree, node)){position=0
     return(position)
 }
 
-binding.position<- function(tree, node, df=NULL, insertion,  prob){
+binding.position<- function(tree, node,  insertion,  prob){
   position<-list("length"=NA, "where"=NA, "position"=NA)
-
-  if(is.null(df)){df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2], "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )}
+ {df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2], "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )}
 
   if(ape::is.ultrametric(tree)){position$length<-NULL}else{
     position$length<-abs(runif(1, 0, max(tree$edge.length)))}
