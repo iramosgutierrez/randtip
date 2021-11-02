@@ -55,7 +55,7 @@ is.node<-function(tree, node){
   if(!(node %in% tree$edge)){
     stop("Node number is not in your tree")
   }
-  if(length(phytools::getDescendants(tree = tree, node = node )) > 1){
+  if(length(phytools::getDescendants(tree = tree, node = node, curr=NULL )) > 1){
     return(TRUE)
   }else{
     return(FALSE)
@@ -68,7 +68,7 @@ is.tip <-function(tree, node){
   if(!(node %in% tree$edge)){
     stop("Node number is not in your tree")
   }
-  if(length(phytools::getDescendants(tree = tree, node = node)) == 1){
+  if(length(phytools::getDescendants(tree = tree, node = node, curr=NULL)) == 1){
     return(TRUE)
   }else{
     return(FALSE)
@@ -608,7 +608,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
       nd<- perm.nodes[i]
       if(nd %in% forbidden.nodes){next}
       if(randtip::is.tip(tree, nd)){next}
-      descs.nd<- phytools::getDescendants(tree, nd)
+      descs.nd<- phytools::getDescendants(tree, nd, curr=NULL)
       descs <- randtip::notNA(tree$tip.label[descs.nd])
       genera<- unique(randtip::firstword(descs))
 
@@ -663,8 +663,15 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
             gen <- unique(randtip::firstword(sub.input$taxon[sub.input[,rk]==v]))
             ds <- descs[randtip::firstword(descs)%in%gen]
             ds.mrca<- ape::getMRCA(tree, ds)
-            rk.vals.mrca[which(rk.vals==v)]<-ds.mrca
-            rk.vals.desc[[which(rk.vals==v)]]<- phytools::getDescendants(tree, ds.mrca, curr=NULL)
+            if( is.null(ds.mrca)){
+              rk.vals.mrca[which(rk.vals==v)]<- which(tree$tip.label==ds)
+              rk.vals.desc[[which(rk.vals==v)]]<- NA
+                }
+            if(!is.null(ds.mrca)){
+              rk.vals.mrca[which(rk.vals==v)]<-ds.mrca
+              rk.vals.desc[[which(rk.vals==v)]]<- phytools::getDescendants(tree, ds.mrca, curr=NULL)
+            }
+
           }
           if(!any(rk.vals.mrca==nd)){next}
 
@@ -719,7 +726,7 @@ bind.clump<- function(newtree, tree, input, new.species){
     clump<- clump[clump%in%newtree$tip.label]
     if(length(clump)>1){
       mrca<- ape::getMRCA(newtree, clump)
-      descs<- newtree$tip.label[phytools::getDescendants(newtree, mrca, curr=F)]
+      descs<- newtree$tip.label[phytools::getDescendants(newtree, mrca, curr=NULL)]
       descs<-randtip::notNA(descs)
       if(any(!(descs%in%clump))){clump<- sample(clump, 1)}
     }
