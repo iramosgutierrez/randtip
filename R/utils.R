@@ -437,10 +437,23 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
       return(nodes)
     }
     if(use.paraphyletic){
-      MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
-      nodes <- phytools::getDescendants(tree, MDCC.mrca, curr=NULL)
-      int.nodes<- randtip::get.intruder.nodes(tree, input, rank, MDCC)
-      nodes <- nodes[!(nodes%in%int.nodes)]
+
+      mdcc.mrca<- ape::getMRCA(tree, MDCC.intree)
+
+      descendants.nodes<- phytools::getDescendants(tree, node=mdcc.mrca,curr = NULL)
+      descendants.tips <- tree$tip.label[descendants.nodes]
+      descendants.tips<- randtip::notNA(descendants.tips)
+
+      non.mdcc <- input[!is.na(input[,rank]),]
+      non.mdcc <- non.mdcc[non.mdcc[,rank]!=MDCC,]
+      non.mdcc.genera<- unique(randtip::firstword(non.mdcc$taxon))
+
+      intruder.descs<- descendants.tips[!(randtip::firstword(descendants.tips)%in%MDCC.genera)]
+      intruder.mrca<- ape::getMRCA(tree, intruder.descs)
+      intruder.descs.nodes<- phytools::getDescendants(tree, intruder.mrca, curr=NULL)
+
+
+      nodes <- descendants.nodes[!(descendants.nodes%in%intruder.descs.nodes)]
       return(nodes)
     }
 
@@ -559,42 +572,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
 
 
 
-get.intruder.nodes <- function (tree, input, rank, MDCC){
-  input<- randtip::correct.DF(input)
-  input.mdcc<- input[!is.na(input[,rank]),]
-  input.mdcc<- input.mdcc[input.mdcc[,rank]==MDCC,]
 
-  mdcc.genera<- randtip::firstword(input.mdcc$taxon)
-  mdcc.intree<- randtip::sp.genus.in.tree(tree, mdcc.genera)
-  mdcc.mrca<- ape::getMRCA(tree, mdcc.intree)
-
-  descendants<- phytools::getDescendants(tree, node=mdcc.mrca,curr = NULL)
-  descendants<- tree$tip.label[descendants]
-  descendants<- randtip::notNA(descendants)
-
-  non.mdcc <- input[!is.na(input[,rank]),]
-  non.mdcc <- non.mdcc[non.mdcc[,rank]!=MDCC,]
-  non.mdcc.genera<- unique(randtip::firstword(non.mdcc$taxon))
-
-  intruders<- descendants[randtip::firstword(descendants)%in%non.mdcc.genera ]
-
-  if(length(intruders)==0){return(NULL)}
-  if(length(intruders)==1){return(which(tree$tip.label==intruders))}
-  if(length(intruders)> 1){
-    intruder.mrca<- ape::getMRCA(tree, intruders)
-    intruder.descs<-phytools::getDescendants(tree, node=intruder.mrca,curr = NULL)
-
-    forbidden.nodes<- as.numeric(NULL)
-    for(int in intruder.descs){
-      des.i.nodes<- phytools::getDescendants(tree, node=int,curr = NULL)
-      des.i<- tree$tip.label[des.i.nodes]
-      des.i<- randtip::notNA(des.i)
-      if(!any(mdcc.intree%in%des.i)){forbidden.nodes<- c(forbidden.nodes,des.i.nodes )}
-    }
-    return(unique(forbidden.nodes))
-
-  }
-}
 
 bind.clump<- function(newtree, tree, input, new.species){
 
@@ -637,7 +615,7 @@ bind.clump<- function(newtree, tree, input, new.species){
 
 
 
-#perm.nodes<- get.permitted.nodes(tree, input, MDCC, rank, MDCC.type, polyphyly.scheme, use.paraphyletic , use.singleton )
+perm.nodes<- get.permitted.nodes(tree, input, MDCC, rank, MDCC.type, polyphyly.scheme, use.paraphyletic , use.singleton )
 
 get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono, respect.para){
 
