@@ -89,7 +89,7 @@ inputfinder<- function(input, taxon, column){
   return(as.character(input[input$taxon==taxon, column]))
 }
 
-usingMDCCfinder<- function(input, taxon=NULL, tree){
+usingMDCCfinder<- function(input, taxon=NULL, tree, silent = F){
 
   if(is.null(taxon)){taxon<- input$taxon}
   input<-randtip::correct.DF(input)
@@ -98,7 +98,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree){
   #MDCC.phyletictype.vect<- vector(mode="character", length = length(taxon))
 
 
-    cat(paste0("Searching MDCCs... ", "\n"))
+    if(!silent){cat(paste0("Searching MDCCs... ", "\n"))}
 
 
   #manual MDCC search
@@ -174,8 +174,9 @@ usingMDCCfinder<- function(input, taxon=NULL, tree){
     for(v in vect){
 
       if(v==vect[1]){
-       cat(paste0("0%       25%       50%       75%       100%", "\n",
+        if(!silent){cat(paste0("0%       25%       50%       75%       100%", "\n",
                   "|---------|---------|---------|---------|",   "\n","*"))}
+    }
 
 
 
@@ -183,9 +184,9 @@ usingMDCCfinder<- function(input, taxon=NULL, tree){
         vec<- seq(from=0, to=40, by=40/length(vect))
         vec<-ceiling(vec)
         vec<- diff(vec)
-        cat(strrep("*", times=vec[which(vect==v)]))
+        if(!silent){cat(strrep("*", times=vec[which(vect==v)]))}
 
-       if(v ==vect[length(vect)]){cat("\n")}
+       if(v ==vect[length(vect)]){if(!silent){cat("\n")}}
 
 
 
@@ -219,15 +220,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree){
 
 
 
-    #if(is.na(MDCC.vect[v])|is.na(MDCC.lev.vect[v])){MDCC.phyletictype.vect[v]<-NA}else{
-    #
-    # if(MDCC%in%taxa$using.MDCC[-which(taxa$taxon==taxon[v])]){
-    #   ps<-taxa$using.MDCC.phylstat[taxa$using.MDCC==MDCC][1]
-    #   MDCC.phyletictype.vect[v]<-MDCC.phyletictype.vect[ps]
-    # }else{
-    # MDCC.phyletictype.vect[v]<-randtip::MDCC.phyleticity(input = input, tree =  tree,
-    #          MDCC.info = list(rank=MDCC.lev.vect[v], MDCC=MDCC.vect[v]), trim = T)}
-    #}
+
   }}
 }
 
@@ -745,7 +738,7 @@ bind.clump<- function(new.tree, tree, input, PUT){
 
 
 
-  newsearch<- randtip::usingMDCCfinder(input, PUT, new.tree)
+  newsearch<- randtip::usingMDCCfinder(input, PUT, new.tree, silent=TRUE)
   using.MDCC<-input[input$taxon==PUT,"using.MDCC"]
   using.MDCC.lev<- input[input$taxon==PUT,"using.MDCC.lev"]
 
