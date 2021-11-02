@@ -614,9 +614,10 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
 
       #account for singleton tips in otherwise monophyletic clusters
-      if(length(genera)<3 & any(as.vector(table(firstword(descs)))==1)){
+      if(length(genera)<3 & any(as.vector(table(firstword(descs)))==1) &
+          !(all(as.vector(table(firstword(descs))))==1)){
         uniq.gen<-names(table(firstword(descs)))[as.vector(table(firstword(descs)))==1]
-        tip<- descs[randtip::firstword(descs)==uniq.gen]
+        tip<- descs[randtip::firstword(descs)%in%uniq.gen]
         tip.n<- which(tree$tip.label==tip)
         tip.par<- randtip::get.parent.siblings(tree, tip.n)$parent
 
@@ -655,6 +656,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
       for( rk in randtip::randtip_ranks()[2:(which(randtip::randtip_ranks()==rank)-1)]){
         rk.vals<-randtip::notNA(unique(sub.input[,rk]))
+
         if(length(rk.vals)>1){
 
           rk.vals.mrca<- vector("numeric", length = length(rk.vals))
@@ -664,7 +666,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
             ds <- descs[randtip::firstword(descs)%in%gen]
             ds.mrca<- ape::getMRCA(tree, ds)
             if( is.null(ds.mrca)){
-              rk.vals.mrca[which(rk.vals==v)]<- which(tree$tip.label==ds)
+              rk.vals.mrca[which(rk.vals==v)]<- which(tree$tip.label==sub.input$taxon[sub.input[,rk]==v])
               rk.vals.desc[[which(rk.vals==v)]]<- NA
                 }
             if(!is.null(ds.mrca)){
