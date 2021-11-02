@@ -637,7 +637,7 @@ bind.clump<- function(newtree, tree, input, new.species){
 
 
 
-perm.nodes<- get.permitted.nodes(tree, input, MDCC, rank, MDCC.type, polyphyly.scheme, use.paraphyletic , use.singleton )
+#perm.nodes<- get.permitted.nodes(tree, input, MDCC, rank, MDCC.type, polyphyly.scheme, use.paraphyletic , use.singleton )
 
 get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono, respect.para){
 
