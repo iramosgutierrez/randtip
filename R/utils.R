@@ -595,6 +595,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
       for( rk in randtip::randtip_ranks()[2:(which(randtip::randtip_ranks()==rank)-1)]){
         rk.vals<-unique(sub.input[,rk])
+        if(length(rk.vals)==1) {if(is.na(rk.vals)){next}}
         if(length(rk.vals)==1){
           forbidden.nodes<- c(forbidden.nodes, descs.nd ); next}
 
@@ -715,11 +716,11 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 }
 
 
-bind.clump<- function(newtree, tree, input, new.species){
+bind.clump<- function(new.tree, tree, input, PUT){
 
-  sp<- paste0(stringr::word(new.species, 1,sep = "_"), "_", stringr::word(new.species, 2,sep = "_"))
+  sp<- paste0(stringr::word(PUT, 1,sep = "_"), "_", stringr::word(PUT, 2,sep = "_"))
   treespp<- paste0(stringr::word(tree$tip.label, 1,sep = "_"), "_", stringr::word(tree$tip.label, 2,sep = "_"))
-  newtreespp<- paste0(stringr::word(newtree$tip.label, 1,sep = "_"), "_", stringr::word(newtree$tip.label, 2,sep = "_"))
+  new.treespp<- paste0(stringr::word(new.tree$tip.label, 1,sep = "_"), "_", stringr::word(new.tree$tip.label, 2,sep = "_"))
 
   if(sp%in%treespp){
     DFspp<- paste0(stringr::word(input$taxon, 1,sep = "_"), "_", stringr::word(input$taxon, 2,sep = "_"))
@@ -727,10 +728,10 @@ bind.clump<- function(newtree, tree, input, new.species){
     clumpDF<-input[input$clump.PUTs==TRUE,]
     clumpDF<-input$taxon[DFspp==sp]
     clump<- unique(c(clump, clumpDF))
-    clump<- clump[clump%in%newtree$tip.label]
+    clump<- clump[clump%in%new.tree$tip.label]
     if(length(clump)>1){
-      mrca<- ape::getMRCA(newtree, clump)
-      descs<- newtree$tip.label[phytools::getDescendants(newtree, mrca, curr=NULL)]
+      mrca<- ape::getMRCA(new.tree, clump)
+      descs<- new.tree$tip.label[phytools::getDescendants(new.tree, mrca, curr=NULL)]
       descs<-randtip::notNA(descs)
       if(any(!(descs%in%clump))){clump<- sample(clump, 1)}
     }
@@ -738,21 +739,31 @@ bind.clump<- function(newtree, tree, input, new.species){
   }
 
 
+  tree.genus.tips<-randtip::sp.genus.in.tree(tree, randtip::firstword(PUT))
+  new.tree.genus.tips<-randtip::sp.genus.in.tree(new.tree, randtip::firstword(PUT))
+  if(length(tree.genus.tips)==0 & length(new.tree.genus.tips)>0){return(new.tree.genus.tips)}
 
 
-  using.MDCC<-input[input$taxon==new.species,"using.MDCC"]
-  using.MDCC.lev<- input[input$taxon==new.species,"using.MDCC.lev"]
 
-  spp<-input$taxon[input[,using.MDCC.lev]==using.MDCC]
-  spp.in.newtree<- spp[spp%in%newtree$tip.label ]
-  spp.in.tree<- spp[spp  %in%  tree$tip.label ]
+  newsearch<- randtip::usingMDCCfinder(input, PUT, new.tree)
+  using.MDCC<-input[input$taxon==PUT,"using.MDCC"]
+  using.MDCC.lev<- input[input$taxon==PUT,"using.MDCC.lev"]
 
-  if(length(spp.in.tree)==0 & length(spp.in.newtree)>0){return(spp.in.newtree)}
+  if(newsearch$MDCC!=using.MDCC){
+    newclump<- input$taxon[input[,newsearch$MDCC.ranks]==newsearch$MDCC]
+    newclump<- unique(randtip::firstword(newclump))
+    newclump <- randtip::sp.genus.in.tree(new.tree, newclump)
+    return(newclump)
+  }
+
+
+
 
 }
 
 
 #WORKING SPACE####
+
 
 
 
