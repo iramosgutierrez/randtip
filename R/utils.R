@@ -641,11 +641,12 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
         }
 
         nest<- genera[which(rk.vals.mrca==nd)]
-        nested<- descs[randtip::firstword(descs)!=nest]
-        if(length(nest)!=0 & !any(firstword(nested)==nest)){
-          para.nodes<- rk.vals.desc[[which(rk.vals.mrca==nd)]]
+        nested<- descs[!(randtip::firstword(descs)%in%nest)]
+        if(length(nest)!=0 & !any(firstword(nested)%in%nest)){
+          p<-which(rk.vals.mrca==nd); if(length(p)>1){p<-p[1]}
+          para.nodes<- rk.vals.desc[[p]]
           intr.nodes <- rk.vals.desc
-          intr.nodes[[which(rk.vals.mrca==nd)]]<-NA
+          intr.nodes[[p]]<-NA
           intr.nodes<- randtip::notNA(unlist(intr.nodes))
           para.nodes<- para.nodes[!(para.nodes%in%intr.nodes)]
           forbidden.nodes<- c(forbidden.nodes, para.nodes ); next} }
