@@ -448,8 +448,9 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
       non.mdcc.genera<- unique(randtip::firstword(non.mdcc$taxon))
 
       intruder.descs<- descendants.tips[!(randtip::firstword(descendants.tips)%in%MDCC.genera)]
+      if(length(intruder.descs)==1){intruder.descs.nodes<-NULL}else{
       intruder.mrca<- ape::getMRCA(tree, intruder.descs)
-      intruder.descs.nodes<- phytools::getDescendants(tree, intruder.mrca, curr=NULL)
+      intruder.descs.nodes<- phytools::getDescendants(tree, intruder.mrca, curr=NULL)}
 
 
       nodes <- descendants.nodes[!(descendants.nodes%in%intruder.descs.nodes)]
