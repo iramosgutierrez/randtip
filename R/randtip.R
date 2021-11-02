@@ -3,7 +3,7 @@
 #' @export
 rand.tip <- function(input, tree,rand.type = "random",
                     polyphyly.scheme="largest", use.paraphyletic=TRUE,use.singleton=TRUE,
-                    respect.mono=TRUE, respect.para=TRUE, clump.puts = TRUE,
+                    respect.mono=TRUE, respect.para=TRUE, clump.puts = TRUE, prob=TRUE,
                     prune=TRUE, forceultrametric=FALSE, verbose = TRUE){
   if (!inherits(tree, "phylo")) {stop("object \"tree\" is not of class \"phylo\"")}
   if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
@@ -26,7 +26,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
     if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
       message("Specified tree is not ultrametric. \nTo force the randomization as an ultrametric tree plase set forceultrametric=TRUE")}
-    prob=T
+
 
     input.rand <- NULL
     input.poly <- NULL
@@ -159,7 +159,22 @@ rand.tip <- function(input, tree,rand.type = "random",
 
             perm.nodes<- get.permitted.nodes(new.tree, input, MDCC, rank, MDCC.type,
                                             polyphyly.scheme, use.paraphyletic, use.singleton)
-            forbidden.nodes<- get.forbidden.nodes(tree, input, )
+            forbidden.nodes<- get.forbidden.nodes(new.tree,input, MDCC, rank, perm.nodes,
+                                                  respect.mono, respect.para)
+
+            perm.nodes<- perm.nodes[!(perm.nodes%in%forbidden.nodes)]
+
+            adding.DF<- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2], "length"= tree$edge.length )
+            adding.DF<- adding.DF[adding.DF$node %in% perm.nodes,]
+            adding.DF$id<- 1:nrow(adding.DF)
+            if(nrow(adding.DF)==1){node <- adding.DF$node}
+            if(nrow(adding.DF) >1 & prob) {node<-sample(adding.DF$node, 1, prob = adding.DF$length)}
+            if(nrow(adding.DF) >1 & !prob){node<-sample(adding.DF$node, 1)}
+
+            bind.pos<- randtip::binding.position(tree, node,  insertion = "random",  prob)
+
+            new.tree <- phytools::bind.tip(new.tree, PUT, edge.length = bind.pos$length,
+                                           where = bind.pos$where , position = bind.pos$position )
 
         }
         }}
