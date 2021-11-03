@@ -39,11 +39,11 @@ custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, p
         message("Row ", i, " has species not included in the tree and will not be used.")
         next}
 
-    if(edges[i,4]==edges[i,5]){basenode<- which(new.tree$tip.label==edges[i,4])}else{
-      basenode<- ape::getMRCA(new.tree, c(edges[i,4], edges[i,5]))}
+    if(edge.i[i,4]==edge.i[i,5]){basenode<- which(new.tree$tip.label==edge.i[i,4])}else{
+      basenode<- ape::getMRCA(new.tree, c(edge.i[i,4], edge.i[i,5]))}
 
-    if(edges[i,2]==edges[i,3]){parnode<- which(new.tree$tip.label==edges[i,2])}else{
-      parnode<- ape::getMRCA(new.tree, c(edges[i,2], edges[i,3]))}
+    if(edge.i[i,2]==edge.i[i,3]){parnode<- which(new.tree$tip.label==edge.i[i,2])}else{
+      parnode<- ape::getMRCA(new.tree, c(edge.i[i,2], edge.i[i,3]))}
 
     if(parnode==basenode){
       message("Row ", i, " specifies a unique node and not a branch, so it will not be used.")
@@ -70,10 +70,17 @@ custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, p
 
     df<- df[df$node%in%permittednodes,]
 
-    if(prob){nd<-sample(df$node, 1, prob=df$length)}else{nd<-sample(df$node, 1)}
-    if(rand.type=="polytomy"){if(prob){nd<-sample(df$parent, 1, prob=df$length)}else{nd<-sample(df$parent, 1)}}
+    if(nrow(df)==1){nd <- df$node}
+    if(nrow(df)>1 & prob) {nd<-sample(df$node, 1, prob=df$length)}
+    if(nrow(df)>1 & !prob){nd<-sample(df$node, 1)}
+
+    if(rand.type=="polytomy"){
+      if(nrow(df)==1){nd <- df$parent}
+      if(nrow(df)>1 & prob ){nd<-sample(df$parent, 1, prob=df$length)}
+      if(nrow(df)>1 & !prob){nd<-sample(df$parent, 1)}
+      }
     bp<-randtip::binding.position(new.tree, node = nd, insertion = rand.type)
-    new.tree<- phytools::bind.tip(new.tree, new.tip, bp$length, bp$where, bp$position)
+    new.tree<- phytools::bind.tip(new.tree, PUT, bp$length, bp$where, bp$position)
 }
     return(new.tree)
 }
