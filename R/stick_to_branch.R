@@ -39,11 +39,20 @@ custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, p
         message("Row ", i, " has species not included in the tree and will not be used.")
         next}
 
+    if(edge.i[i,2]==edge.i[i,3]){parnode<- which(new.tree$tip.label==edge.i[i,2])}else{
+      parnode<- ape::getMRCA(new.tree, c(edge.i[i,2], edge.i[i,3]))}
+
     if(edge.i[i,4]==edge.i[i,5]){basenode<- which(new.tree$tip.label==edge.i[i,4])}else{
       basenode<- ape::getMRCA(new.tree, c(edge.i[i,4], edge.i[i,5]))}
 
-    if(edge.i[i,2]==edge.i[i,3]){parnode<- which(new.tree$tip.label==edge.i[i,2])}else{
-      parnode<- ape::getMRCA(new.tree, c(edge.i[i,2], edge.i[i,3]))}
+    if(edge.i[i,2]==edge.i[i,3] & edge.i[i,2]== edge.i[i,4] &
+       edge.i[i,2]==edge.i[i,5]){
+      parnode <- randtip::get.parent.siblings(tree, which(tree$tip.label==edges[i,2]))$parent
+    }
+
+
+
+
 
     if(parnode==basenode){
       message("Row ", i, " specifies a unique node and not a branch, so it will not be used.")
@@ -128,6 +137,10 @@ plot.custom.branch<- function(tree, edges, PUT=NULL,
 
     if(edges[i,2]==edges[i,3]){parnode<- which(tree$tip.label==edges[i,2])}else{
       parnode<- ape::getMRCA(tree, c(edges[i,2], edges[i,3]))}
+
+    if(edges[i,2]==edges[i,3] & edges[i,2]== edges[i,4] &
+       edges[i,2]==edges[i,5]){
+      parnode <- randtip::get.parent.siblings(tree, which(tree$tip.label==edges[i,2]))$parent}
 
     if(parnode==basenode){
       message("Row ", i, " specifies a unique node and not a branch, so it will not be used.")
