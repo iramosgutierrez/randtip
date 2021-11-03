@@ -98,7 +98,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = F){
   #MDCC.phyletictype.vect<- vector(mode="character", length = length(taxon))
 
 
-    if(!silent){cat(paste0("Searching MDCCs... ", "\n"))}
+    if(!silent){cat(paste0("Searching MDCCs...\n"))}
 
 
   #manual MDCC search

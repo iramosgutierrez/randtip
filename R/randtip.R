@@ -25,7 +25,7 @@ rand.tip <- function(input, tree,rand.type = "random",
 
     if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
     if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
-      message("Specified tree is not ultrametric. \nTo force the randomization as an ultrametric tree plase set forceultrametric=TRUE")}
+      message("Specified tree is not ultrametric. \nTo force the randomization as an ultrametric tree please set forceultrametric=TRUE")}
 
 
     input.rand <- NULL
@@ -185,7 +185,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     #Polytomies
     if(nrow(input.poly)>0){
       if(verbose){
-        cat(paste0("\n","Starting polytomies PUT binding \n"))
+        cat(paste0("\n","Starting polytomy PUT binding \n"))
       }
       input.poly<-input.poly[!(input.poly$taxon %in% new.tree$tip.label),]
 
@@ -268,7 +268,7 @@ rand.tip <- function(input, tree,rand.type = "random",
 
 
     if(verbose){
-      cat(paste0("\n","\n","\U2713", " Randomization completed in ",
+      cat(paste0("\n","\n","\U2713", " PUT binding completed in ",
                  round(as.numeric(difftime(end, start,units = "mins")), 2), " mins\n"))
     }
     return(new.tree)

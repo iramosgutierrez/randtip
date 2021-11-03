@@ -100,7 +100,7 @@ DF<-DF[,c("taxon", "PUT.status", "Typo", "Typo.names","genus", "genus_phyletic.s
 tips<- tree$tip.label
 
 if(length(tips[duplicated(tips)])>0){
-  message("Tips ", tips[duplicated(tips)], " are duplicated in the phylogenetic tips.\n")}
+  message("Tips ", tips[duplicated(tips)], " are duplicated in the phylogeny tips.\n")}
 
 subsp.tips<- tips[sapply(strsplit(tips, "_"), length)>2]
 
