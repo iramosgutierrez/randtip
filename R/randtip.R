@@ -233,7 +233,7 @@ rand.tip <- function(input, tree,rand.type = "random",
 
                 mrca<- ape::getMRCA(new.tree, MDCC.taxa.inTree)
                 descs<- phytools::getDescendants(new.tree, mrca,curr = NULL)
-                forbidden.nodes<- randtip::get.forbidden.MDCC.nodes(new.tree, input, MDCCs.i.rank, MDCC.type)
+                forbidden.nodes<- randtip::get.forbidden.nodes(new.tree, input, MDCCs.i, MDCCs.i.rank, descs, respect.mono, respect.para)
                 descs<- descs[!(descs%in%forbidden.nodes)]
                 table<-sharingtaxa.descs(tree=new.tree, nodes=descs, MDCC.genera = MDCC.genera)
                 table<- table[table$number==max(table$number),]
