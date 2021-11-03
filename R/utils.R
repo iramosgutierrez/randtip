@@ -452,7 +452,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
 
   }
 
-  if(MDCC.type%in% c("Singleton", "Singleton MDCC")){
+  if(MDCC.type == "Singleton"){
     if (use.singleton){
       nodes<- which(tree$tip.label==MDCC.intree)
       if(length(nodes)>1){

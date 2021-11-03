@@ -76,7 +76,7 @@ MDCC.phyleticity<-function(input, tree, MDCC.info=list("rank"=NA, "MDCC"=NA), tr
    if(length(spp.in.tree)==0){MDCC.type<-"Missing"
    return(MDCC.type) }
 
-   if(length(spp.in.tree)==1){MDCC.type<-"Singleton MDCC"
+   if(length(spp.in.tree)==1){MDCC.type<-"Singleton"
    return(MDCC.type) }
 
   sp.mrca<- phytools::findMRCA(tree, tips = spp.in.tree)
