@@ -63,7 +63,7 @@ ranks<-randtip::randtip_ranks()
     groups<- randtip::notNA(groups)
 
     if (length(groups)>0){
-      cat( paste0("Checking phyletic status at ", rank, " level ... (", length(groups), " categories)\n"))
+      cat( paste0("Checking phyletic status at ", rank, " level...\n"))
 
       cat(paste0("0%       25%       50%       75%       100%", "\n",
                  "|---------|---------|---------|---------|", "\n"))
