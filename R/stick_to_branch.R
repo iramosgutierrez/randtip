@@ -9,38 +9,41 @@
 #'   @param rand.type "random" or "polytomy"
 #'
 #' @export
-custom.branch <- function(tree, edge.info, rand.type="random", forceultrametric=F, prob=T){
+custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, prob=T){
 
   new.tree<- tree
   if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
   if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
     message("Specified tree is not ultrametric. \nTo force the randomization as an ultrametric tree plase set forceultrametric=TRUE")}
 
-  for(i in 1:length(edge.info)){
-    new.tip<- edge.info[[i]]$new.tip
-    edges   <-edge.info[[i]]$edges
+  PUTs <- unique(edges[,1])
+
+  for(PUT in PUTs){
+
+    edge.i   <- edges[edges[,1]==PUT,]
 
     df <- data.frame("parent"=new.tree$edge[,1], "node"=new.tree$edge[,2],
                      "length"= new.tree$edge.length, "id"=1:length(new.tree$edge[,1]) )
+
     permittednodes<- as.numeric(NULL)
     root<- randtip::findRoot(new.tree)
-    new.tip  <- gsub(" ", "_", new.tip)
-    edges[,1]<- gsub(" ", "_", edges[,1])
-    edges[,2]<- gsub(" ", "_", edges[,2])
-    edges[,3]<- gsub(" ", "_", edges[,3])
-    edges[,4]<- gsub(" ", "_", edges[,4])
+    PUT  <- gsub(" ", "_", PUT)
 
+    edge.i[,2]<- gsub(" ", "_", edge.i[,2])
+    edge.i[,3]<- gsub(" ", "_", edge.i[,3])
+    edge.i[,4]<- gsub(" ", "_", edge.i[,4])
+    edge.i[,5]<- gsub(" ", "_", edge.i[,5])
 
-    for(i in 1:nrow(edges)){
-      if(!all(c(edges[i,1],edges[i,2],edges[i,3],edges[i,4])%in%new.tree$tip.label)){
+    for(i in 1:nrow(edge.i)){
+      if(!all(c(edge.i[i,2],edge.i[i,3],edge.i[i,4],edge.i[i,5])%in%new.tree$tip.label)){
         message("Row ", i, " has species not included in the tree and will not be used.")
         next}
 
-    if(edges[i,1]==edges[i,2]){basenode<- which(new.tree$tip.label==edges[i,1])}else{
-      basenode<- ape::getMRCA(new.tree, c(edges[i,1], edges[i,2]))}
+    if(edges[i,4]==edges[i,5]){basenode<- which(new.tree$tip.label==edges[i,4])}else{
+      basenode<- ape::getMRCA(new.tree, c(edges[i,4], edges[i,5]))}
 
-    if(edges[i,3]==edges[i,4]){parnode<- which(new.tree$tip.label==edges[i,3])}else{
-      parnode<- ape::getMRCA(new.tree, c(edges[i,3], edges[i,4]))}
+    if(edges[i,2]==edges[i,3]){parnode<- which(new.tree$tip.label==edges[i,2])}else{
+      parnode<- ape::getMRCA(new.tree, c(edges[i,2], edges[i,3]))}
 
     if(parnode==basenode){
       message("Row ", i, " specifies a unique node and not a branch, so it will not be used.")
@@ -85,30 +88,39 @@ custom.branch <- function(tree, edge.info, rand.type="random", forceultrametric=
 #' @export
 #' @examples
 #' set.seed(1)
-plot.custom.branch<- function(tree, edges,
+plot.custom.branch<- function(tree, edges, PUT=NULL,
                               candidate.col="#bf2828", forbidden.col="#3d3d3d",
                               candidate.lwd=2, forbidden.lwd=1,...){
 
   df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
                    "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
+
+  if(length(unique(edges[,1]))==1 & is.null(PUT)){PUT<- unique(edges[,1])}
+  if(!is.null(PUT)){
+    if(!(PUT %in% edges[,1])){stop("The specified PUT is not contained in the 'edges' data frame.")}
+    edges<- edges[edges[,1]==PUT]
+  }
+  if(length(unique(edges[,1]))>1){stop("Your 'edges' data frame contains more than one PUT. Please specify only one to plot its candidate branches.")}
+
   permittednodes<- as.numeric(NULL)
+
   root<- randtip::findRoot(tree)
-  edges[,1]<- gsub(" ", "_", edges[,1])
   edges[,2]<- gsub(" ", "_", edges[,2])
   edges[,3]<- gsub(" ", "_", edges[,3])
   edges[,4]<- gsub(" ", "_", edges[,4])
+  edges[,5]<- gsub(" ", "_", edges[,5])
 
 
   for(i in 1:nrow(edges)){
-    if(!all(c(edges[i,1],edges[i,2],edges[i,3],edges[i,4])%in%tree$tip.label)){
+    if(!all(c(edges[i,2],edges[i,3],edges[i,4],edges[i,5])%in%tree$tip.label)){
       message("Row ", i, " has species not included in the tree and will not be used.")
       next}
 
-    if(edges[i,1]==edges[i,2]){basenode<- which(tree$tip.label==edges[i,1])}else{
-      basenode<- ape::getMRCA(tree, c(edges[i,1], edges[i,2]))}
+    if(edges[i,4]==edges[i,5]){basenode<- which(tree$tip.label==edges[i,4])}else{
+      basenode<- ape::getMRCA(tree, c(edges[i,4], edges[i,5]))}
 
-    if(edges[i,3]==edges[i,4]){parnode<- which(tree$tip.label==edges[i,3])}else{
-      parnode<- ape::getMRCA(tree, c(edges[i,3], edges[i,4]))}
+    if(edges[i,2]==edges[i,3]){parnode<- which(tree$tip.label==edges[i,2])}else{
+      parnode<- ape::getMRCA(tree, c(edges[i,2], edges[i,3]))}
 
     if(parnode==basenode){
       message("Row ", i, " specifies a unique node and not a branch, so it will not be used.")
