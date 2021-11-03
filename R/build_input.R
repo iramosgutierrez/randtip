@@ -125,21 +125,21 @@ info2input<- function(info, tree){
   tree$tip.label <- gsub("_x_", "_x-", tree$tip.label)
   tree$tip.label <- gsub("_X_", "_x-", tree$tip.label)
 
-  input$using.MDCC     <- as.character(NA)
-  input$using.MDCC.lev <- as.character(NA)
+  input$MDCC     <- as.character(NA)
+  input$MDCC.rank <- as.character(NA)
 
-  input$using.MDCC[input$taxon%in%tree$tip.label]     <- "Tip"
-  input$using.MDCC.lev[input$taxon%in%tree$tip.label] <- "Tip"
+  input$MDCC[input$taxon%in%tree$tip.label]     <- "Tip"
+  input$MDCC.rank[input$taxon%in%tree$tip.label] <- "Tip"
 
 
   input_search<- randtip::usingMDCCfinder(input = input, taxon = input$taxon[!(input$taxon%in%tree$tip.label)], tree = tree)
 
-  input$using.MDCC[!(input$taxon%in%tree$tip.label)]     <- input_search[[1]]
-  input$using.MDCC.lev[!(input$taxon%in%tree$tip.label)] <- input_search[[2]]
-  #input$using.MDCC.phylstat <- input_search[[3]]
+  input$MDCC[!(input$taxon%in%tree$tip.label)]     <- input_search[[1]]
+  input$MDCC.rank[!(input$taxon%in%tree$tip.label)] <- input_search[[2]]
+
   #3.2 Taxa with no MDCC
 
-  not.included<- input[is.na(input$using.MDCC),]
+  not.included<- input[is.na(input$MDCC),]
   if(length(not.included$taxon) > 0){
     message("The following taxa do not have a defined MDCC and cannot be randomized:\n",
             paste0(not.included$taxon, "\n"))}

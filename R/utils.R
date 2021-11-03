@@ -739,10 +739,10 @@ bind.clump<- function(new.tree, tree, input, PUT){
 
 
   newsearch<- randtip::usingMDCCfinder(input, PUT, new.tree, silent=TRUE)
-  using.MDCC<-input[input$taxon==PUT,"using.MDCC"]
-  using.MDCC.lev<- input[input$taxon==PUT,"using.MDCC.lev"]
+  MDCC<-input[input$taxon==PUT,"MDCC"]
+  MDCC.rank<- input[input$taxon==PUT,"MDCC.rank"]
 
-  if(newsearch$MDCC!=using.MDCC){
+  if(newsearch$MDCC!=MDCC){
     newclump<- input$taxon[input[,newsearch$MDCC.ranks]==newsearch$MDCC]
     newclump<- unique(randtip::firstword(newclump))
     newclump <- randtip::sp.genus.in.tree(new.tree, newclump)

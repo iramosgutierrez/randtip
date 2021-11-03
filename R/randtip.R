@@ -14,7 +14,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     tree$tip.label <- gsub(" ", "_", tree$tip.label)
     input<- randtip::correct.DF(input)
     originalinput<- input
-    input<- input[!is.na(input$using.MDCC),]
+    input<- input[!is.na(input$MDCC),]
     input$taxon <- gsub(" ", "_", input$taxon)
 
     tree$tip.label <- gsub("_x_", "_x-", tree$tip.label)
@@ -34,16 +34,16 @@ rand.tip <- function(input, tree,rand.type = "random",
 
 
     if(prune){
-      if(length(input$taxon[input$using.MDCC=="Tip"])>0){
-      trimming.species<- input$taxon[input$using.MDCC=="Tip"]}else{
+      if(length(input$taxon[input$MDCC=="Tip"])>0){
+      trimming.species<- input$taxon[input$MDCC=="Tip"]}else{
         trimming.species<- as.vector(NULL)}
 
-      for(using.mdcc in as.character(unique(input$using.MDCC))){
+      for(using.mdcc in as.character(unique(input$MDCC))){
 
         if(using.mdcc=="Tip"){next}
 
-        spp.df<-input[input$using.MDCC==using.mdcc,]
-        using.rank<- as.character(randtip::notNA(unique(spp.df$using.MDCC.lev)))
+        spp.df<-input[input$MDCC==using.mdcc,]
+        using.rank<- as.character(randtip::notNA(unique(spp.df$MDCC.rank)))
 
         if(!(using.rank%in%names(input))){
           mdcc.genera<-randtip::firstword(spp.df[,c("taxon1","taxon2")]) }else{
@@ -83,7 +83,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     if(!is.null(input.rand)){if(nrow(input.rand)>0){
 
         input.rand.bind<- input.rand[!(input.rand$taxon %in% new.tree$tip.label),]
-        input.rand.bind<- input.rand.bind[!is.na(input.rand.bind$using.MDCC),]
+        input.rand.bind<- input.rand.bind[!is.na(input.rand.bind$MDCC),]
 
         manual.mdcc.taxa<-input.rand.bind$taxon[!is.na(input.rand.bind$taxon1)|!is.na(input.rand.bind$taxon2)]
         rand.PUTs<- input.rand.bind$taxon
@@ -97,8 +97,8 @@ rand.tip <- function(input, tree,rand.type = "random",
         for(i in seq_along(rand.PUTs)){
             PUT <- rand.PUTs[i]
 
-            MDCC  <- randtip::inputfinder(input.rand.bind,PUT, "using.MDCC")
-            rank <- randtip::inputfinder(input.rand.bind,PUT, "using.MDCC.lev")
+            MDCC  <- randtip::inputfinder(input.rand.bind,PUT, "MDCC")
+            rank <- randtip::inputfinder(input.rand.bind,PUT, "MDCC.rank")
             if(rank%in%randtip::randtip_ranks()){
             MDCC.type <- randtip::MDCC.phyleticity(input, new.tree,
                                                    MDCC.info = list(rank=rank,MDCC=MDCC), trim=F)}else{
@@ -190,13 +190,13 @@ rand.tip <- function(input, tree,rand.type = "random",
       input.poly<-input.poly[!(input.poly$taxon %in% new.tree$tip.label),]
 
 
-      MDCCs<- randtip::notNA(unique(input.poly$using.MDCC))
+      MDCCs<- randtip::notNA(unique(input.poly$MDCC))
       for(MDCCs.i in MDCCs){
 
-        input.poly<- input.poly[!is.na(input.poly$using.MDCC),]
-        MDCCs.i.rank<- unique(input.poly$using.MDCC.lev[input.poly[,"using.MDCC"]==MDCCs.i])
+        input.poly<- input.poly[!is.na(input.poly$MDCC),]
+        MDCCs.i.rank<- unique(input.poly$MDCC.rank[input.poly[,"MDCC"]==MDCCs.i])
         if(!MDCCs.i.rank%in%randtip::randtip_ranks()){
-          MDCCs.i.rank<- "using.MDCC"
+          MDCCs.i.rank<- "MDCC"
           MDCC.type<- "Manual clade"
         }else{
 
@@ -205,7 +205,7 @@ rand.tip <- function(input, tree,rand.type = "random",
         }
 
 
-        MDCC.taxa.toAdd <- input.poly$taxon[input.poly[,"using.MDCC"]==MDCCs.i]
+        MDCC.taxa.toAdd <- input.poly$taxon[input.poly[,"MDCC"]==MDCCs.i]
         MDCC.taxa.ininput <- input$taxon[input[, MDCCs.i.rank]==MDCCs.i]
         MDCC.genera <- unique(randtip::firstword(MDCC.taxa.ininput))
         MDCC.genera <- randtip::notNA(MDCC.genera)
