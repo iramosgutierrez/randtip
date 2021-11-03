@@ -31,7 +31,7 @@ get.clade<- function(info, tree, clade){
 #' Function to plot subtree
 #' @export
 plot.clade<- function(get.clade.out, ppcr.col="#4a8a21",
-                      nonppcr.col="#48bce0",unknown.col="#d4c744", ...){
+                      nonppcr.col="#48bce0",unknown.col="#3d3d3d", ...){
   if(!(is.list(get.clade.out)|all(names(get.clade.out)==c("Tree","info","rank","clade")))){
     stop("Please feed this function with the returned object from get.clade function")
   }
@@ -43,7 +43,7 @@ plot.clade<- function(get.clade.out, ppcr.col="#4a8a21",
 
 
 clade.col <- function(get.clade.out, ppcr.col="#4a8a21",
-                      nonppcr.col="#48bce0",unknown.col="#d4c744"){
+                      nonppcr.col="#48bce0",unknown.col="#3d3d3d"){
 
   CladeTree<-get.clade.out$Tree
   rank <- get.clade.out$rank
