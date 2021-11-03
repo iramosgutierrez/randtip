@@ -39,7 +39,7 @@ correct.DF<- function(DF){
 }
 
 #' @export
-put.tip.col<- function(newtree, oldtree, placed.col="#3d3d3d", put.col="#C23B23"){
+put.tip.col<- function(newtree, oldtree, placed.col="#adadad", put.col="#C23B23"){
   col<- vector("character", length(newtree$tip.label))
   col[1:length(col)]<- put.col
   col[newtree$tip.label%in%oldtree$tip.label]<-placed.col
