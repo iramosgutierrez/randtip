@@ -64,6 +64,12 @@ MDCC.phyleticity<-function(input, tree, MDCC.info=list("rank"=NA, "MDCC"=NA), tr
   MDCC <- MDCC.info$MDCC
   input<-input[!is.na(input[,rank]),]
 
+  if(rank=="genus"){
+    MDCC.type<-phyleticity(tree, MDCC)
+    return(MDCC.type)
+  }
+
+  if(rank!="genus"){
    tips<- tree$tip.label[randtip::firstword(tree$tip.label)%in%randtip::firstword(input$taxon)]
    if(isTRUE(trim)){tree<- ape::keep.tip(phy =tree, tip = tips)}
 
@@ -103,6 +109,6 @@ MDCC.phyleticity<-function(input, tree, MDCC.info=list("rank"=NA, "MDCC"=NA), tr
      MDCC.type<-"Polyphyletic"
      return(MDCC.type)}
 
-
- }
-}
+  }
+    }
+      }
