@@ -175,7 +175,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = F){
 
       if(v==vect[1]){
         if(!silent){cat(paste0("0%       25%       50%       75%       100%", "\n",
-                  "|---------|---------|---------|---------|",   "\n","*"))}
+                  "|---------|---------|---------|---------|",   "\n"))}
     }
 
 
@@ -186,7 +186,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = F){
         vec<- diff(vec)
         if(!silent){cat(strrep("*", times=vec[which(vect==v)]))}
 
-       if(v ==vect[length(vect)]){if(!silent){cat("\n")}}
+       if(v ==vect[length(vect)]){if(!silent){cat("*\n")}}
 
 
 

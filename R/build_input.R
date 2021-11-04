@@ -92,14 +92,14 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi", mode="back
         if(i==1){
           cat(paste0("Retrieving taxonomic information from ", db, " database.\n",
                      "0%       25%       50%       75%       100%", "\n",
-                     "|---------|---------|---------|---------|", "\n", "*")) }
+                     "|---------|---------|---------|---------|", "\n")) }
 
           v<- seq(from=0, to=40, by=40/length(genera))
           v<-ceiling(v)
           v<- diff(v)
           cat(strrep("*", times=v[i]))
 
-          if(i ==length(genera)){cat("\n")}
+          if(i ==length(genera)){cat( "*\n")}
 
 
       }

@@ -69,7 +69,7 @@ ranks<-randtip::randtip_ranks()
                  "|---------|---------|---------|---------|", "\n"))
 
       for(group in groups){
-        if(group ==groups[1]){cat("*")}
+
       type<- randtip::MDCC.phyleticity(info, tree, MDCC.info = list("rank"= rank, "MDCC"= group))
       DF[which(DF[,rank]==group), paste0(rank,"_phyletic.status")]<-type
 
@@ -79,7 +79,7 @@ ranks<-randtip::randtip_ranks()
         v<- diff(v)
         cat(strrep("*", times=v[which(groups==group)]))
 
-        if(group ==groups[length(groups)]){cat("\n")}
+        if(group ==groups[length(groups)]){cat("*\n")}
       }
 
       }
