@@ -1,6 +1,6 @@
 #' Function to add species at specified branches.
 #' #' @param tree "phylo" object used as backbone tree.
-#'    @param edges matrix with 4 columns character vectors.\n
+#'    @param edge matrix with 4 columns character vectors.\n
 #'        Columns 1 and 2 define the stem node of candidate branches and
 #'        columns 3 and 4 define the crown node
 #'        (mrca of species pairs). Note that a pair of nodes may not
@@ -9,7 +9,7 @@
 #'   @param rand.type "random" or "polytomy"
 #'
 #' @export
-custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, prob=T){
+custom.branch <- function(tree, edge, rand.type="random", forceultrametric=F, prob=T){
 
   if(rand.type == "r"){rand.type <- "random"}
   if(rand.type == "p"){rand.type <- "polytomy"}
@@ -21,11 +21,11 @@ custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, p
   if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
     message("The backbone tree is not ultrametric. \nPlease, set the argument 'forceultrametric' to TRUE if the tree is genuinely ultrametric.")}
 
-  PUTs <- unique(edges[,1])
+  PUTs <- unique(edge[,1])
 
   for(PUT in PUTs){
 
-    edge.i   <- edges[edges[,1]==PUT,]
+    edge.i   <- edge[edge[,1]==PUT,]
 
     df <- data.frame("parent"=new.tree$edge[,1], "node"=new.tree$edge[,2],
                      "length"= new.tree$edge.length, "id"=1:length(new.tree$edge[,1]) )
@@ -41,7 +41,7 @@ custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, p
 
     for(i in 1:nrow(edge.i)){
       if(!all(c(edge.i[i,2],edge.i[i,3],edge.i[i,4],edge.i[i,5])%in%new.tree$tip.label)){
-        message("Row ", i, " of 'edges' is not defining a phylogenetic branch.")
+        message("Row ", i, " of 'edge' is not defining a phylogenetic branch.")
         next}
 
     if(edge.i[i,2]==edge.i[i,3]){parnode<- which(new.tree$tip.label==edge.i[i,2])}else{
@@ -52,7 +52,7 @@ custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, p
 
     if(edge.i[i,2]==edge.i[i,3] & edge.i[i,2]== edge.i[i,4] &
        edge.i[i,2]==edge.i[i,5]){
-      parnode <- randtip::get.parent.siblings(tree, which(tree$tip.label==edges[i,2]))$parent
+      parnode <- randtip::get.parent.siblings(tree, which(tree$tip.label==edge[i,2]))$parent
     }
 
 
@@ -60,7 +60,7 @@ custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, p
 
 
     if(parnode==basenode){
-      message("Row ", i, " of 'edges' is not defining a phylogenetic branch.")
+      message("Row ", i, " of 'edge' is not defining a phylogenetic branch.")
       next}
 
     perm.nodes.i<- as.numeric(NULL)
@@ -68,7 +68,7 @@ custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, p
     p<- parnode
     while(n!=p){
       if(n==root){
-        message("Row ", i, " of 'edges' is not defining a phylogenetic branch.")
+        message("Row ", i, " of 'edge' is not defining a phylogenetic branch.")
         perm.nodes.i<- NULL
         break}
       perm.nodes.i<- c(perm.nodes.i, n)
@@ -109,43 +109,43 @@ custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, p
 #' @export
 #' @examples
 #' set.seed(1)
-plot.custom.branch<- function(tree, edges, PUT=NULL,
+plot.custom.branch<- function(tree, edge, PUT=NULL,
                               candidate.col="#bf2828", forbidden.col="#3d3d3d",
                               candidate.lwd=2, forbidden.lwd=1,...){
 
   df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
                    "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
 
-  if(length(unique(edges[,1]))==1 & is.null(PUT)){PUT<- unique(edges[,1])}
+  if(length(unique(edge[,1]))==1 & is.null(PUT)){PUT<- unique(edge[,1])}
   if(!is.null(PUT)){
-    if(!(PUT %in% edges[,1])){stop("The specified PUT is not contained in the 'edges' data frame.")}
-    edges<- edges[edges[,1]==PUT]
+    if(!(PUT %in% edge[,1])){stop("The specified PUT is not contained in the 'edge' data frame.")}
+    edge<- edge[edge[,1]==PUT]
   }
-  if(length(unique(edges[,1]))>1){stop("Your 'edges' data frame contains more than one PUT. Please specify only one to plot its candidate branches.")}
+  if(length(unique(edge[,1]))>1){stop("Your 'edge' data frame contains more than one PUT. Please specify only one to plot its candidate branches.")}
 
   permittednodes<- as.numeric(NULL)
 
   root<- randtip::findRoot(tree)
-  edges[,2]<- gsub(" ", "_", edges[,2])
-  edges[,3]<- gsub(" ", "_", edges[,3])
-  edges[,4]<- gsub(" ", "_", edges[,4])
-  edges[,5]<- gsub(" ", "_", edges[,5])
+  edge[,2]<- gsub(" ", "_", edge[,2])
+  edge[,3]<- gsub(" ", "_", edge[,3])
+  edge[,4]<- gsub(" ", "_", edge[,4])
+  edge[,5]<- gsub(" ", "_", edge[,5])
 
 
-  for(i in 1:nrow(edges)){
-    if(!all(c(edges[i,2],edges[i,3],edges[i,4],edges[i,5])%in%tree$tip.label)){
+  for(i in 1:nrow(edge)){
+    if(!all(c(edge[i,2],edge[i,3],edge[i,4],edge[i,5])%in%tree$tip.label)){
       message("Row ", i, " has species not included in the tree and will not be used.")
       next}
 
-    if(edges[i,4]==edges[i,5]){basenode<- which(tree$tip.label==edges[i,4])}else{
-      basenode<- ape::getMRCA(tree, c(edges[i,4], edges[i,5]))}
+    if(edge[i,4]==edge[i,5]){basenode<- which(tree$tip.label==edge[i,4])}else{
+      basenode<- ape::getMRCA(tree, c(edge[i,4], edge[i,5]))}
 
-    if(edges[i,2]==edges[i,3]){parnode<- which(tree$tip.label==edges[i,2])}else{
-      parnode<- ape::getMRCA(tree, c(edges[i,2], edges[i,3]))}
+    if(edge[i,2]==edge[i,3]){parnode<- which(tree$tip.label==edge[i,2])}else{
+      parnode<- ape::getMRCA(tree, c(edge[i,2], edge[i,3]))}
 
-    if(edges[i,2]==edges[i,3] & edges[i,2]== edges[i,4] &
-       edges[i,2]==edges[i,5]){
-      parnode <- randtip::get.parent.siblings(tree, which(tree$tip.label==edges[i,2]))$parent}
+    if(edge[i,2]==edge[i,3] & edge[i,2]== edge[i,4] &
+       edge[i,2]==edge[i,5]){
+      parnode <- randtip::get.parent.siblings(tree, which(tree$tip.label==edge[i,2]))$parent}
 
     if(parnode==basenode){
       message("Row ", i, " specifies a unique node and not a branch, so it will not be used.")
