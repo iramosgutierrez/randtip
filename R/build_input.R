@@ -6,13 +6,13 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi", mode="back
 
 
   if(is.data.frame(species)){
-  if(ncol(species)!=1){stop("Species list must be a vector or a single-column dataframe!")}else{species<- species[,1]}}
+  if(ncol(species)!=1){stop("Species must be provided as a character vector or single-column dataframe.")}else{species<- species[,1]}}
   species<- as.vector(species)
-  if(!(is.vector(species) )){stop("Species list must be a vector or a single-column dataframe!")}
-  if(is.list(species) ){stop("Species list must be a vector or a single-column dataframe!")}
-  if(is.null(tree) & mode=="backbone"){stop("A tree must be provided for \"backbone\" mode.")}
-  if (!is.null(tree) & !inherits(tree, "phylo")) { stop("tree should be an object of class \"phylo\".")}
-  if(!(mode %in% c("list", "backbone"))) {stop("type must be \"list\" or \"backbone\" ")}
+  if(!(is.vector(species) )){stop("Species must be provided as a character vector or single-column dataframe.")}
+  if(is.list(species) ){stop("Species must be provided as a character vector or single-column dataframe.")}
+  if(is.null(tree) & mode=="backbone"){stop("Parameter 'mode' is set to \"backbone\", but the backbone tree is missing. Please, provide a backbone tree.")}
+  if (!is.null(tree) & !inherits(tree, "phylo")) { stop("Backbone tree must be an object of class \"phylo\".")}
+  if(!(mode %in% c("list", "backbone"))) {stop("Parameter 'mode' must be \"list\" or \"backbone\" ")}
 
 
 
@@ -141,7 +141,7 @@ info2input<- function(info, tree){
 
   not.included<- input[is.na(input$MDCC),]
   if(length(not.included$taxon) > 0){
-    message("The following taxa do not have a defined MDCC and cannot be randomized:\n",
+    message("The following taxa were not assigned MDCC and will not be bound to the tree:\n",
             paste0(not.included$taxon, "\n"))}
 
   return(input)

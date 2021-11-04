@@ -5,8 +5,8 @@
 
 check.info<- function(info, tree, sim=0.8){
 
-  if(is.null(info)){stop("A 'info' data frame must be provided.")}
-  if(is.null(tree)){stop("A tree must be provided.")}
+  if(is.null(info)){stop("Data frame 'info' is missing.")}
+  if(is.null(tree)){stop("Backbone tree is missing.")}
 
   info<- randtip::correct.DF(info)
   info$keep.tip[is.na(info$keep.tip)]<-"1"
@@ -86,7 +86,7 @@ ranks<-randtip::randtip_ranks()
 
   }
 if(length(DF$Typo[DF$Typo==TRUE])>0){
-  message("There may be misspelling errors in your species list. Please, check the outputted data frame.\n")}
+  message("There may be misspelling errors in the species list. Please, check the outputted data frame.\n")}
 
 
 DF<-DF[,c("taxon", "PUT.status", "Typo", "Typo.names","genus", "genus_phyletic.status",
@@ -99,8 +99,11 @@ DF<-DF[,c("taxon", "PUT.status", "Typo", "Typo.names","genus", "genus_phyletic.s
 #4th Tree tip evaluation
 tips<- tree$tip.label
 
-if(length(tips[duplicated(tips)])>0){
-  message("Tips ", tips[duplicated(tips)], " are duplicated in the phylogeny tips.\n")}
+if(length(tips[duplicated(tips)])==1){
+  message("Tip ", tips[duplicated(tips)], " is duplicated in the phylogeny tips.\n")}
+
+if(length(tips[duplicated(tips)])>1 ){
+  message("Tips ", paste0(tips[duplicated(tips)], collapse = ", "), " are duplicated in the phylogeny tips.\n")}
 
 subsp.tips<- tips[sapply(strsplit(tips, "_"), length)>2]
 
@@ -110,7 +113,7 @@ if(length(subsp.tips)>0){
     if(paste0(nomials[1], "_", nomials[2])%in%tips &
        any(nomials[3:length(nomials)]==nomials[2])){
       message("Tips ", ssp, " and " , paste0(nomials[1], "_", nomials[2]),
-              " are synonyms, and are both included in the tree.\n" )
+              " are synonyms and are both included in the tree.\n" )
     }
   }
 }

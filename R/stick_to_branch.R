@@ -14,7 +14,7 @@ custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, p
   new.tree<- tree
   if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
   if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
-    message("Specified tree is not ultrametric. \nTo force the randomization as an ultrametric tree plase set forceultrametric=TRUE")}
+    message("The backbone tree is not ultrametric. \nPlease, set the argument 'forceultrametric' to TRUE if the tree is genuinely ultrametric.")}
 
   PUTs <- unique(edges[,1])
 
@@ -36,7 +36,7 @@ custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, p
 
     for(i in 1:nrow(edge.i)){
       if(!all(c(edge.i[i,2],edge.i[i,3],edge.i[i,4],edge.i[i,5])%in%new.tree$tip.label)){
-        message("Row ", i, " has species not included in the tree and will not be used.")
+        message("Row ", i, " of 'edges' is not defining a phylogenetic branch.")
         next}
 
     if(edge.i[i,2]==edge.i[i,3]){parnode<- which(new.tree$tip.label==edge.i[i,2])}else{
@@ -55,7 +55,7 @@ custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, p
 
 
     if(parnode==basenode){
-      message("Row ", i, " specifies a unique node and not a branch, so it will not be used.")
+      message("Row ", i, " of 'edges' is not defining a phylogenetic branch.")
       next}
 
     perm.nodes.i<- as.numeric(NULL)
@@ -63,7 +63,7 @@ custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, p
     p<- parnode
     while(n!=p){
       if(n==root){
-        message("Row ", i, " does not reflect a set of branches, so it will not be used.")
+        message("Row ", i, " of 'edges' is not defining a phylogenetic branch.")
         perm.nodes.i<- NULL
         break}
       perm.nodes.i<- c(perm.nodes.i, n)

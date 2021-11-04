@@ -5,9 +5,9 @@ rand.tip <- function(input, tree,rand.type = "random",
                     polyphyly.scheme="largest", use.paraphyletic=TRUE,use.singleton=TRUE,
                     respect.mono=TRUE, respect.para=TRUE, clump.puts = TRUE, prob=TRUE,
                     prune=TRUE, forceultrametric=FALSE, verbose = TRUE){
-  if (!inherits(tree, "phylo")) {stop("object \"tree\" is not of class \"phylo\"")}
-  if(!(rand.type %in% c("random", "polytomy"))) {stop("rand.type must be \"random\" or \"polytomy\" ")}
-  if(!(polyphyly.scheme %in% c("frequentist", "complete", "largest"))) {stop("polyphyly.scheme must be \"frequentist\", \"complete\" or \"largest\" ")}
+  if (!inherits(tree, "phylo")) {stop("Backbone tree must be an object of class \"phylo\"")}
+  if(!(rand.type %in% c("random", "polytomy"))) {stop("Argument 'rand.type' must be \"random\" or \"polytomy\" ")}
+  if(!(polyphyly.scheme %in% c("frequentist", "complete", "largest"))) {stop("Argument 'polyphyly.scheme' must be \"frequentist\", \"complete\" or \"largest\" ")}
 
     start<- Sys.time()
 
@@ -25,7 +25,7 @@ rand.tip <- function(input, tree,rand.type = "random",
 
     if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
     if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
-      message("Specified tree is not ultrametric. \nTo force the randomization as an ultrametric tree please set forceultrametric=TRUE")}
+      message("The backbone tree is not ultrametric. \nPlease, set the argument 'forceultrametric' to TRUE if the tree is genuinely ultrametric.")}
 
 
     input.rand <- NULL
@@ -90,9 +90,6 @@ rand.tip <- function(input, tree,rand.type = "random",
         rand.PUTs<-sample(rand.PUTs, length(rand.PUTs), replace = F)
         rand.PUTs<- c(rand.PUTs[rand.PUTs%in%manual.mdcc.taxa], rand.PUTs[!(rand.PUTs%in%manual.mdcc.taxa)])
 
-        if( verbose){
-          cat(paste0("\n", "Starting random PUT binding \n"))
-        }
 
         for(i in seq_along(rand.PUTs)){
             PUT <- rand.PUTs[i]
@@ -119,7 +116,7 @@ rand.tip <- function(input, tree,rand.type = "random",
             if(verbose){
               cat(paste0(i, "/", length(rand.PUTs),
                            " (",round(i/length(rand.PUTs)*100, 2), "%). ",
-                           "Adding ", PUT, " to ", MDCC ," (", MDCC.type, " ", rank,")\n")) }
+                           "Binding ", PUT, " to ", MDCC ,"\n")) }
 
 
             #Manual additions
@@ -184,9 +181,7 @@ rand.tip <- function(input, tree,rand.type = "random",
         }}
     #Polytomies
     if(nrow(input.poly)>0){
-      if(verbose){
-        cat(paste0("\n","Starting polytomy PUT binding \n"))
-      }
+
       input.poly<-input.poly[!(input.poly$taxon %in% new.tree$tip.label),]
 
 
@@ -259,7 +254,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     complete.taxa.list.in.tree <- complete.taxa.list[complete.taxa.list %in% new.tree$tip.label]
     not.included <- complete.taxa.list[!(complete.taxa.list %in% complete.taxa.list.in.tree)]
     if(length(not.included) > 0){
-        message("The following taxa were not included in the tree:\n", paste0(not.included, "\n"))}
+        message("The following taxa were not bound to the tree:\n", paste0(not.included, "\n"))}
 
     if(isTRUE(prune)){new.tree <- ape::keep.tip(new.tree, complete.taxa.list.in.tree)}
     if(is.null(tree$edge.length)){new.tree$edge.length<-NULL}
