@@ -11,8 +11,13 @@
 #' @export
 custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, prob=T){
 
+  if(rand.type == "r"){rand.type <- "random"}
+  if(rand.type == "p"){rand.type <- "polytomy"}
+
   new.tree<- tree
+
   if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
+  if(!(rand.type %in% c("random", "polytomy"))) {stop("Argument 'rand.type' must be \"random\" or \"polytomy\" ")}
   if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
     message("The backbone tree is not ultrametric. \nPlease, set the argument 'forceultrametric' to TRUE if the tree is genuinely ultrametric.")}
 

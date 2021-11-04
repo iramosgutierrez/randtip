@@ -5,6 +5,14 @@ rand.tip <- function(input, tree,rand.type = "random",
                     polyphyly.scheme="largest", use.paraphyletic=TRUE,use.singleton=TRUE,
                     respect.mono=TRUE, respect.para=TRUE, clump.puts = TRUE, prob=TRUE,
                     prune=TRUE, forceultrametric=FALSE, verbose = TRUE){
+
+  if(rand.type == "r"){rand.type <- "random"}
+  if(rand.type == "p"){rand.type <- "polytomy"}
+
+  if(polyphyly.scheme == "c"){polyphyly.scheme <- "complete"}
+  if(polyphyly.scheme == "f"){polyphyly.scheme <- "frequentist"}
+  if(polyphyly.scheme == "l"){polyphyly.scheme <- "largest"}
+
   if (!inherits(tree, "phylo")) {stop("Backbone tree must be an object of class \"phylo\"")}
   if(!(rand.type %in% c("random", "polytomy"))) {stop("Argument 'rand.type' must be \"random\" or \"polytomy\" ")}
   if(!(polyphyly.scheme %in% c("frequentist", "complete", "largest"))) {stop("Argument 'polyphyly.scheme' must be \"frequentist\", \"complete\" or \"largest\" ")}
