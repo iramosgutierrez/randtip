@@ -731,6 +731,8 @@ bind.clump<- function(new.tree, tree, input, PUT){
     return(clump)
   }
 
+  if(input[input$taxon==PUT, "MDCC.rank"]=="genus"){return(NULL)}
+
 
   tree.genus.tips<-randtip::sp.genus.in.tree(tree, randtip::firstword(PUT))
   new.tree.genus.tips<-randtip::sp.genus.in.tree(new.tree, randtip::firstword(PUT))
