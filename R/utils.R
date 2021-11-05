@@ -693,7 +693,12 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
           non.nest.genera<- unique(randtip::firstword(non.nest$taxon))
 
           intruders <- nest.desc.tips[randtip::firstword(nest.desc.tips)%in%non.nest.genera]
+          if(length(intruders)==1){
+          intruder.mrca<- which(tree$tip.label==intruders)
+          }else{
           intruder.mrca<- ape::getMRCA(tree, intruders)
+          }
+
           if(any(randtip::firstword(intruders) %in% nest.gen)){next}
 
 
