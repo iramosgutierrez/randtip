@@ -16,7 +16,7 @@ phyleticity<- function(tree, genus){
     }
 
     if(length(taxa.vector) == 1){
-        genus.type <- "Singleton genus"
+        genus.type <- "Singleton"
         return(genus.type)
     }
 
