@@ -660,7 +660,12 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
           for(v in rk.vals){
             gen <- unique(randtip::firstword(sub.input$taxon[sub.input[,rk]==v]))
             ds <- descs[randtip::firstword(descs)%in%gen]
-            ds.mrca<- ape::getMRCA(tree, ds)
+            if(length(ds)==1){
+              ds.mrca<-which(tree$tip.label==ds)
+              rk.vals.mrca[which(rk.vals==v)]<- ds.mrca
+              rk.vals.desc[[which(rk.vals==v)]]<- NA
+            }
+            if(length(ds)>1){ds.mrca<- ape::getMRCA(tree, ds)}
             if( is.null(ds.mrca)){
               rk.vals.mrca[which(rk.vals==v)]<- which(tree$tip.label==sub.input$taxon[sub.input[,rk]==v])
               rk.vals.desc[[which(rk.vals==v)]]<- NA
