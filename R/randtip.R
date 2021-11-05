@@ -167,11 +167,14 @@ rand.tip <- function(input, tree,rand.type = "random",
             forbidden.nodes<- get.forbidden.nodes(new.tree,input, MDCC, rank, perm.nodes,
                                                   respect.mono, respect.para)
 
-              #if(all(perm.nodes%in%forbidden.nodes)){
-              #perm.nodes <- ????
-              #}else{
-              perm.nodes<- perm.nodes[!(perm.nodes%in%forbidden.nodes)]
-              #}
+              if(all(perm.nodes%in%forbidden.nodes)){
+                perm.nodes <- ape::getMRCA(new.tree, perm.nodes)
+              }else{
+                perm.nodes<- perm.nodes[!(perm.nodes%in%forbidden.nodes)]
+              }
+            if(is.null(perm.nodes)){
+              perm.nodes<- get.permitted.nodes(new.tree, input, MDCC, rank, MDCC.type,
+                          polyphyly.scheme, use.paraphyletic, use.singleton)}
 
             adding.DF<- data.frame("parent"=new.tree$edge[,1], "node"=new.tree$edge[,2], "length"= new.tree$edge.length )
             adding.DF<- adding.DF[adding.DF$node %in% perm.nodes,]
