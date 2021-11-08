@@ -67,6 +67,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     input[is.na(input$rand.type), "rand.type"]<-rand.type
     input[is.na(input$polyphyly.scheme), "polyphyly.scheme"]<-polyphyly.scheme
     input[is.na(input$use.paraphyletic) , "use.paraphyletic"] <- use.paraphyletic
+    input[is.na(input$use.paraphyletic) , "use.stem"] <- use.stem
     input[is.na(input$clump.puts) , "clump.puts"] <- clump.puts
     input[is.na(input$respect.mono), "respect.mono"]<- respect.mono
     input[is.na(input$respect.para), "respect.para"]<- respect.para
@@ -76,6 +77,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     input$use.paraphyletic  <- as.logical(input$use.paraphyletic)
     input$use.singleton <- as.logical(input$use.singleton)
     input$use.paraphyletic <- as.logical(input$use.paraphyletic)
+    input$use.stem <- as.logical(input$use.stem)
     input$clump.puts <- as.logical(input$clump.puts)
     input$respect.mono <- as.logical(input$respect.mono)
     input$respect.para <- as.logical(input$respect.para)
@@ -163,7 +165,7 @@ rand.tip <- function(input, tree,rand.type = "random",
               }}
 
             perm.nodes<- get.permitted.nodes(new.tree, input, MDCC, rank, MDCC.type,
-                                            polyphyly.scheme, use.paraphyletic, use.singleton)
+                                            polyphyly.scheme, use.paraphyletic, use.singleton, use.stem)
             forbidden.nodes<- get.forbidden.nodes(new.tree,input, MDCC, rank, perm.nodes,
                                                   respect.mono, respect.para)
 
@@ -174,7 +176,7 @@ rand.tip <- function(input, tree,rand.type = "random",
               }
             if(is.null(perm.nodes)){
               perm.nodes<- get.permitted.nodes(new.tree, input, MDCC, rank, MDCC.type,
-                          polyphyly.scheme, use.paraphyletic, use.singleton)}
+                          polyphyly.scheme, use.paraphyletic, use.singleton, use.stem)}
 
             adding.DF<- data.frame("parent"=new.tree$edge[,1], "node"=new.tree$edge[,2], "length"= new.tree$edge.length )
             adding.DF<- adding.DF[adding.DF$node %in% perm.nodes,]
