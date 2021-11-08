@@ -2,7 +2,7 @@
 #' randtip RANDOMIZATION FUNCTIONS
 #' @export
 rand.tip <- function(input, tree,rand.type = "random",
-                    polyphyly.scheme="largest", use.paraphyletic=TRUE,use.singleton=TRUE,
+                    polyphyly.scheme="largest", use.paraphyletic=TRUE,use.singleton=TRUE, use.stem=FALSE,
                     respect.mono=TRUE, respect.para=TRUE, clump.puts = TRUE, prob=TRUE,
                     prune=TRUE, forceultrametric=FALSE, verbose = TRUE){
 
