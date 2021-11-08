@@ -432,9 +432,9 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
     }
     if(use.paraphyletic){
 
-      mdcc.mrca<- ape::getMRCA(tree, MDCC.intree)
+      MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
 
-      descendants.nodes<- phytools::getDescendants(tree, node=mdcc.mrca,curr = NULL)
+      descendants.nodes<- phytools::getDescendants(tree, node=MDCC.mrca,curr = NULL)
       descendants.tips <- tree$tip.label[descendants.nodes]
       descendants.tips<- randtip::notNA(descendants.tips)
 
