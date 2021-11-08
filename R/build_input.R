@@ -10,6 +10,7 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi", mode="back
   species<- as.vector(species)
   if(!(is.vector(species) )){stop("Species must be provided as a character vector or single-column dataframe.")}
   if(is.list(species) ){stop("Species must be provided as a character vector or single-column dataframe.")}
+  if(length(duplicated(species))>0){stop("Species ", paste0(duplicated(species), collapse=", "), " are duplicated. Please remove copies.")}
   if(is.null(tree) & mode=="backbone"){stop("Parameter 'mode' is set to \"backbone\", but the backbone tree is missing. Please, provide a backbone tree.")}
   if (!is.null(tree) & !inherits(tree, "phylo")) { stop("Backbone tree must be an object of class \"phylo\".")}
   if(!(mode %in% c("list", "backbone"))) {stop("Parameter 'mode' must be \"list\" or \"backbone\" ")}
@@ -18,7 +19,7 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi", mode="back
 
   names_df <- c("taxon", randtip::randtip_ranks(),
                "taxon1", "taxon2","rand.type","polyphyly.scheme", "use.paraphyletic",
-               "use.singleton","respect.mono", "respect.para","clump.puts",
+               "use.singleton","use.stem","respect.mono", "respect.para","clump.puts",
                "keep.tip")
 
   species<- gsub(" ", "_", species)

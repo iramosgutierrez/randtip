@@ -409,7 +409,7 @@ sharingtaxa.descs<-function(tree, nodes, MDCC.genera){
 }
 
 get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
-                                 polyphyly.scheme, use.paraphyletic, use.singleton){
+                                 polyphyly.scheme, use.paraphyletic, use.singleton, use.stem){
 
   input.mdcc <-  input[!is.na(input[,rank]),]
   MDCC.taxa  <- input.mdcc$taxon[input.mdcc[,rank]==MDCC]
@@ -419,6 +419,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
   if(MDCC.type=="Monophyletic"){
     MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
     nodes <- phytools::getDescendants(tree, MDCC.mrca, curr=NULL)
+    if(use.stem){nodes <- c(MDCC.mrca,nodes)}
     return(nodes)
   }
 
@@ -426,6 +427,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
     if(!use.paraphyletic){
       MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
       nodes <- phytools::getDescendants(tree, MDCC.mrca, curr=NULL)
+      if(use.stem){nodes <- c(MDCC.mrca,nodes)}
       return(nodes)
     }
     if(use.paraphyletic){
@@ -447,6 +449,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
 
 
       nodes <- descendants.nodes[!(descendants.nodes%in%intruder.descs.nodes)]
+      if(use.stem){nodes <- c(MDCC.mrca,nodes)}
       return(nodes)
     }
 
@@ -458,6 +461,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
       if(length(nodes)>1){
 
         nodes<- phytools::getDescendants(ape::getMRCA(tree, MDCC.intree))
+        if(use.stem){nodes <- c(ape::getMRCA(tree, MDCC.intree),nodes)}
       }
     }
     if(!use.singleton){
@@ -472,12 +476,14 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
     if(polyphyly.scheme=="complete"){
       MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
       nodes <- phytools::getDescendants(tree, MDCC.mrca, curr=NULL)
+      if(use.stem){nodes <- c(MDCC.mrca,nodes)}
       return(nodes)
     }
 
     if(polyphyly.scheme == "frequentist"){
       MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
       nodes <- phytools::getDescendants(tree, MDCC.mrca, curr=NULL)
+      if(use.stem){nodes <- c(MDCC.mrca,nodes)}
       table<- data.frame("node"=as.numeric(nodes), "descs"=NA, "total.descs"=NA,
                          "sharing.descs"=NA, "eligible"=NA)
       for(i in seq_along(table$node)){
@@ -521,6 +527,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
     if(polyphyly.scheme == "largest"){
       MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
       nodes <- phytools::getDescendants(tree, MDCC.mrca, curr=NULL)
+      if(use.stem){nodes <- c(MDCC.mrca,nodes)}
       table<- data.frame("node"=as.numeric(nodes), "descs"=NA, "total.descs"=NA,
                          "sharing.descs"=NA, "eligible"=NA)
       for(i in seq_along(table$node)){
