@@ -56,12 +56,22 @@ custom.branch <- function(tree, edge, rand.type="random", forceultrametric=F, pr
     }
 
 
+      if(edge.i[i,2]==edge.i[i,4]|edge.i[i,2]==edge.i[i,5] &
+         edge.i[i,3]==edge.i[i,4]|edge.i[i,3]==edge.i[i,5]){equal<-TRUE}else{equal<-FALSE}
 
 
 
-    if(parnode==basenode){
+
+    if(parnode==basenode & isFALSE(equal) ){
       message("Row ", i, " of 'edge' is not defining a phylogenetic branch.")
       next}
+
+    if(parnode==basenode & isTRUE(equal) ){
+      mrca<- ape::getMRCA(tree, c(edge.i[i,2], edge.i[i,3]))
+      perm.nodes.i<-phytools::getDescendants(tree, mrca, curr=NULL)
+      permittednodes<- c(permittednodes, perm.nodes.i)
+      next}
+
 
     perm.nodes.i<- as.numeric(NULL)
     n<- basenode
@@ -147,8 +157,22 @@ plot.custom.branch<- function(tree, edge, PUT=NULL,
        edge[i,2]==edge[i,5]){
       parnode <- randtip::get.parent.siblings(tree, which(tree$tip.label==edge[i,2]))$parent}
 
-    if(parnode==basenode){
-      message("Row ", i, " specifies a unique node and not a branch, so it will not be used.")
+
+
+    if(edge[i,2]==edge[i,4]|edge[i,2]==edge[i,5] &
+       edge[i,3]==edge[i,4]|edge[i,3]==edge[i,5]){equal<-TRUE}else{equal<-FALSE}
+
+
+
+
+    if(parnode==basenode & isFALSE(equal) ){
+      message("Row ", i, " of 'edge' is not defining a phylogenetic branch.")
+      next}
+
+    if(parnode==basenode & isTRUE(equal) ){
+      mrca<- ape::getMRCA(tree, c(edge[i,2], edge[i,3]))
+      perm.nodes.i<-phytools::getDescendants(tree, mrca, curr=NULL)
+      permittednodes<- c(permittednodes, perm.nodes.i)
       next}
 
     perm.nodes.i<- as.numeric(NULL)
