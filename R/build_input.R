@@ -10,8 +10,8 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi", mode="back
   species<- as.vector(species)
   if(!(is.vector(species) )){stop("Species must be provided as a character vector or single-column dataframe.")}
   if(is.list(species) ){stop("Species must be provided as a character vector or single-column dataframe.")}
-  if(length(species[duplicated(species)])==!){stop("Taxon ", paste0(species[duplicated(species)], collapse=", "), " is duplicated. Please remove copies.")}
-  if(length(species[duplicated(species)])>0){stop("Taxa ", paste0(species[duplicated(species)], collapse=", "), " are duplicated. Please remove copies.")}
+  if(length(species[duplicated(species)])==1){stop("Taxon ", paste0(species[duplicated(species)], collapse=", "),  " is duplicated.")}
+  if(length(species[duplicated(species)])>1 ){stop("Taxa ",  paste0(species[duplicated(species)], collapse=", "), " are duplicated.")}
   if(is.null(tree) & mode=="backbone"){stop("Parameter 'mode' is set to \"backbone\", but the backbone tree is missing. Please, provide a backbone tree.")}
   if (!is.null(tree) & !inherits(tree, "phylo")) { stop("Backbone tree must be an object of class \"phylo\".")}
   if(!(mode %in% c("list", "backbone"))) {stop("Parameter 'mode' must be \"list\" or \"backbone\" ")}

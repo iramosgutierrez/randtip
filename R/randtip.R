@@ -17,6 +17,9 @@ rand.tip <- function(input, tree,rand.type = "random",
   if(!(rand.type %in% c("random", "polytomy"))) {stop("Argument 'rand.type' must be \"random\" or \"polytomy\" ")}
   if(!(polyphyly.scheme %in% c("frequentist", "complete", "largest"))) {stop("Argument 'polyphyly.scheme' must be \"frequentist\", \"complete\" or \"largest\" ")}
 
+  if(length(tree$tip.label[duplicated(tree$tip.label)])==1){stop("Tip ", paste0(tree$tip.label[duplicated(tree$tip.label)], collapse=", "),  " is duplicated in the backbone tree.")}
+  if(length(tree$tip.label[duplicated(tree$tip.label)])>1 ) {stop("Tips ",  paste0(tree$tip.label[duplicated(tree$tip.label)], collapse=", "), " are duplicated in the backbone tree.")}
+
     start<- Sys.time()
 
     tree$tip.label <- gsub(" ", "_", tree$tip.label)
