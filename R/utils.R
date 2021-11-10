@@ -576,10 +576,22 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
 
 get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono, respect.para){
 
-
-  if(rank=="genus"){return(NULL)}
-
   forbidden.nodes<- vector("numeric")
+
+  perm.tips<- randtip::notNA(tree$tip.label[perm.nodes])
+  perm.species<-paste0(stringr::word(perm.tips, 1, sep="_"), "_", stringr::word(perm.tips, 2, sep="_"))
+  ssps<-perm.species[duplicated(perm.species)]
+  if(length(ssps)>1){
+    for(ssp in ssps){
+      nodes<-which(paste0(stringr::word(tree$tip.label, 1, sep="_"), "_", stringr::word(tree$tip.label, 2, sep="_"))==ssp)
+      #_____________POR AQUI VOY EDITANDO
+      #Falta evaluar si hay nodos internos parentales a subespecies
+
+      }
+  }
+
+  if(rank=="genus"){return(unique(forbidden.nodes))}
+
   if(respect.mono){
     for(i in seq_along(perm.nodes)){
 
