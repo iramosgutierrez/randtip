@@ -732,11 +732,11 @@ bind.clump<- function(new.tree, tree, input, PUT){
   treespp<- paste0(stringr::word(tree$tip.label, 1,sep = "_"), "_", stringr::word(tree$tip.label, 2,sep = "_"))
   new.treespp<- paste0(stringr::word(new.tree$tip.label, 1,sep = "_"), "_", stringr::word(new.tree$tip.label, 2,sep = "_"))
 
-  if(sp%in%treespp){
+  if(sp%in%new.treespp){
     DFspp<- paste0(stringr::word(input$taxon, 1,sep = "_"), "_", stringr::word(input$taxon, 2,sep = "_"))
-    clump<- tree$tip.label[treespp==sp]
-    clumpDF<-input[input$clump.PUTs==TRUE,]
-    clumpDF<-input$taxon[DFspp==sp]
+    clump<- new.tree$tip.label[new.treespp==sp]
+    clumpDF<-input[DFspp==sp,]
+    clumpDF<-clumpDF[clumpDF$clump.puts==TRUE,"taxon"]
     clump<- unique(c(clump, clumpDF))
     clump<- clump[clump%in%new.tree$tip.label]
     if(length(clump)>1){
