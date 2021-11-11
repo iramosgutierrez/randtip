@@ -752,6 +752,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
 bind.clump<- function(new.tree, tree, input, PUT){
 
+  clumplist<- list("MDCC"=NULL, "rank"=NULL,"MDCC.type"=NULL, "taxa"=NULL)
   sp<- paste0(stringr::word(PUT, 1,sep = "_"), "_", stringr::word(PUT, 2,sep = "_"))
   treespp<- paste0(stringr::word(tree$tip.label, 1,sep = "_"), "_", stringr::word(tree$tip.label, 2,sep = "_"))
   new.treespp<- paste0(stringr::word(new.tree$tip.label, 1,sep = "_"), "_", stringr::word(new.tree$tip.label, 2,sep = "_"))
@@ -769,15 +770,25 @@ bind.clump<- function(new.tree, tree, input, PUT){
       descs<-randtip::notNA(descs)
       if(any(!(descs%in%clump))){clump<- sample(clump, 1)}
     }
+    clumplist$MDCC<- DFspp
+    clumplist$rank<- "species"
+    clumplist$MDCC.type<- "Singleton"
+    clumplist$taxa<- clump
     return(clump)
   }
 
-  if(input[input$taxon==PUT, "MDCC.rank"]=="genus"){return(NULL)}
+  if(input[input$taxon==PUT, "MDCC.rank"]=="genus"){return(clumplist)}
 
 
   tree.genus.tips<-randtip::sp.genus.in.tree(tree, randtip::firstword(PUT))
   new.tree.genus.tips<-randtip::sp.genus.in.tree(new.tree, randtip::firstword(PUT))
-  if(length(tree.genus.tips)==0 & length(new.tree.genus.tips)>0){return(new.tree.genus.tips)}
+  if(length(tree.genus.tips)==0 & length(new.tree.genus.tips)>0){
+    clumplist$MDCC<-firstword(PUT)
+    clumplist$rank<-"genus"
+    clumplist$MDCC.type<- randtip::phyleticity(new.tree, firstword(PUT))
+    clumplist$taxa<-new.tree.genus.tips
+
+    return(clumplist)}
 
 
 
@@ -789,10 +800,17 @@ bind.clump<- function(new.tree, tree, input, PUT){
     newclump<- input$taxon[input[,newsearch$MDCC.ranks]==newsearch$MDCC]
     newclump<- unique(randtip::firstword(newclump))
     newclump <- randtip::sp.genus.in.tree(new.tree, newclump)
-    return(newclump)
+
+    clumplist$MDCC<-newsearch$MDCC
+    clumplist$rank<-newsearch$MDCC.ranks
+    clumplist$taxa<-newclump
+    clumplist$MDCC.type<- randtip::MDCC.phyleticity(input, new.tree,
+                              MDCC.info = list(rank=newsearch$MDCC.ranks,MDCC=newsearch$MDCC, rank), trim = T)
+
+
   }
 
-
+  return(clumplist)
 
 
 }

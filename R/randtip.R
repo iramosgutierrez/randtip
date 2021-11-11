@@ -166,20 +166,23 @@ rand.tip <- function(input, tree,rand.type = "random",
 
             if(isTRUE(clump.PUT.i)){
               clump<- randtip::bind.clump(new.tree, tree, input, PUT)
-              if(!is.null(clump)){
-                new.tree<- add.to.singleton(new.tree, clump, PUT, use.singleton = T)
-                next
+              if(!is.null(unlist(clump))){
+                MDCC<-clump$MDCC
+                rank<-clump$rank
+                MDCC.type<-clump$MDCC.type
+
+
               }}
 
             perm.nodes<- get.permitted.nodes(new.tree, input, MDCC, rank, MDCC.type,
-                                            polyphyly.scheme, use.paraphyletic, use.singleton, use.stem)
+                         polyphyly.scheme, use.paraphyletic, use.singleton, use.stem=T)
             forbidden.nodes<- get.forbidden.nodes(new.tree,input, MDCC, rank, perm.nodes,
                                                   respect.mono, respect.para)
 
-              if(all(perm.nodes%in%forbidden.nodes)){
-                perm.nodes <- ape::getMRCA(new.tree, perm.nodes)
-              }else{
-                perm.nodes<- perm.nodes[!(perm.nodes%in%forbidden.nodes)]
+              if(all(perm.nodes[-1]%in%forbidden.nodes)){
+                perm.nodes <- perm.nodes[1]
+              }else if (!use.stem){
+                perm.nodes<- perm.nodes[-1]
               }
             if(is.null(perm.nodes)){
               perm.nodes<- get.permitted.nodes(new.tree, input, MDCC, rank, MDCC.type,
