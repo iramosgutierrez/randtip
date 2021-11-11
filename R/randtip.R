@@ -75,6 +75,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     input[is.na(input$respect.mono), "respect.mono"]<- respect.mono
     input[is.na(input$respect.para), "respect.para"]<- respect.para
     input[is.na(input$use.singleton), "use.singleton"]<- use.singleton
+    input[is.na(input$prob) , "prob"] <- prob
 
 
     input$use.paraphyletic  <- as.logical(input$use.paraphyletic)
@@ -84,6 +85,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     input$clump.puts <- as.logical(input$clump.puts)
     input$respect.mono <- as.logical(input$respect.mono)
     input$respect.para <- as.logical(input$respect.para)
+    input$prob <- as.logical(input$prob)
 
 
 
@@ -122,6 +124,8 @@ rand.tip <- function(input, tree,rand.type = "random",
             respect.para <- as.logical(randtip::inputfinder(input.rand.bind, PUT, "respect.para"))
 
             clump.PUT.i<-as.logical(randtip::inputfinder(input.rand.bind, PUT, "clump.puts"))
+
+            prob<-as.logical(randtip::inputfinder(input.rand.bind, PUT, "prob"))
 
 
 

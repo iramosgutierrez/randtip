@@ -21,7 +21,7 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi", mode="back
   names_df <- c("taxon", randtip::randtip_ranks(),
                "taxon1", "taxon2","rand.type","polyphyly.scheme", "use.paraphyletic",
                "use.singleton","use.stem","respect.mono", "respect.para","clump.puts",
-               "keep.tip")
+               "prob","keep.tip")
 
   species<- gsub(" ", "_", species)
   tree$tip.label <- gsub("_x_", "_x-", tree$tip.label)
