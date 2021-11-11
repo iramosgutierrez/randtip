@@ -109,7 +109,7 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi", mode="back
 
   info[!(species%in%spp.original),
       c("taxon1", "taxon2","rand.type", "polyphyly.scheme","use.paraphyletic", "use.singleton",
-        "use.stem","respect.mono","respect.para","clump.puts" )]<-"-"
+        "use.stem","respect.mono","respect.para","clump.puts", "prob" )]<-"-"
   info$keep.tip[!(species%in%spp.original)]<- 0
   info$keep.tip[  species%in%spp.original ]<- 1
   return(info)
