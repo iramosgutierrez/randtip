@@ -71,7 +71,7 @@ MDCC.phyleticity<-function(input, tree, MDCC.info=list("rank"=NA, "MDCC"=NA), tr
 
   if(rank!="genus"){
    tips<- tree$tip.label[randtip::firstword(tree$tip.label)%in%randtip::firstword(input$taxon)]
-   if(isTRUE(trim)){tree<- ape::keep.tip(phy =tree, tip = tips)}
+   if(isTRUE(trim)&length(tips)>0){tree<- ape::keep.tip(phy =tree, tip = tips)}
 
    species<- input[which(input[,rank]==MDCC),]
    MDCC.genera<- unique(randtip::firstword(species$taxon))
