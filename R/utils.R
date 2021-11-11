@@ -578,6 +578,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
   forbidden.nodes<- vector("numeric")
 
+  if(respect.mono){
   perm.tips<- randtip::notNA(tree$tip.label[perm.nodes])
   perm.species<-paste0(stringr::word(perm.tips, 1, sep="_"), "_", stringr::word(perm.tips, 2, sep="_"))
   ssps<-perm.species[duplicated(perm.species)]
@@ -599,6 +600,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
       }
   }
+}
 
   if(rank=="genus"){return(unique(forbidden.nodes))}
 
