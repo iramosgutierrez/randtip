@@ -581,11 +581,21 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
   perm.tips<- randtip::notNA(tree$tip.label[perm.nodes])
   perm.species<-paste0(stringr::word(perm.tips, 1, sep="_"), "_", stringr::word(perm.tips, 2, sep="_"))
   ssps<-perm.species[duplicated(perm.species)]
-  if(length(ssps)>1){
+  if(length(ssps)>0){
     for(ssp in ssps){
       nodes<-which(paste0(stringr::word(tree$tip.label, 1, sep="_"), "_", stringr::word(tree$tip.label, 2, sep="_"))==ssp)
-      #_____________POR AQUI VOY EDITANDO
-      #Falta evaluar si hay nodos internos parentales a subespecies
+      if(length(nodes)==2){forbidden.nodes<-c(forbidden.nodes, nodes);next}
+      if(length(nodes)> 2){
+        ssp.mrca<- ape::getMRCA(tree, nodes)
+        ssp.descs<- phytools::getDescendants(tree, ssp.mrca, curr=NULL)
+        for(n in ssp.descs){
+          if(n %in%forbidden.nodes){next}
+          node.descs<- tree$tip.label[randtip::notNA(phytools::getDescendants(tree, n, curr=NULL))]
+          node.descs<- paste0(stringr::word(node.descs, 1, sep="_"), "_", stringr::word(node.descs, 2, sep="_"))
+          if(all(node.descs==ssp)){forbidden.nodes<-c(forbidden.nodes, nodes)}
+          }
+      }
+
 
       }
   }
@@ -746,7 +756,7 @@ bind.clump<- function(new.tree, tree, input, PUT){
 
   if(sp%in%new.treespp){
     DFspp<- paste0(stringr::word(input$taxon, 1,sep = "_"), "_", stringr::word(input$taxon, 2,sep = "_"))
-    clump<- new.tree$tip.label[new.treespp==sp]
+    clump<- tree$tip.label[treespp==sp]
     clumpDF<-input[DFspp==sp,]
     clumpDF<-clumpDF[clumpDF$clump.puts==TRUE,"taxon"]
     clump<- unique(c(clump, clumpDF))
