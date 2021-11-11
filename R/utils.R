@@ -770,11 +770,11 @@ bind.clump<- function(new.tree, tree, input, PUT){
       descs<-randtip::notNA(descs)
       if(any(!(descs%in%clump))){clump<- sample(clump, 1)}
     }
-    clumplist$MDCC<- DFspp
+    clumplist$MDCC<- sp
     clumplist$rank<- "species"
     clumplist$MDCC.type<- "Singleton"
     clumplist$taxa<- clump
-    return(clump)
+    return(clumplist)
   }
 
   if(input[input$taxon==PUT, "MDCC.rank"]=="genus"){return(clumplist)}

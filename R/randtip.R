@@ -70,7 +70,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     input[is.na(input$rand.type), "rand.type"]<-rand.type
     input[is.na(input$polyphyly.scheme), "polyphyly.scheme"]<-polyphyly.scheme
     input[is.na(input$use.paraphyletic) , "use.paraphyletic"] <- use.paraphyletic
-    input[is.na(input$use.paraphyletic) , "use.stem"] <- use.stem
+    input[is.na(input$use.stem) , "use.stem"] <- use.stem
     input[is.na(input$clump.puts) , "clump.puts"] <- clump.puts
     input[is.na(input$respect.mono), "respect.mono"]<- respect.mono
     input[is.na(input$respect.para), "respect.para"]<- respect.para
@@ -131,9 +131,9 @@ rand.tip <- function(input, tree,rand.type = "random",
 
 
             if(verbose){
-              cat(paste0(i, "/", length(rand.PUTs),
+              cat(paste0("\n",i, "/", length(rand.PUTs),
                            " (",round(i/length(rand.PUTs)*100, 2), "%). ",
-                           "Binding ", PUT, " to ", MDCC ,"\n")) }
+                           "Binding ", PUT, " to ", MDCC ,"\r")) }
 
 
             #Manual additions
@@ -171,9 +171,19 @@ rand.tip <- function(input, tree,rand.type = "random",
                 rank<-clump$rank
                 MDCC.type<-clump$MDCC.type
 
+                if(verbose){
+                  flush.console()
+                  cat(paste0("\n",i, "/", length(rand.PUTs),
+                             " (",round(i/length(rand.PUTs)*100, 2), "%). ",
+                             "Binding ", PUT, " to ", MDCC ,"\r")) }
+
 
               }}
 
+            if(rank=="species"){
+              new.tree<-add.to.singleton(new.tree, clump$taxa, PUT, use.singleton)
+              next
+            }
             perm.nodes<- get.permitted.nodes(new.tree, input, MDCC, rank, MDCC.type,
                          polyphyly.scheme, use.paraphyletic, use.singleton, use.stem=T)
             forbidden.nodes<- get.forbidden.nodes(new.tree,input, MDCC, rank, perm.nodes,
