@@ -173,7 +173,7 @@ rand.tip <- function(input, tree,rand.type = "random",
 
                 if(verbose){
                   flush.console()
-                  cat(paste0("\n",i, "/", length(rand.PUTs),
+                  cat(paste0(i, "/", length(rand.PUTs),
                              " (",round(i/length(rand.PUTs)*100, 2), "%). ",
                              "Binding ", PUT, " to ", MDCC ,"\r")) }
 
