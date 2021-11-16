@@ -191,8 +191,12 @@ rand.tip <- function(input, tree,rand.type = "random",
 
               if(all(perm.nodes[-1]%in%forbidden.nodes)){
                 perm.nodes <- perm.nodes[1]
-              }else if (!use.stem){
+              }else{
+                if (!use.stem){
                 perm.nodes<- perm.nodes[-1]
+                perm.nodes<-perm.nodes[!(perm.nodes%in%forbidden.nodes)]}
+                if (use.stem){
+                  perm.nodes<-perm.nodes[!(perm.nodes%in%forbidden.nodes)]}
               }
             if(is.null(perm.nodes)){
               perm.nodes<- get.permitted.nodes(new.tree, input, MDCC, rank, MDCC.type,
