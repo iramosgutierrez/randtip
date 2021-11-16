@@ -130,6 +130,17 @@ rand.tip <- function(input, tree,rand.type = "random",
 
 
 
+            if(isTRUE(clump.PUT.i)){
+              clump<- randtip::bind.clump(new.tree, tree, input, PUT)
+              if(!is.null(unlist(clump))){
+                MDCC<-clump$MDCC
+                rank<-clump$rank
+                MDCC.type<-clump$MDCC.type
+
+
+              }}
+
+
             if(verbose){
               cat(paste0("\n",i, "/", length(rand.PUTs),
                            " (",round(i/length(rand.PUTs)*100, 2), "%). ",
@@ -164,24 +175,10 @@ rand.tip <- function(input, tree,rand.type = "random",
 
             #Automatically searched MDCCs additions
 
-            if(isTRUE(clump.PUT.i)){
-              clump<- randtip::bind.clump(new.tree, tree, input, PUT)
-              if(!is.null(unlist(clump))){
-                MDCC<-clump$MDCC
-                rank<-clump$rank
-                MDCC.type<-clump$MDCC.type
 
-                if(verbose){
-                  flush.console()
-                  cat(paste0(i, "/", length(rand.PUTs),
-                             " (",round(i/length(rand.PUTs)*100, 2), "%). ",
-                             "Binding ", PUT, " to ", MDCC ,"\r")) }
-
-
-              }}
 
             if(rank=="species"){
-              new.tree<-add.to.singleton(new.tree, clump$taxa, PUT, use.singleton)
+              new.tree<-add.to.singleton(new.tree, clump$taxa, PUT, use.singleton=T)
               next
             }
             perm.nodes<- get.permitted.nodes(new.tree, input, MDCC, rank, MDCC.type,
