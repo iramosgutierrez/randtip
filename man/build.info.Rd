@@ -6,10 +6,11 @@
 \usage{
 build.info(
   species,
-  tree,
+  tree = NULL,
   find.ranks = TRUE,
   db = "ncbi",
   mode = "backbone",
+  interactive = F,
   genus = F
 )
 }

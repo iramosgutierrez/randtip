@@ -8,15 +8,17 @@ rand.tip(
   input,
   tree,
   rand.type = "random",
-  polyphyly.scheme = "large",
+  polyphyly.scheme = "largest",
   use.paraphyletic = TRUE,
   use.singleton = TRUE,
+  use.stem = FALSE,
   respect.mono = TRUE,
   respect.para = TRUE,
-  clump.PUTs = TRUE,
+  clump.puts = TRUE,
+  prob = TRUE,
   prune = TRUE,
-  forceultrametric = TRUE,
-  verbose = FALSE
+  forceultrametric = FALSE,
+  verbose = TRUE
 )
 }
 \description{

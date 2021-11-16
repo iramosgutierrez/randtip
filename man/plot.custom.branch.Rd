@@ -7,11 +7,11 @@
 \usage{
 \method{plot}{custom.branch}(
   tree,
-  edges,
-  rand.type = "random",
-  permitted.col = "#03C03C",
-  forbidden.col = "black",
-  permitted.lwd = 1,
+  edge,
+  PUT = NULL,
+  candidate.col = "#bf2828",
+  forbidden.col = "#3d3d3d",
+  candidate.lwd = 2,
   forbidden.lwd = 1,
   ...
 )

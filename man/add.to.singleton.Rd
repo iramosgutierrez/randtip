@@ -9,8 +9,8 @@ add.to.singleton(
   singleton,
   new.tips,
   use.singleton = F,
-  resp.mono = F,
-  resp.para = F
+  respect.mono = F,
+  respect.para = F
 )
 }
 \description{

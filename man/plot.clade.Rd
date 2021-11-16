@@ -6,9 +6,9 @@
 \usage{
 \method{plot}{clade}(
   get.clade.out,
-  corankedtaxa.col = "#03C03C",
-  intruder.col = "#C23B23",
-  stowaway.col = "black",
+  ppcr.col = "#4a8a21",
+  nonppcr.col = "#48bce0",
+  unknown.col = "#adadad",
   ...
 )
 }

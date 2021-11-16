@@ -4,7 +4,7 @@
 \alias{check.info}
 \title{Function to check info work}
 \usage{
-check.info(info, tree, sim = 0.8, verbose = F)
+check.info(info, tree, sim = 0.8)
 }
 \description{
 Function to check info work
