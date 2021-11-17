@@ -100,10 +100,10 @@ DF<-DF[,c("taxon", "PUT.status", "Typo", "Typo.names","genus", "genus_phyletic.s
 tips<- tree$tip.label
 
 if(length(tips[duplicated(tips)])==1){
-  message("Tip ", tips[duplicated(tips)], " is duplicated in the phylogeny tips.\n")}
+  message("Tip ", tips[duplicated(tips)], " is duplicated in the phylogeny tips. Please remove one of them.\n")}
 
 if(length(tips[duplicated(tips)])>1 ){
-  message("Tips ", paste0(tips[duplicated(tips)], collapse = ", "), " are duplicated in the phylogeny tips.\n")}
+  message("Tips ", paste0(tips[duplicated(tips)], collapse = ", "), " are duplicated in the phylogeny tips. Please remove one of them.\n")}
 
 subsp.tips<- tips[sapply(strsplit(tips, "_"), length)>2]
 
@@ -113,7 +113,7 @@ if(length(subsp.tips)>0){
     if(paste0(nomials[1], "_", nomials[2])%in%tips &
        any(nomials[3:length(nomials)]==nomials[2])){
       message("Tips ", ssp, " and " , paste0(nomials[1], "_", nomials[2]),
-              " are synonyms and are both included in the tree.\n" )
+              " may represent the same taxon. Please consider removing one of them.\n" )
     }
   }
 }
@@ -127,4 +127,4 @@ info<- info[info$keep.tip=="1",]
   return(DF)
 }
 
-#example.check<- check.input(info =example , tree = tree25)
+
