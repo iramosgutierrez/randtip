@@ -88,10 +88,6 @@ rand.tip <- function(input, tree,rand.type = "random",
 
 
 
-
-
-
-
         input.bind<- input[!(input$taxon %in% new.tree$tip.label),]
         input.bind<- input.bind[!is.na(input.bind$MDCC),]
 
@@ -144,17 +140,15 @@ rand.tip <- function(input, tree,rand.type = "random",
                            "Binding ", PUT, " to ", MDCC ,"\r")) }
 
 
-
+            perm.nodes<- NULL
             if(rank=="Sister species"){
-              new.tree <- add.to.singleton(tree=new.tree, singleton = MDCC ,new.tips =  PUT)
-              next
+              perm.nodes <- which(new.tree$tip.label==MDCC)
             }
 
             if(rank=="Sister genus"){
               sister.genus.tips<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)==MDCC]
               sister.genus.mrca<- ape::getMRCA(new.tree, sister.genus.tips)
-              new.tree<-add.over.node(tree= new.tree, new.tip = PUT, node = sister.genus.mrca)
-              next
+              perm.nodes <- sister.genus.mrca
               }
 
             if(rank=="Manual setting"){
@@ -162,9 +156,8 @@ rand.tip <- function(input, tree,rand.type = "random",
             sp2<- randtip::inputfinder(input.bind, PUT, "taxon2")
             clade.mrca<- ape::getMRCA(new.tree, c(sp1, sp2))
 
-            new.tree <- add.into.node(tree = new.tree, node = clade.mrca,
-                                        new.tip = PUT, prob = prob )
-            next
+            perm.nodes <- phytools::getDescendants(new.tree, clade.mrca, curr=NULL)
+
               }
 
             if(rank=="species"){
@@ -206,9 +199,12 @@ rand.tip <- function(input, tree,rand.type = "random",
                                            where = bind.pos$where , position = bind.pos$position )
             }
             if(rand.type=="polytomy"){
-              perm.nodes<- get.permitted.nodes(new.tree, input, MDCC, rank, MDCC.type,
-                                               polyphyly.scheme, use.paraphyletic, use.singleton, use.stem)
-              if(length(perm.nodes)==1){node <- randtip::get.parent.siblings(new.tree, 56)[[1]]}
+
+              if(is.null(perm.nodes)){perm.nodes<- get.permitted.nodes(
+                new.tree, input, MDCC, rank, MDCC.type,
+                polyphyly.scheme, use.paraphyletic, use.singleton, use.stem)}
+
+              if(length(perm.nodes)==1){node <- randtip::get.parent.siblings(new.tree, perm.nodes)[[1]]}
               if(length(perm.nodes) >1){node <- ape::getMRCA(new.tree, perm.nodes)}
 
 
