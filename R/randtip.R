@@ -168,10 +168,15 @@ rand.tip <- function(input, tree,rand.type = "random",
 
 
             if(rand.type=="random"){
-              perm.nodes<- get.permitted.nodes(new.tree, input, MDCC, rank, MDCC.type,
-                                               polyphyly.scheme, use.paraphyletic, use.singleton, use.stem=T)
+
+              if(is.null(perm.nodes)){
+                perm.nodes<- get.permitted.nodes(new.tree, input, MDCC, rank, MDCC.type,
+                  polyphyly.scheme, use.paraphyletic, use.singleton, use.stem=T)
+
               forbidden.nodes<- get.forbidden.nodes(new.tree,input, MDCC, rank, perm.nodes,
                                                     respect.mono, respect.para)
+
+
             if(all(perm.nodes[-1]%in%forbidden.nodes)){
                 perm.nodes <- perm.nodes[1]
               }else{
@@ -184,6 +189,7 @@ rand.tip <- function(input, tree,rand.type = "random",
             if(is.null(perm.nodes)){
               perm.nodes<- get.permitted.nodes(new.tree, input, MDCC, rank, MDCC.type,
                           polyphyly.scheme, use.paraphyletic, use.singleton, use.stem)}
+              }
 
             adding.DF<- data.frame("parent"=new.tree$edge[,1], "node"=new.tree$edge[,2], "length"= new.tree$edge.length )
             adding.DF<- adding.DF[adding.DF$node %in% perm.nodes,]
