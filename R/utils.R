@@ -127,7 +127,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = F){
         pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon1[tx]
         MDCC.lev.vect[pos] <- "Sister species"
-        #MDCC.phyletictype.vect[pos]<-"-"
+
         next
       }
 
@@ -136,9 +136,9 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = F){
                 taxa$taxon1[tx]!=taxa$taxon2[tx])){
 
         pos<- which(taxon==taxa$taxon[tx])
-        MDCC.vect[pos] <- paste0("Clade (", taxa$taxon1[tx], "-", taxa$taxon2[tx], ")")
-        MDCC.lev.vect[pos] <- "Manual clade"
-        #MDCC.phyletictype.vect[pos]<-"-"
+        MDCC.vect[pos] <- paste0("Clade ", taxa$taxon1[tx], "-", taxa$taxon2[tx])
+        MDCC.lev.vect[pos] <- "Manual setting"
+
         next
       }
 
@@ -148,7 +148,6 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = F){
         pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon1[tx]
         MDCC.lev.vect[pos] <- "Sister species"
-        #MDCC.phyletictype.vect[pos]<-"-"
         next
       }
 
@@ -158,7 +157,6 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = F){
         pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon2[tx]
         MDCC.lev.vect[pos] <- "Sister species"
-        #MDCC.phyletictype.vect[pos]<-"-"
         next
       }
 
@@ -194,7 +192,6 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = F){
     if(taxon[v]%in%tree$tip.label){
       MDCC.vect[v]<- "Tip"
       MDCC.lev.vect[v]<-"Tip"
-      #MDCC.phyletictype.vect[v]<-"Tip"
       next
       }
     i<- which(input$taxon==taxon[v])
@@ -224,7 +221,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = F){
   }}
 }
 
-  return(list(MDCC=MDCC.vect,MDCC.ranks=MDCC.lev.vect) )#, MDCC.phylstat=MDCC.phyletictype.vect
+  return(list(MDCC=MDCC.vect,MDCC.ranks=MDCC.lev.vect) )
 }
 
 get.parent.siblings <- function(tree, tip){
