@@ -599,7 +599,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
   }
 }
 
-  if(rank=="genus"){return(unique(forbidden.nodes))}
+  #if(rank=="genus"){return(unique(forbidden.nodes))}
 
   if(respect.mono){
     for(i in seq_along(perm.nodes)){
