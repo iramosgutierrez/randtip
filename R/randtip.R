@@ -116,14 +116,14 @@ rand.tip <- function(input, tree,rand.type = "random",
             respect.mono <- as.logical(randtip::inputfinder(input.bind, PUT, "respect.mono"))
             respect.para <- as.logical(randtip::inputfinder(input.bind, PUT, "respect.para"))
 
-            clump.PUT.i<-as.logical(randtip::inputfinder(input.bind, PUT, "clump.puts"))
+            clump.PUT<-as.logical(randtip::inputfinder(input.bind, PUT, "clump.puts"))
 
             prob<-as.logical(randtip::inputfinder(input.bind, PUT, "prob"))
 
 
 
 
-            if(isTRUE(clump.PUT.i)){
+            if(isTRUE(clump.PUT)){
               clump<- randtip::bind.clump(new.tree, tree, input, PUT)
               if(!is.null(unlist(clump))){
                 MDCC<-clump$MDCC
@@ -141,6 +141,7 @@ rand.tip <- function(input, tree,rand.type = "random",
 
 
             perm.nodes<- NULL
+            forbidden.nodes<-NULL
             if(rank=="Sister species"){
               perm.nodes <- which(new.tree$tip.label==MDCC)
             }
@@ -157,6 +158,7 @@ rand.tip <- function(input, tree,rand.type = "random",
             clade.mrca<- ape::getMRCA(new.tree, c(sp1, sp2))
 
             perm.nodes <- phytools::getDescendants(new.tree, clade.mrca, curr=NULL)
+            if(use.stem){perm.nodes <- c(clade.mrca, perm.nodes)}
 
               }
 
