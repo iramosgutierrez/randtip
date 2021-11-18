@@ -599,8 +599,6 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
   }
 }
 
-  #if(rank=="genus"){return(unique(forbidden.nodes))}
-
   if(respect.mono){
     for(i in seq_along(perm.nodes)){
 
@@ -614,7 +612,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
       sub.input <- input[firstword(input$taxon)%in%genera,]
 
-      for( rk in randtip::randtip_ranks()[2:(which(randtip::randtip_ranks()==rank)-1)]){
+      for( rk in randtip::randtip_ranks()[1:(which(randtip::randtip_ranks()==rank)-1)]){
         rk.vals<-unique(sub.input[,rk])
         if(length(rk.vals)==1) {if(is.na(rk.vals)){next}}
         if(length(rk.vals)==1){
@@ -647,7 +645,8 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
         if(tip.par!=nd){forbidden.nodes<- c(forbidden.nodes, descs.nd[which(descs.nd!=tip.n)] ); next}}
 
       #for paraphyletic genera, disregarding input info
-      if(length(genera)>1){
+      if(length(genera)==1){next}
+
         rk.vals.mrca<- vector("numeric", length = length(genera))
         rk.vals.desc<- list( NA)
         for(v in genera){
@@ -664,21 +663,28 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
         }
 
         nest<- genera[which(rk.vals.mrca==nd)]
-        nested<- descs[!(randtip::firstword(descs)%in%nest)]
-        if(length(nest)!=0 & !any(firstword(nested)%in%nest)){
+        if(length(nest)>0){
+          if(randtip::phyleticity(new.tree, nest)=="Paraphyletic"){
+
+        nested <-rk.vals.desc; nested[which(rk.vals.mrca==nd)]<-NA
+        nested <- new.tree$tip.label[unlist(nested)]
+
+        if(!any(firstword(nested)%in%nest)){
           p<-which(rk.vals.mrca==nd); if(length(p)>1){p<-p[1]}
           para.nodes<- rk.vals.desc[[p]]
           intr.nodes <- rk.vals.desc
           intr.nodes[[p]]<-NA
           intr.nodes<- randtip::notNA(unlist(intr.nodes))
           para.nodes<- para.nodes[!(para.nodes%in%intr.nodes)]
-          forbidden.nodes<- c(forbidden.nodes, para.nodes ); next} }
+          forbidden.nodes<- c(forbidden.nodes, para.nodes ); next}
+        }}
+
 
 
       #search for suprageneric paraphyletic categories
       sub.input <- input[firstword(input$taxon)%in%genera,]
 
-      for( rk in randtip::randtip_ranks()[2:(which(randtip::randtip_ranks()==rank)-1)]){
+      for( rk in randtip::randtip_ranks()[1:(which(randtip::randtip_ranks()==rank)-1)]){
         rk.vals<-randtip::notNA(unique(sub.input[,rk]))
 
         if(length(rk.vals)>1){
@@ -704,9 +710,12 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
             }
 
           }
-          if(!any(rk.vals.mrca==nd)){next}
+
 
           nest<- rk.vals[rk.vals.mrca==nd]
+          if(length(nest)>0){
+          if(randtip::MDCC.phyleticity(input, new.tree, list(rank=rk, MDCC=nest))=="Paraphyletic"){
+
           nest.tips<- sub.input$taxon[sub.input[,rk]==nest]
           nest.gen<- randtip::firstword(nest.tips)
           nest.mrca<- nd
@@ -735,13 +744,12 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
           para.nodes<- nested.nodes[!(nested.nodes%in%c(int.nodes, intruder.mrca))]
 
           forbidden.nodes<- c(forbidden.nodes, para.nodes ); next}
+        }}
 
       }
     }
 
   }
-
-
 
   return(unique(forbidden.nodes))
 }
