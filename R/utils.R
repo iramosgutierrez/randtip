@@ -659,7 +659,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
           tip.par<- get.parent.siblings(tree, tip.n)$parent
 
-          if(tip.par!=nd){if!(nest.gen%in%perm.groups){forbidden.nodes<- c(forbidden.nodes, descs.nd[which(descs.nd!=tip.n)] ); next}}}
+          if(tip.par!=nd){if(!(nest.gen%in%perm.groups)){forbidden.nodes<- c(forbidden.nodes, descs.nd[which(descs.nd!=tip.n)] ); next}}}
       }
 
 
