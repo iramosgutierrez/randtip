@@ -24,6 +24,15 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi", mode="back
                "prob","keep.tip")
 
   species<- gsub(" ", "_", species)
+  if(any(substr(species, 1, 1)=="_")){
+    species[which(substr(species, 1, 1)=="_")]<- substr(species[which(substr(species, 1, 1)=="_")], 2, nchar(species[which(substr(species, 1, 1)=="_")]))
+  }
+  if(any(substr(species, nchar(species), nchar(species))=="_")){
+    species[which(substr(species, nchar(species), nchar(species))=="_")]<-
+      substr(species[which(substr(species, nchar(species), nchar(species))=="_")],
+             1, nchar(species[which(substr(species, nchar(species), nchar(species))=="_")])-1)
+
+  }
   tree$tip.label <- gsub("_x_", "_x-", tree$tip.label)
   tree$tip.label <- gsub("_X_", "_x-", tree$tip.label)
 
