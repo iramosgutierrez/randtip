@@ -23,7 +23,7 @@ rand.tip <- function(input, tree,rand.type = "random",
     start<- Sys.time()
 
     tree$tip.label <- gsub(" ", "_", tree$tip.label)
-    input<- randtip::correct.DF(input)
+    input<- correct.DF(input)
     originalinput<- input
     input<- input[!is.na(input$MDCC),]
     input$taxon <- gsub(" ", "_", input$taxon)
@@ -53,17 +53,17 @@ rand.tip <- function(input, tree,rand.type = "random",
         if(using.mdcc=="Tip"){next}
 
         spp.df<-input[input$MDCC==using.mdcc,]
-        using.rank<- as.character(randtip::notNA(unique(spp.df$MDCC.rank)))
+        using.rank<- as.character(notNA(unique(spp.df$MDCC.rank)))
 
         if(!(using.rank%in%names(input))){
-          mdcc.genera<-randtip::firstword(spp.df[,c("taxon1","taxon2")]) }else{
-          mdcc.genera<-randtip::firstword(input$taxon[input[,using.rank]==using.mdcc])}
+          mdcc.genera<-firstword(spp.df[,c("taxon1","taxon2")]) }else{
+          mdcc.genera<-firstword(input$taxon[input[,using.rank]==using.mdcc])}
 
-        mdcc.species<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)%in%mdcc.genera]
+        mdcc.species<- new.tree$tip.label[firstword(new.tree$tip.label)%in%mdcc.genera]
         trimming.species<- c(trimming.species, mdcc.species)
         trimming.species<-trimming.species[trimming.species%in%new.tree$tip.label]
       }
-        trimming.species<- randtip::notNA(trimming.species)
+        trimming.species<- notNA(trimming.species)
         new.tree <- ape::keep.tip(new.tree, trimming.species)}
 
     input[is.na(input$rand.type), "rand.type"]<-rand.type
@@ -100,31 +100,31 @@ rand.tip <- function(input, tree,rand.type = "random",
         for(i in seq_along(rand.PUTs)){
             PUT <- rand.PUTs[i]
 
-            MDCC  <- randtip::inputfinder(input.bind,PUT, "MDCC")
-            rank <- randtip::inputfinder(input.bind,PUT, "MDCC.rank")
-            if(rank%in%randtip::randtip_ranks()){
-            MDCC.type <- randtip::MDCC.phyleticity(input, new.tree,
+            MDCC  <- inputfinder(input.bind,PUT, "MDCC")
+            rank <- inputfinder(input.bind,PUT, "MDCC.rank")
+            if(rank%in%randtip_ranks()){
+            MDCC.type <- MDCC.phyleticity(input, new.tree,
                                                    MDCC.info = list(rank=rank,MDCC=MDCC), trim=F)}else{
             MDCC.type <- rank
                                                    }
 
-            rand.type <- randtip::inputfinder(input.bind, PUT, "rand.type")
+            rand.type <- inputfinder(input.bind, PUT, "rand.type")
 
-            use.singleton <- as.logical(randtip::inputfinder(input.bind, PUT, "use.singleton"))
-            polyphyly.scheme<- as.character(randtip::inputfinder(input.bind,PUT, "polyphyly.scheme"))
+            use.singleton <- as.logical(inputfinder(input.bind, PUT, "use.singleton"))
+            polyphyly.scheme<- as.character(inputfinder(input.bind,PUT, "polyphyly.scheme"))
 
-            respect.mono <- as.logical(randtip::inputfinder(input.bind, PUT, "respect.mono"))
-            respect.para <- as.logical(randtip::inputfinder(input.bind, PUT, "respect.para"))
+            respect.mono <- as.logical(inputfinder(input.bind, PUT, "respect.mono"))
+            respect.para <- as.logical(inputfinder(input.bind, PUT, "respect.para"))
 
-            clump.PUT<-as.logical(randtip::inputfinder(input.bind, PUT, "clump.puts"))
+            clump.PUT<-as.logical(inputfinder(input.bind, PUT, "clump.puts"))
 
-            prob<-as.logical(randtip::inputfinder(input.bind, PUT, "prob"))
+            prob<-as.logical(inputfinder(input.bind, PUT, "prob"))
 
 
 
 
             if(isTRUE(clump.PUT)){
-              clump<- randtip::bind.clump(new.tree, tree, input, PUT)
+              clump<- bind.clump(new.tree, tree, input, PUT)
               if(!is.null(unlist(clump))){
                 MDCC<-clump$MDCC
                 rank<-clump$rank
@@ -147,14 +147,14 @@ rand.tip <- function(input, tree,rand.type = "random",
             }
 
             if(rank=="Sister genus"){
-              sister.genus.tips<- new.tree$tip.label[randtip::firstword(new.tree$tip.label)==MDCC]
+              sister.genus.tips<- new.tree$tip.label[firstword(new.tree$tip.label)==MDCC]
               sister.genus.mrca<- ape::getMRCA(new.tree, sister.genus.tips)
               perm.nodes <- sister.genus.mrca
               }
 
             if(rank=="Manual setting"){
-            sp1<- randtip::inputfinder(input.bind, PUT, "taxon1")
-            sp2<- randtip::inputfinder(input.bind, PUT, "taxon2")
+            sp1<- inputfinder(input.bind, PUT, "taxon1")
+            sp2<- inputfinder(input.bind, PUT, "taxon2")
             clade.mrca<- ape::getMRCA(new.tree, c(sp1, sp2))
 
             perm.nodes <- phytools::getDescendants(new.tree, clade.mrca, curr=NULL)
@@ -201,7 +201,7 @@ rand.tip <- function(input, tree,rand.type = "random",
             if(nrow(adding.DF) >1 & prob) {node<-sample(adding.DF$node, 1, prob = adding.DF$length)}
             if(nrow(adding.DF) >1 & !prob){node<-sample(adding.DF$node, 1)}
 
-            bind.pos<- randtip::binding.position(new.tree, node,  insertion = "random",  prob)
+            bind.pos<- binding.position(new.tree, node,  insertion = "random",  prob)
 
             new.tree <- phytools::bind.tip(new.tree, PUT, edge.length = bind.pos$length,
                                            where = bind.pos$where , position = bind.pos$position )
@@ -212,11 +212,11 @@ rand.tip <- function(input, tree,rand.type = "random",
                 new.tree, input, MDCC, rank, MDCC.type,
                 polyphyly.scheme, use.paraphyletic, use.singleton, use.stem)}
 
-              if(length(perm.nodes)==1){node <- randtip::get.parent.siblings(new.tree, perm.nodes)[[1]]}
+              if(length(perm.nodes)==1){node <- get.parent.siblings(new.tree, perm.nodes)[[1]]}
               if(length(perm.nodes) >1){node <- ape::getMRCA(new.tree, perm.nodes)}
 
 
-              bind.pos<- randtip::binding.position(new.tree, node,  insertion = "polytomy",  prob)
+              bind.pos<- binding.position(new.tree, node,  insertion = "polytomy",  prob)
 
               new.tree <- phytools::bind.tip(new.tree, PUT, edge.length = bind.pos$length,
                                              where = bind.pos$where , position = bind.pos$position )
