@@ -80,7 +80,7 @@ is.tip <-function(tree, node){
 # Return a vector of all species in the tree that match a given genus
 sp.genus.in.tree <- function(tree, genus){
     sp <- tree$tip.label
-    taxa.vector <- sp[randtip::firstword(sp)%in%genus]
+    taxa.vector <- sp[firstword(sp)%in%genus]
 
     return(taxa.vector)
 }
@@ -92,7 +92,7 @@ inputfinder<- function(input, taxon, column){
 usingMDCCfinder<- function(input, taxon=NULL, tree, silent = F){
 
   if(is.null(taxon)){taxon<- input$taxon}
-  input<-randtip::correct.DF(input)
+  input<-correct.DF(input)
   MDCC.vect<- vector( mode="character", length = length(taxon))
   MDCC.lev.vect<- vector(mode="character", length = length(taxon))
   #MDCC.phyletictype.vect<- vector(mode="character", length = length(taxon))
@@ -108,7 +108,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = F){
       if(isTRUE(length(strsplit( taxa$taxon1[tx], "_")[[1]])==1 &
                 length(strsplit( taxa$taxon2[tx], "_")[[1]])==1 &
                 taxa$taxon1[tx]==taxa$taxon2[tx] &
-                length(randtip::sp.genus.in.tree(tree, taxa$taxon1[tx]))>0)){
+                length(sp.genus.in.tree(tree, taxa$taxon1[tx]))>0)){
 
         pos<- which(taxon==taxa$taxon[tx])
         MDCC.vect[pos] <- taxa$taxon1[tx]
@@ -164,7 +164,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = F){
   }
 
   #automatic MDCC search
-  ranks<- randtip::randtip_ranks()
+  ranks<- randtip_ranks()
   taxa<- input[!(!is.na(input$taxon1)|!is.na(input$taxon2)),]
 
   if(nrow(taxa)>0){
@@ -203,7 +203,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = F){
       for(rank in ranks){
         if(is.na(MDCC)){
           MDCC<-as.character(input[i, rank])
-          if(!is.na(MDCC)){phyleticity<-randtip::MDCC.phyleticity(input, tree = tree,
+          if(!is.na(MDCC)){phyleticity<-MDCC.phyleticity(input, tree = tree,
                                          MDCC.info = list(rank=rank, MDCC= MDCC))
           if(phyleticity=="Missing"){MDCC<-NA}
           }
@@ -238,7 +238,7 @@ get.parent.siblings <- function(tree, tip){
 }
 
 get.groups <- function(tree, genus){
-  species <- randtip::sp.genus.in.tree(tree, genus)
+  species <- sp.genus.in.tree(tree, genus)
   sp.mrca<- ape::getMRCA(tree, species)
   mrca.descs <- phytools::getDescendants(tree, sp.mrca,curr = NULL)
 
@@ -251,15 +251,15 @@ get.groups <- function(tree, genus){
   for(n in seq_along(mrca.descs)){
      nd<- mrca.descs[n]
 
-    if(randtip::is.tip(tree = tree,node = nd)){
+    if(is.tip(tree = tree,node = nd)){
       node.descs[[n]]<- tree$tip.label[nd]
       node.types[[n]]<- "tip"
       next
     }
 
     nd.descs<- phytools::getDescendants(tree, nd,curr = NULL)
-    nd.descs <- randtip::notNA(tree$tip.label[nd.descs])
-    nd.genera<- randtip::firstword(nd.descs)
+    nd.descs <- notNA(tree$tip.label[nd.descs])
+    nd.genera<- firstword(nd.descs)
 
     if(!(genus%in%nd.genera)){
       node.descs[[n]]<- NA
@@ -268,9 +268,9 @@ get.groups <- function(tree, genus){
     }
 
 
-    siblings<-randtip::get.parent.siblings(tree, tip = nd)$siblings
+    siblings<-get.parent.siblings(tree, tip = nd)$siblings
     siblings<-siblings[-which(siblings%in%nd.descs)]
-    siblings.genus<- randtip::firstword(siblings)
+    siblings.genus<- firstword(siblings)
     if(all(nd.genera==genus)){
 
     # if(genus%in%siblings.genus){
@@ -290,8 +290,8 @@ get.groups <- function(tree, genus){
         intruders.mrca<- ape::getMRCA(tree, intruders)
 
         intruders.descs<- phytools::getDescendants(tree, intruders.mrca,curr = NULL)
-        intruders.descs <- randtip::notNA(tree$tip.label[intruders.descs])
-        intruders.genera<- randtip::firstword(intruders.descs)
+        intruders.descs <- notNA(tree$tip.label[intruders.descs])
+        intruders.genera<- firstword(intruders.descs)
 
         if(genus %in% intruders.genera){
           node.descs[[n]]<- nd.descs
@@ -305,8 +305,8 @@ get.groups <- function(tree, genus){
           group<- nd.descs[nd.genera==genus]
           group.mrca<- ape::getMRCA(tree, group)
           group.descs<- phytools::getDescendants(tree, group.mrca,curr = NULL)
-          group.descs<- randtip::notNA(tree$tip.label[group.descs])
-          group.descs.gen <- randtip::firstword(group.descs)
+          group.descs<- notNA(tree$tip.label[group.descs])
+          group.descs.gen <- firstword(group.descs)
           if(!all(group.descs.gen==genus)){
             node.descs[[n]]<- nd.descs
             node.types[[n]]<- "paraphyletic"
@@ -341,7 +341,7 @@ get.groups <- function(tree, genus){
 }
 
 get.position <- function(tree, node){
-if(randtip::isRoot(tree, node)){position=0
+if(isRoot(tree, node)){position=0
 }else{
     df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
                        "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
@@ -372,7 +372,7 @@ binding.position<- function(tree, node,  insertion,  prob){
   if(insertion=="random"){
 
     index<- df[df$node==node,"id"]
-    pos <- randtip::get.position(tree = tree, node = node)
+    pos <- get.position(tree = tree, node = node)
 
     position$position<- pos
     position$where <- df[df$id==index,"node"]
@@ -393,12 +393,12 @@ sharingtaxa.descs<-function(tree, nodes, MDCC.genera){
   table<- data.frame("node"=as.numeric(nodes), "number"=rep(NA, length(nodes)), "tot.number"=rep(NA, length(nodes)))
   for(i in seq_along(table$node)){
     node<- table$node[i]
-    if(randtip::is.tip(tree,node)){table$number[i]<-1;table$tot.number[i]<-1; next}
+    if(is.tip(tree,node)){table$number[i]<-1;table$tot.number[i]<-1; next}
     descs<- phytools::getDescendants(tree, node,curr = NULL)
     table$tot.number[i]<-length(descs)
     descs<- tree$tip.label[descs]
-    descs<- randtip::notNA(descs)
-    descs<- descs[randtip::firstword(descs)%in%MDCC.genera]
+    descs<- notNA(descs)
+    descs<- descs[firstword(descs)%in%MDCC.genera]
     table$number[i]<-length(descs)
   }
   table<- table[table$number>0,]
@@ -410,7 +410,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
 
   input.mdcc <-  input[!is.na(input[,rank]),]
   MDCC.taxa  <- input.mdcc$taxon[input.mdcc[,rank]==MDCC]
-  MDCC.genera<- randtip::notNA(unique(randtip::firstword(MDCC.taxa)))
+  MDCC.genera<- notNA(unique(firstword(MDCC.taxa)))
   MDCC.intree<- sp.genus.in.tree(tree, MDCC.genera)
 
   if(MDCC.type=="Monophyletic"){
@@ -422,7 +422,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
 
   if(MDCC.type=="Paraphyletic"){
     if(!use.paraphyletic){
-      MDCC.mrca<- ape::getMRCA(new.tree, MDCC.intree)
+      MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
       nodes <- phytools::getDescendants(tree, MDCC.mrca, curr=NULL)
       if(use.stem){nodes <- c(MDCC.mrca,nodes)}
       return(nodes)
@@ -433,13 +433,13 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
 
       descendants.nodes<- phytools::getDescendants(tree, node=MDCC.mrca,curr = NULL)
       descendants.tips <- tree$tip.label[descendants.nodes]
-      descendants.tips<- randtip::notNA(descendants.tips)
+      descendants.tips<- notNA(descendants.tips)
 
       non.mdcc <- input[!is.na(input[,rank]),]
       non.mdcc <- non.mdcc[non.mdcc[,rank]!=MDCC,]
-      non.mdcc.genera<- unique(randtip::firstword(non.mdcc$taxon))
+      non.mdcc.genera<- unique(firstword(non.mdcc$taxon))
 
-      intruder.descs<- descendants.tips[!(randtip::firstword(descendants.tips)%in%MDCC.genera)]
+      intruder.descs<- descendants.tips[!(firstword(descendants.tips)%in%MDCC.genera)]
       if(length(intruder.descs)==1){intruder.descs.nodes<-NULL}else{
       intruder.mrca<- ape::getMRCA(tree, intruder.descs)
       intruder.descs.nodes<- phytools::getDescendants(tree, intruder.mrca, curr=NULL)}
@@ -485,7 +485,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
                          "sharing.descs"=NA, "eligible"=NA)
       for(i in seq_along(table$node)){
         node<- table$node[i]
-        if(randtip::is.tip(tree,node)){
+        if(is.tip(tree,node)){
           table$descs[i]   <- NA
           table$total.descs[i]<-1
           if ( tree$tip.label[node]%in% input[input[,rank]==MDCC,"taxon"]){
@@ -495,10 +495,10 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
 
 
         }
-        if(randtip::is.node(tree,node)){
+        if(is.node(tree,node)){
           descs<- phytools::getDescendants(tree, node, curr=NULL)
           table$descs[i] <- paste0(descs, collapse = ",")
-          descs<-randtip::notNA(tree$tip.label[descs])
+          descs<-notNA(tree$tip.label[descs])
           table$total.descs[i]   <- length(descs)
           table$sharing.descs[i] <- length(descs[descs %in% input[input[,rank]==MDCC,"taxon"]])
           if(length(descs[descs %in% input[input[,rank]!=MDCC,"taxon"]])>0){
@@ -529,7 +529,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
                          "sharing.descs"=NA, "eligible"=NA)
       for(i in seq_along(table$node)){
         node<- table$node[i]
-        if(randtip::is.tip(tree,node)){
+        if(is.tip(tree,node)){
           table$descs[i]   <- NA
           table$total.descs[i]<-1
           if ( tree$tip.label[node]%in% input[input[,rank]==MDCC,"taxon"]){
@@ -539,10 +539,10 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
 
 
         }
-        if(randtip::is.node(tree,node)){
+        if(is.node(tree,node)){
           descs<- phytools::getDescendants(tree, node, curr=NULL)
           table$descs[i] <- paste0(descs, collapse = ",")
-          descs<-randtip::notNA(tree$tip.label[descs])
+          descs<-notNA(tree$tip.label[descs])
           table$total.descs[i]   <- length(descs)
           table$sharing.descs[i] <- length(descs[descs %in% input[input[,rank]==MDCC,"taxon"]])
           if(length(descs[descs %in% input[input[,rank]!=MDCC,"taxon"]])>0){
@@ -580,7 +580,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
   #respect monophyletic clusters of species
   if(respect.mono){
-  perm.tips<- randtip::notNA(tree$tip.label[perm.nodes])
+  perm.tips<- notNA(tree$tip.label[perm.nodes])
   perm.species<-paste0(stringr::word(perm.tips, 1, sep="_"), "_", stringr::word(perm.tips, 2, sep="_"))
   ssps<-perm.species[duplicated(perm.species)]
   if(length(ssps)>0){
@@ -592,7 +592,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
         ssp.descs<- phytools::getDescendants(tree, ssp.mrca, curr=NULL)
         for(n in ssp.descs){
           if(n %in%forbidden.nodes){next}
-          node.descs<- tree$tip.label[randtip::notNA(phytools::getDescendants(tree, n, curr=NULL))]
+          node.descs<- tree$tip.label[notNA(phytools::getDescendants(tree, n, curr=NULL))]
           node.descs<- paste0(stringr::word(node.descs, 1, sep="_"), "_", stringr::word(node.descs, 2, sep="_"))
           if(all(node.descs==ssp)){forbidden.nodes<-c(forbidden.nodes, nodes)}
           }
@@ -609,10 +609,10 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
       nd<- perm.nodes[i]
       if(nd %in% forbidden.nodes){next}
-      if(randtip::is.tip(tree, nd)){next}
+      if(is.tip(tree, nd)){next}
       descs.nd<- phytools::getDescendants(tree, nd)
-      descs <- randtip::notNA(tree$tip.label[descs.nd])
-      genera<- unique(randtip::firstword(descs))
+      descs <- notNA(tree$tip.label[descs.nd])
+      genera<- unique(firstword(descs))
 
       #respect monophyletic genera, disregarding input info
       if(length(genera)==1){forbidden.nodes<- c(forbidden.nodes, descs.nd ); next}
@@ -646,10 +646,10 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
       nd<- perm.nodes[i]
       if(nd %in% forbidden.nodes){next}
-      if(randtip::is.tip(tree, nd)){next}
+      if(is.tip(tree, nd)){next}
       descs.nd<- phytools::getDescendants(tree, nd, curr=NULL)
-      descs <- randtip::notNA(tree$tip.label[descs.nd])
-      genera<- unique(randtip::firstword(descs))
+      descs <- notNA(tree$tip.label[descs.nd])
+      genera<- unique(firstword(descs))
 
       if(length(genera)==1){next}
 
@@ -661,7 +661,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
           tip<-descs[firstword(descs)%in%uniq.gen]
           tip.n<- which(tree$tip.label==tip)
 
-          tip.par<- randtip::get.parent.siblings(tree, tip.n)$parent
+          tip.par<- get.parent.siblings(tree, tip.n)$parent
 
           if(tip.par!=nd){forbidden.nodes<- c(forbidden.nodes, descs.nd[which(descs.nd!=tip.n)] ); next}}
       }
@@ -672,7 +672,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
       rk.vals.desc<- list( NA)
       for(v in genera){
 
-        ds <- descs[randtip::firstword(descs)%in%v]
+        ds <- descs[firstword(descs)%in%v]
         if(length(ds)==1){
           rk.vals.mrca[which(genera==v)]<-which(tree$tip.label==ds)
           rk.vals.desc[[which(genera==v)]]<- NA
@@ -695,7 +695,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
             para.nodes<- rk.vals.desc[[p]]
             intr.nodes <- rk.vals.desc
             intr.nodes[[p]]<-NA
-            intr.nodes<- randtip::notNA(unlist(intr.nodes))
+            intr.nodes<- notNA(unlist(intr.nodes))
             para.nodes<- para.nodes[!(para.nodes%in%intr.nodes)]
             forbidden.nodes<- c(forbidden.nodes, para.nodes ); next}
         }
@@ -715,8 +715,8 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
           rk.vals.mrca<- vector("numeric", length = length(rk.vals))
           rk.vals.desc<- list( NA)
           for(v in rk.vals){
-            gen <- unique(randtip::firstword(sub.input$taxon[sub.input[,rk]==v]))
-            ds <- descs[randtip::firstword(descs)%in%gen]
+            gen <- unique(firstword(sub.input$taxon[sub.input[,rk]==v]))
+            ds <- descs[firstword(descs)%in%gen]
             if(length(ds)==1){
               ds.mrca<-which(tree$tip.label==ds)
               rk.vals.mrca[which(rk.vals==v)]<- ds.mrca
@@ -747,20 +747,20 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
               nested.nodes<- phytools::getDescendants(tree, node=nest.mrca,curr = NULL)
               nest.desc.tips <- tree$tip.label[nested.nodes]
-              nest.desc.tips<- randtip::notNA(nest.desc.tips)
+              nest.desc.tips<- notNA(nest.desc.tips)
 
               non.nest <- input[!is.na(input[,rank]),]
               non.nest <- non.nest[non.nest[,rk]!=nest,]
-              non.nest.genera<- unique(randtip::firstword(non.nest$taxon))
+              non.nest.genera<- unique(firstword(non.nest$taxon))
 
-              intruders <- nest.desc.tips[randtip::firstword(nest.desc.tips)%in%non.nest.genera]
+              intruders <- nest.desc.tips[firstword(nest.desc.tips)%in%non.nest.genera]
               if(length(intruders)==1){
                 intruder.mrca<- which(tree$tip.label==intruders)
               }else{
                 intruder.mrca<- ape::getMRCA(tree, intruders)
               }
 
-              if(any(randtip::firstword(intruders) %in% nest.gen)){next}
+              if(any(firstword(intruders) %in% nest.gen)){next}
 
 
               int.nodes<-phytools::getDescendants(tree, intruder.mrca, curr=NULL)
@@ -800,7 +800,7 @@ bind.clump<- function(new.tree, tree, input, PUT){
     if(length(clump)>1){
       mrca<- ape::getMRCA(new.tree, clump)
       descs<- new.tree$tip.label[phytools::getDescendants(new.tree, mrca, curr=NULL)]
-      descs<-randtip::notNA(descs)
+      descs<-notNA(descs)
       if(any(!(descs%in%clump))){clump<- sample(clump, 1)}
     }
     clumplist$MDCC<- sp
@@ -813,31 +813,31 @@ bind.clump<- function(new.tree, tree, input, PUT){
   if(input[input$taxon==PUT, "MDCC.rank"]=="genus"){return(clumplist)}
 
 
-  tree.genus.tips<-randtip::sp.genus.in.tree(tree, randtip::firstword(PUT))
-  new.tree.genus.tips<-randtip::sp.genus.in.tree(new.tree, randtip::firstword(PUT))
+  tree.genus.tips<-sp.genus.in.tree(tree, firstword(PUT))
+  new.tree.genus.tips<-sp.genus.in.tree(new.tree, firstword(PUT))
   if(length(tree.genus.tips)==0 & length(new.tree.genus.tips)>0){
     clumplist$MDCC<-firstword(PUT)
     clumplist$rank<-"genus"
-    clumplist$MDCC.type<- randtip::phyleticity(new.tree, firstword(PUT))
+    clumplist$MDCC.type<- phyleticity(new.tree, firstword(PUT))
     clumplist$taxa<-new.tree.genus.tips
 
     return(clumplist)}
 
 
 
-  newsearch<- randtip::usingMDCCfinder(input, PUT, new.tree, silent=TRUE)
+  newsearch<- usingMDCCfinder(input, PUT, new.tree, silent=TRUE)
   MDCC<-input[input$taxon==PUT,"MDCC"]
   MDCC.rank<- input[input$taxon==PUT,"MDCC.rank"]
 
   if(newsearch$MDCC!=MDCC){
     newclump<- input$taxon[input[,newsearch$MDCC.ranks]==newsearch$MDCC]
-    newclump<- unique(randtip::firstword(newclump))
-    newclump <- randtip::sp.genus.in.tree(new.tree, newclump)
+    newclump<- unique(firstword(newclump))
+    newclump <- sp.genus.in.tree(new.tree, newclump)
 
     clumplist$MDCC<-newsearch$MDCC
     clumplist$rank<-newsearch$MDCC.ranks
     clumplist$taxa<-newclump
-    clumplist$MDCC.type<- randtip::MDCC.phyleticity(input, new.tree,
+    clumplist$MDCC.type<- MDCC.phyleticity(input, new.tree,
                               MDCC.info = list(rank=newsearch$MDCC.ranks,MDCC=newsearch$MDCC, rank), trim = T)
 
 
