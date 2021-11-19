@@ -615,7 +615,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
       genera<- unique(firstword(descs))
 
       #respect monophyletic genera, disregarding input info
-      if(length(genera)==1){forbidden.nodes<- c(forbidden.nodes, descs.nd ); next}
+      if(length(genera)==1){if(!(genera%in%perm.groups)){forbidden.nodes<- c(forbidden.nodes, descs.nd ); next}}
 
       #respect monophyletic groups, according to input info
       sub.input <- input[firstword(input$taxon)%in%genera,]
@@ -652,13 +652,14 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
       if(length(genera)==2 ){
         table<- table(firstword(descs))
         uniq.gen<- names(table)[which(table==1)]
+        nest.gen<- names(table)[which(table!=1)]
         if(length(uniq.gen)==1){
           tip<-descs[firstword(descs)%in%uniq.gen]
           tip.n<- which(tree$tip.label==tip)
 
           tip.par<- get.parent.siblings(tree, tip.n)$parent
 
-          if(tip.par!=nd){forbidden.nodes<- c(forbidden.nodes, descs.nd[which(descs.nd!=tip.n)] ); next}}
+          if(tip.par!=nd){if!(nest.gen%in%perm.groups){forbidden.nodes<- c(forbidden.nodes, descs.nd[which(descs.nd!=tip.n)] ); next}}}
       }
 
 
