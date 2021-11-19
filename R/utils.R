@@ -656,8 +656,8 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
       #account for singleton tips in otherwise monophyletic clusters
       if(length(genera)==2 ){
         table<- table(firstword(descs))
-        uniq.gen<- names(table)[table==1]
-        if(length(uniq.gen==1)){
+        uniq.gen<- names(table)[which(table==1)]
+        if(length(uniq.gen)==1){
           tip<-descs[firstword(descs)%in%uniq.gen]
           tip.n<- which(tree$tip.label==tip)
 
