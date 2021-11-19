@@ -47,22 +47,22 @@ edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.row=FALSE){
 }
 
 
-edit.tree <- function(tree,PUTs, edit=NULL, remove.tip=FALSE) {
+edit.tree <- function(tree,tips, edit=NULL, remove.tip=FALSE) {
 
-  PUTs<- gsub(" ", "_", PUTs)
-
-
-  if(length(PUTs[!(PUTs %in% tree$tip.label)])==1){
-    stop("PUT ", PUTs[!(PUTs %in% tree$tip.label)], " is not included in the tree.")}
-  if(length(PUTs[!(PUTs %in% tree$tip.label)]) >1){
-    stop("PUTs ", paste0("\"",PUTs[!(PUTs %in% tree$tip.label)], "\"", collapse = ", "), " are not included in the tree.")}
+  tips<- gsub(" ", "_", tips)
 
 
-  if(isTRUE(remove.tip)){tree <- ape::drop.tip(tree, PUTs); return(tree)}
+  if(length(tips[!(tips %in% tree$tip.label)])==1){
+    stop("PUT ", tips[!(tips %in% tree$tip.label)], " is not included in the tree.")}
+  if(length(tips[!(tips %in% tree$tip.label)]) >1){
+    stop("tips ", paste0("\"",tips[!(tips %in% tree$tip.label)], "\"", collapse = ", "), " are not included in the tree.")}
 
-  if(!(is.null(edit)) & length(PUTs)>1){stop("Tree tip editions must be performed individually.")}
 
-  if(!(is.null(edit))){tree$tip.label[which(tree$tip.label==PUTs)]<- edit}
+  if(isTRUE(remove.tip)){tree <- ape::drop.tip(tree, tips); return(tree)}
+
+  if(!(is.null(edit)) & length(tips)>1){stop("Tree tip editions must be performed individually.")}
+
+  if(!(is.null(edit))){tree$tip.label[which(tree$tip.label==tips)]<- edit}
   return(tree)
 
 }
