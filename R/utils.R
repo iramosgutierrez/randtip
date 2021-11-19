@@ -576,32 +576,32 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
   forbidden.nodes<- vector("numeric")
   #groups which must not be forbid
   perm.groups<- input[input[,rank]==MDCC,randtip_ranks()[(which(randtip_ranks()==rank)):8]]
-  perm.groups<- unique(as.vector(unlist(perm.groups)))
+  perm.groups<- notNA(unique(as.vector(unlist(perm.groups))))
 
   #respect monophyletic clusters of species
   if(respect.mono){
-  perm.tips<- notNA(tree$tip.label[perm.nodes])
-  perm.species<-paste0(stringr::word(perm.tips, 1, sep="_"), "_", stringr::word(perm.tips, 2, sep="_"))
-  ssps<-perm.species[duplicated(perm.species)]
-  if(length(ssps)>0){
-    for(ssp in ssps){
-      nodes<-which(paste0(stringr::word(tree$tip.label, 1, sep="_"), "_", stringr::word(tree$tip.label, 2, sep="_"))==ssp)
-      if(length(nodes)==2){forbidden.nodes<-c(forbidden.nodes, nodes);next}
-      if(length(nodes)> 2){
-        ssp.mrca<- ape::getMRCA(tree, nodes)
-        ssp.descs<- phytools::getDescendants(tree, ssp.mrca, curr=NULL)
-        for(n in ssp.descs){
-          if(n %in%forbidden.nodes){next}
-          node.descs<- tree$tip.label[notNA(phytools::getDescendants(tree, n, curr=NULL))]
-          node.descs<- paste0(stringr::word(node.descs, 1, sep="_"), "_", stringr::word(node.descs, 2, sep="_"))
-          if(all(node.descs==ssp)){forbidden.nodes<-c(forbidden.nodes, nodes)}
+    perm.tips<- notNA(tree$tip.label[perm.nodes])
+    perm.species<-paste0(stringr::word(perm.tips, 1, sep="_"), "_", stringr::word(perm.tips, 2, sep="_"))
+    ssps<-perm.species[duplicated(perm.species)]
+    if(length(ssps)>0){
+      for(ssp in ssps){
+        nodes<-which(paste0(stringr::word(tree$tip.label, 1, sep="_"), "_", stringr::word(tree$tip.label, 2, sep="_"))==ssp)
+        if(length(nodes)==2){forbidden.nodes<-c(forbidden.nodes, nodes);next}
+        if(length(nodes)> 2){
+          ssp.mrca<- ape::getMRCA(tree, nodes)
+          ssp.descs<- phytools::getDescendants(tree, ssp.mrca, curr=NULL)
+          for(n in ssp.descs){
+            if(n %in%forbidden.nodes){next}
+            node.descs<- tree$tip.label[notNA(phytools::getDescendants(tree, n, curr=NULL))]
+            node.descs<- paste0(stringr::word(node.descs, 1, sep="_"), "_", stringr::word(node.descs, 2, sep="_"))
+            if(all(node.descs==ssp)){forbidden.nodes<-c(forbidden.nodes, nodes)}
           }
-      }
+        }
 
 
       }
+    }
   }
-}
 
 
   if(respect.mono){
@@ -624,21 +624,16 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
         rk.vals<-unique(sub.input[,rk])
         if(all(is.na(rk.vals))) {next}
         if(length(rk.vals)==1){if(!(rk.vals%in%perm.groups)){
-          forbidden.nodes<- c(forbidden.nodes, descs.nd ); next}}
-
+          forbidden.nodes<- c(forbidden.nodes, descs.nd )
+          next
+        }
+        }
       }
-      }
+
+    }
 
 
-
-
-
-
-
-
-
-  return(unique(forbidden.nodes))
-}
+  }
 
 
   if(respect.para){
@@ -772,14 +767,14 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
       }
 
 
-        }
-}
-
-
-
-
-
+    }
   }
+
+
+
+  return(unique(forbidden.nodes))
+
+}
 
 
 
