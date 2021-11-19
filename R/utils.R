@@ -684,11 +684,11 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
       }
       nest<- genera[which(rk.vals.mrca==nd)]
       if(length(nest)>0){
-        if(phyleticity(new.tree, nest)=="Paraphyletic" &
+        if(phyleticity(tree, nest)=="Paraphyletic" &
            !(nest%in%perm.groups)){
 
           nested <-rk.vals.desc; nested[which(rk.vals.mrca==nd)]<-NA
-          nested <- new.tree$tip.label[unlist(nested)]
+          nested <- tree$tip.label[unlist(nested)]
 
           if(!any(firstword(nested)%in%nest)){
             p<-which(rk.vals.mrca==nd); if(length(p)>1){p<-p[1]}
@@ -737,7 +737,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
           nest<- rk.vals[rk.vals.mrca==nd]
           if(length(nest)>0){
-            if(MDCC.phyleticity(input, new.tree, list(rank=rk, MDCC=nest))=="Paraphyletic"&
+            if(MDCC.phyleticity(input, tree, list(rank=rk, MDCC=nest))=="Paraphyletic"&
                !(nest %in% perm.groups)){
 
               nest.tips<- sub.input$taxon[sub.input[,rk]==nest]
