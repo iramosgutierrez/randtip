@@ -683,7 +683,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
         rk.vals.desc[[which(genera==v)]]<- phytools::getDescendants(tree, ds.mrca, curr=NULL)
       }
       nest<- genera[which(rk.vals.mrca==nd)]
-      if(length(nest)>0){
+      if(length(nest)==1){
         if(phyleticity(tree, nest)=="Paraphyletic" &
            !(nest%in%perm.groups)){
 
@@ -736,7 +736,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
 
           nest<- rk.vals[rk.vals.mrca==nd]
-          if(length(nest)>0){
+          if(length(nest)==1){
             if(MDCC.phyleticity(input, tree, list(rank=rk, MDCC=nest))=="Paraphyletic"&
                !(nest %in% perm.groups)){
 
