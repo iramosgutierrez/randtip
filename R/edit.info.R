@@ -47,7 +47,7 @@ edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.row=FALSE){
 }
 
 
-edit.tree <- function(tree,tips, edit=NULL, remove.tip=FALSE) {
+edit.tree <- function(tree,tips, edit=NULL, remove.tips=FALSE) {
 
   tips<- gsub(" ", "_", tips)
 
@@ -58,7 +58,7 @@ edit.tree <- function(tree,tips, edit=NULL, remove.tip=FALSE) {
     stop("tips ", paste0("\"",tips[!(tips %in% tree$tip.label)], "\"", collapse = ", "), " are not included in the tree.")}
 
 
-  if(isTRUE(remove.tip)){tree <- ape::drop.tip(tree, tips); return(tree)}
+  if(isTRUE(remove.tips)){tree <- ape::drop.tip(tree, tips); return(tree)}
 
   if(!(is.null(edit)) & length(tips)>1){stop("Tree tip editions must be performed individually.")}
 
