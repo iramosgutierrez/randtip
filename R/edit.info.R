@@ -1,6 +1,6 @@
 
 
-edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.row=FALSE){
+edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.rows=FALSE){
 
   info <- randtip::correct.DF(info)
   PUTs<- gsub(" ", "_", PUTs)
