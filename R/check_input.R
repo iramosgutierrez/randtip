@@ -86,7 +86,7 @@ ranks<-randtip::randtip_ranks()
 
   }
 if(length(DF$Typo[DF$Typo==TRUE])>0){
-  message("There may be misspelling errors in the species list. Please, check the outputted data frame.\n")}
+  message("There may be misspelling errors in the species list or the phylogenetic tips. Please, check the outputted data frame.\n")}
 
 
 DF<-DF[,c("taxon", "PUT.status", "Typo", "Typo.names","genus", "genus_phyletic.status",
