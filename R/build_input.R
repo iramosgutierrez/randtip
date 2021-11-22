@@ -136,6 +136,70 @@ info2input<- function(info, tree){
   tree$tip.label <- gsub("_x_", "_x-", tree$tip.label)
   tree$tip.label <- gsub("_X_", "_x-", tree$tip.label)
 
+  if(any(!(notNA(info$rand.type)%in% c("random", "polytomy", "-")))){
+    errortaxa<- info[!is.na(info$rand.type),]
+    errortaxa<- errortaxa$taxon[!(errortaxa$rand.type%in%c("random", "polytomy", "-"))]
+    stop(paste0("\"rand.type\" argument must be \'random\' or \'polytomy\'. ",
+                "Please check your info at the following taxa:\n",
+                paste0(errortaxa, collapse = "\n")))
+  }
+  if(any(!(notNA(info$polyphyly.scheme)%in% c("complete", "largest","frequentist", "-")))){
+    errortaxa<- info[!is.na(info$polyphyly.scheme),]
+    errortaxa<- errortaxa$taxon[!(errortaxa$polyphyly.scheme%in%c("complete", "largest","frequentist", "-"))]
+    stop(paste0("\"polyphyly.scheme\" argument must be \'largest\', \'frequentist\' or \'complete\'. ",
+                "Please check your info at the following taxa:\n",
+                paste0(errortaxa, collapse =  "\n")))
+  }
+  if(any(!(notNA(info$use.paraphyletic)%in% c("TRUE", "FALSE", "-")))){
+    errortaxa<- info[!is.na(info$use.paraphyletic),]
+    errortaxa<- errortaxa$taxon[!(errortaxa$use.paraphyletic%in%c("TRUE", "FALSE", "-"))]
+    stop(paste0("\"use.paraphyletic\" argument must be logical. ",
+                "Please check your info at the following taxa:\n",
+                paste0(errortaxa,  collapse =  "\n")))
+  }
+  if(any(!(notNA(info$use.singleton)%in% c("TRUE", "FALSE", "-")))){
+    errortaxa<- info[!is.na(info$use.singleton),]
+    errortaxa<- errortaxa$taxon[!(errortaxa$use.singleton%in%c("TRUE", "FALSE", "-"))]
+    stop(paste0("\"use.singleton\" argument must be logical. ",
+                "Please check your info at the following taxa:\n",
+                paste0(errortaxa, collapse = "\n")))
+  }
+  if(any(!(notNA(info$use.stem)%in% c("TRUE", "FALSE", "-")))){
+    errortaxa<- info[!is.na(info$use.stem),]
+    errortaxa<- errortaxa$taxon[!(errortaxa$use.stem%in%c("TRUE", "FALSE", "-"))]
+    stop(paste0("\"use.stem\" argument must be logical. ",
+                "Please check your info at the following taxa:\n",
+                paste0(errortaxa,  collapse = "\n")))
+  }
+  if(any(!(notNA(info$respect.mono)%in% c("TRUE", "FALSE", "-")))){
+    errortaxa<- info[!is.na(info$respect.mono),]
+    errortaxa<- errortaxa$taxon[!(errortaxa$respect.mono%in%c("TRUE", "FALSE", "-"))]
+    stop(paste0("\"respect.mono\" argument must be logical. ",
+                "Please check your info at the following taxa:\n",
+                paste0(errortaxa,  collapse = "\n")))
+  }
+  if(any(!(notNA(info$respect.para)%in% c("TRUE", "FALSE", "-")))){
+    errortaxa<- info[!is.na(info$respect.para),]
+    errortaxa<- errortaxa$taxon[!(errortaxa$respect.para%in%c("TRUE", "FALSE", "-"))]
+    stop(paste0("\"respect.para\" argument must be logical. ",
+                "Please check your info at the following taxa:\n",
+                paste0(errortaxa,  collapse = "\n")))
+  }
+  if(any(!(notNA(info$clump.puts)%in% c("TRUE", "FALSE", "-")))){
+    errortaxa<- info[!is.na(info$clump.puts),]
+    errortaxa<- errortaxa$taxon[!(errortaxa$clump.puts%in%c("TRUE", "FALSE", "-"))]
+    stop(paste0("\"clump.puts\" argument must be logical. ",
+                "Please check your info at the following taxa:\n",
+                paste0(errortaxa, collapse =  "\n")))
+  }
+  if(any(!(notNA(info$prob)%in% c("TRUE", "FALSE", "-")))){
+    errortaxa<- info[!is.na(info$prob),]
+    errortaxa<- errortaxa$taxon[!(errortaxa$prob%in%c("TRUE", "FALSE", "-"))]
+    stop(paste0("\"prob\" argument must be logical. ",
+                "Please check your info at the following taxa:\n",
+                paste0(errortaxa,  collapse = "\n")))
+  }
+
   input$MDCC     <- as.character(NA)
   input$MDCC.rank <- as.character(NA)
 
