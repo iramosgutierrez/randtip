@@ -23,7 +23,7 @@ edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.rows=FALSE)
   if(length(PUTs[!(PUTs %in% info$taxon)]) >1){
     stop("PUTs ", paste0("\"",PUTs[!(PUTs %in% info$taxon)], "\"", collapse = ", "), " are not included in info$taxon.")}
 
-  if(isTRUE(remove.row)){return(info[!(info$taxon%in%PUTs),])}
+  if(isTRUE(remove.rows)){return(info[!(info$taxon%in%PUTs),])}
 
   if(is.null(column)|is.null(edit)){stop("Both \'column\' and \'edit\' arguments must be specified")}
 
@@ -39,6 +39,8 @@ edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.rows=FALSE)
   if(column=="respect.para"     & !is.logical(edit)){stop("Argument 'respect.para' must be logical." )}
   if(column=="clump.puts"       & !is.logical(edit)){stop("Argument 'clump.puts' must be logical." )}
   if(column=="prob"             & !is.logical(edit)){stop("Argument 'prob' must be logical." )}
+
+  if(column %in% c("taxon", "taxon1", "taxon2")){edit<- gsub(" ", "_", edit)}
 
   info[which(info$taxon %in% PUTs), column] <- edit
 
