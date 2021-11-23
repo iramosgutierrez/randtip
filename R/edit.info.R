@@ -52,7 +52,7 @@ edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.rows=FALSE)
 edit.tree <- function(tree,tips, edit=NULL, remove.tips=FALSE) {
 
   tips<- gsub(" ", "_", tips)
-
+  edit<- gsub(" ", "_", edit)
 
   if(length(tips[!(tips %in% tree$tip.label)])==1){
     stop("PUT ", tips[!(tips %in% tree$tip.label)], " is not included in the tree.")}
@@ -62,9 +62,17 @@ edit.tree <- function(tree,tips, edit=NULL, remove.tips=FALSE) {
 
   if(isTRUE(remove.tips)){tree <- ape::drop.tip(tree, tips); return(tree)}
 
-  if(!(is.null(edit)) & length(tips)>1){stop("Tree tip editions must be performed individually.")}
+  if(!(is.null(edit)) & any(duplicated(edit))){stop("Edited tree tips must not be identical.")}
+  if(!(is.null(edit)) & length(edit)!=length(tips)){stop("Arguments \'edit\' and \'tips\' must have the same length")}
+  if(!(is.null(edit))){
 
-  if(!(is.null(edit))){tree$tip.label[which(tree$tip.label==tips)]<- edit}
+    for(tip in tips){
+      edit.i<- edit[which(tips==tip)]
+      tree$tip.label[which(tree$tip.label==tip)]<- edit.i
+    }
+
+
+    }
   return(tree)
 
 }
