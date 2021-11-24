@@ -50,7 +50,7 @@ get.clade<- function(info, tree, clade){
 #' @param ppcr.col Color to represent tips included in the specified clade. Default value is green.
 #' @param nonppcr.col Color to represent tips included in a different clade from the specified one (at the same taxonomic rank). Default value is blue.
 #' @param unknown.col Color to represent tips without taxonomic information at the specifed clade's taxonomic rank. Default value is grey
-#' @param ... Arguments to pass through \code{plot.phylo} fuction.
+#' @param ... Arguments to pass through \code{\link{plot.phylo}} fuction.
 #'
 #' @return A plot representing the clade specified in \code{get.clade} function using the selected colors.
 #'
