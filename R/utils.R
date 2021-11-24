@@ -38,32 +38,6 @@ correct.DF<- function(DF){
   return(DF)
 }
 
-
-#' Get PUT or placed color pattern
-#'
-#' Get a color vector to use in \'tip.color\' argument within plot.phylo function
-#'
-#' @param newtree An expanded phylogenetic tree.
-#' @param oldtree The original backbone tree where the PUTs have been bound.
-#' @param placed.col Color to plot phylogenetic tips which were already placed in the original backbone tree. Default value is grey.
-#' @param put.col Color to plot bound PUTs in \code{new tree}. Default value is red.
-#' @return A vector of length equal to the number of tips in newtree, to be used after \'tip.color\' in plot.phylo function.
-#'
-#' @author Ignacio Ramos-Gutiérrez, Rafael Molina-Venegas, Herlander Lima
-#'
-#' @export
-put.tip.col<- function(newtree, oldtree, placed.col="#adadad", put.col="#C23B23"){
-  col<- vector("character", length(newtree$tip.label))
-  col[1:length(col)]<- put.col
-  col[newtree$tip.label%in%oldtree$tip.label]<-placed.col
-  return(col)
-
-}
-
-
-
-#' this function reveals if a given node at a given tree is an internal node
-#' @export
 is.node<-function(tree, node){
   if(!(node %in% tree$edge)){
     stop("Node number is not in your tree")
@@ -75,8 +49,6 @@ is.node<-function(tree, node){
   }
 }
 
-#' this function reveals if a given node at a given tree is a tip
-#' @export
 is.tip <-function(tree, node){
   if(!(node %in% tree$edge)){
     stop("Node number is not in your tree")
@@ -791,7 +763,6 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 }
 
 
-
 bind.clump<- function(new.tree, tree, input, PUT){
 
   clumplist<- list("MDCC"=NULL, "rank"=NULL,"MDCC.type"=NULL, "taxa"=NULL)
@@ -858,7 +829,6 @@ bind.clump<- function(new.tree, tree, input, PUT){
 }
 
 
-#WORKING SPACE####
 
 
 
