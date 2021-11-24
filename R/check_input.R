@@ -1,7 +1,17 @@
-#' Function to check info work
+
+#' Function to check randtip's files.
+#'
+#' Function to account for the PUT status of the species in 'info', spelling errors, putative MDCCs and the phyletic nature of groups of PPCR species.
+#'
+#' @param info An 'info' object.
+#' @param tree The original backbone tree.
+#' @param sim Name simmilarity threshold to detect possible misspellings on tip labels. Default value is 0.8.
+#'
+#' @return A data frame containing possible typographic errors, taxonomic ranks extracted from 'info' and the phyletic nature of each of them.
+#' #'
+#' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
+#'
 #' @export
-#'
-#'
 
 check.info<- function(info, tree, sim=0.8){
 
