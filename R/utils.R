@@ -39,7 +39,7 @@ correct.DF<- function(DF){
 }
 
 is.node<-function(tree, node){
-  if(!(node %in% tree$edge)){
+  if(!(node %in% c(tree$edge[,1], tree$edge[,2]))){
     stop("Node number is not in your tree")
   }
   if(length(phytools::getDescendants(tree = tree, node = node, curr=NULL )) > 1){
@@ -50,7 +50,7 @@ is.node<-function(tree, node){
 }
 
 is.tip <-function(tree, node){
-  if(!(node %in% tree$edge)){
+  if(!(node %in% c(tree$edge[,1], tree$edge[,2]))){
     stop("Node number is not in your tree")
   }
   if(length(phytools::getDescendants(tree = tree, node = node, curr=NULL)) == 1){
