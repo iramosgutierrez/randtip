@@ -22,13 +22,13 @@ rand.tip(
 )
 }
 \arguments{
-\item{input}{An 'input' data frame obtained with \code{info2input} fuction.}
+\item{input}{An 'input' data frame obtained with \code{\link{info2input}} fuction.}
 
 \item{tree}{A backbone tree.}
 
-\item{rand.type}{For all PUTs not specified individually in 'input', which randomization type must be performed ("random" or "polytomy"). Default value is "random".}
+\item{rand.type}{For all PUTs not specified individually in 'input', which randomization type ("random" or "polytomy") must be carried out. Default value is "random".}
 
-\item{polyphyly.scheme}{For all PUTs not specified individually in 'input', which polyphyly scheme must be used ("largest", "complete" or "frequentist"). Default value is "largest".}
+\item{polyphyly.scheme}{For all PUTs not specified individually in 'input', which polyphyly scheme ("largest", "complete" or "frequentist") must be used. Default value is "largest".}
 
 \item{use.paraphyletic}{For all PUTs not specified individually in 'input', whether or not should paraphyletic clades be taken into account or not. Default value is TRUE.}
 
@@ -54,7 +54,7 @@ rand.tip(
 An expanded phylogeny.
 }
 \description{
-Expand a phylogeny binding puts to a backbone tree.
+Expand a phylogeny binding PUTs to a backbone tree.
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

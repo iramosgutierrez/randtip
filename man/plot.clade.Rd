@@ -13,7 +13,7 @@
 )
 }
 \arguments{
-\item{get.clade.out}{Output from \code{get.clade} function.}
+\item{get.clade.out}{Output from \code{\link{get.clade}} function.}
 
 \item{ppcr.col}{Color to represent tips included in the specified clade. Default value is green.}
 
@@ -21,10 +21,10 @@
 
 \item{unknown.col}{Color to represent tips without taxonomic information at the specifed clade's taxonomic rank. Default value is grey}
 
-\item{...}{Arguments to pass through \code{\link{plot.phylo}} fuction.}
+\item{...}{Arguments to pass through \code{\link{plot.phylo}} function.}
 }
 \value{
-A plot representing the clade specified in \code{get.clade} function using the selected colors.
+A plot representing the clade specified in \code{\link{get.clade}} function using the selected colors.
 }
 \description{
 Plot a phylogenetic tree splitted from the backbone tree using \code{get.clade} function.

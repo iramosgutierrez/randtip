@@ -14,7 +14,7 @@ get.clade(info, tree, clade)
 \item{clade}{Clade to be extracted}
 }
 \value{
-A list of four objects which will be used for automatic plotting using \code{plot.clade} function.
+A list of four objects which will be used for automatic plotting using \code{\link{plot.clade}} function.
 'Tree' will contain the splitted tree; 'info' will contain the handed info file; 'rank' will contain the taxonomic rank of the specified clade, and 'clade' will contain the clade name.
 }
 \description{
