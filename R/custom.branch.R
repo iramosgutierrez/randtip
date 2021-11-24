@@ -15,7 +15,7 @@
 #' @param forceultrametric Whether or not the backbone tree will be forced to be ultrametric, only in case it is not. Default value is FALSE.
 #' @param prob Whether or not branch selection probability must be proportional to branch length or equiprobable. Default value is TRUE.
 #'
-#' @value An expanded phylogeny.
+#' @return An expanded phylogeny.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
