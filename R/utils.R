@@ -449,9 +449,9 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
     if(!use.singleton){
       tip<- which(tree$tip.label==MDCC.intree)
       nodes<- phytools::getDescendants(tree, get.parent.siblings(tree, tip)$parent, curr=NULL)
-      return(nodes)
-    }
 
+    }
+return(nodes)
   }
 
   if(MDCC.type=="Polyphyletic"){
