@@ -1,8 +1,5 @@
-#' function phyleticity retrieves genus type given a certain tree
-#'
-#' @export
-#' @examples
-#' #phyleticity(Tree, "Invent")
+
+
 phyleticity<- function(tree, genus){
 
     if(length(genus) != 1){ stop("Only one genus accepted.") }
