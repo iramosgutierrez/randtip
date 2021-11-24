@@ -7,7 +7,7 @@
 #' @param tree The original backbone tree to be split.
 #' @param clade Clade to be extracted
 #'
-#' @return A list of four objects which will be used for automatic plotting using \code{plot.clade} function.
+#' @return A list of four objects which will be used for automatic plotting using \code{\link{plot.clade}} function.
 #'  'Tree' will contain the splitted tree; 'info' will contain the handed info file; 'rank' will contain the taxonomic rank of the specified clade, and 'clade' will contain the clade name.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
@@ -46,13 +46,13 @@ get.clade<- function(info, tree, clade){
 #'
 #' Plot a phylogenetic tree splitted from the backbone tree using \code{get.clade} function.
 #'
-#' @param get.clade.out Output from \code{get.clade} function.
+#' @param get.clade.out Output from \code{\link{get.clade}} function.
 #' @param ppcr.col Color to represent tips included in the specified clade. Default value is green.
 #' @param nonppcr.col Color to represent tips included in a different clade from the specified one (at the same taxonomic rank). Default value is blue.
 #' @param unknown.col Color to represent tips without taxonomic information at the specifed clade's taxonomic rank. Default value is grey
-#' @param ... Arguments to pass through \code{\link{plot.phylo}} fuction.
+#' @param ... Arguments to pass through \code{\link{plot.phylo}} function.
 #'
-#' @return A plot representing the clade specified in \code{get.clade} function using the selected colors.
+#' @return A plot representing the clade specified in \code{\link{get.clade}} function using the selected colors.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'

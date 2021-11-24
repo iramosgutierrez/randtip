@@ -6,10 +6,10 @@
 #' @param species A character vector or a single-column data frame including the species of interest. Word breakers must be blanks (" ") or underscores ("_").
 #' @param tree A 'phylo' object backbone tree. It can be set to NULL if \code{mode} is set to "list".
 #' @param find.ranks Logical. If TRUE, taxonomic information will be retrieved to identify supra-generic MDCCs for the PUTs.
-#' @param db Taxonomic data base to search into if \code{find.ranks} is set to TRUE.Accepted values are “ncbi” (default), “itis", “gbif” and “bold”.
+#' @param db Taxonomic data base to search into if \code{find.ranks} is set to TRUE.Accepted values are 'ncbi' (default), 'itis', 'gbif' and 'bold'.
 #' @param mode If mode is set to "list", the info file will be created using only the species given in the \code{species} argument.
 #'  If "backbone" mode is specified, 'info' will also include all the tips included in the backbone tree.
-#' @param interactive Logical. Whether or not ambiguous species names will be resolved manually by the user or filled in automatically with ‘NA’ when retrieving taxonomic information.
+#' @param interactive Logical. Whether or not ambiguous species names will be resolved manually by the user or filled in automatically with 'NA' when retrieving taxonomic information.
 #' @param genus Logical. Whether or not a genus-level backbone tree is to be expanded. If set to TRUE, all tips in the backbone tree and taxa in the species vector must represent genera.
 #'
 #' @return A randtip 'info' data frame

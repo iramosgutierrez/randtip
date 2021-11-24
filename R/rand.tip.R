@@ -1,12 +1,12 @@
 
 #' Tree expansion function.
 #'
-#' Expand a phylogeny binding puts to a backbone tree.
+#' Expand a phylogeny binding PUTs to a backbone tree.
 #'
-#' @param input An 'input' data frame obtained with \code{info2input} fuction.
+#' @param input An 'input' data frame obtained with \code{\link{info2input}} fuction.
 #' @param tree A backbone tree.
-#' @param rand.type For all PUTs not specified individually in 'input', which randomization type must be performed ("random" or "polytomy"). Default value is "random".
-#' @param polyphyly.scheme For all PUTs not specified individually in 'input', which polyphyly scheme must be used ("largest", "complete" or "frequentist"). Default value is "largest".
+#' @param rand.type For all PUTs not specified individually in 'input', which randomization type ("random" or "polytomy") must be carried out. Default value is "random".
+#' @param polyphyly.scheme For all PUTs not specified individually in 'input', which polyphyly scheme ("largest", "complete" or "frequentist") must be used. Default value is "largest".
 #' @param use.paraphyletic For all PUTs not specified individually in 'input', whether or not should paraphyletic clades be taken into account or not. Default value is TRUE.
 #' @param use.singleton For all PUTs not specified individually in 'input', should or not singleton MDCCs be considered for binding as a sister species, or contrarily binding should be performed anywhere below the parent node. Default value is TRUE.
 #' @param use.stem For all PUTs not specified individually in 'input', whether or not should the stem branch be considered as candidate for binding.  Default value is FALSE.
