@@ -1,5 +1,27 @@
 
-#' randtip RANDOMIZATION FUNCTIONS
+#' Tree expansion function.
+#'
+#' Expand a phylogeny binding puts to a backbone tree.
+#'
+#' @param input An 'input' data frame obtained with \code{info2input} fuction.
+#' @param tree A backbone tree.
+#' @param rand.type For all PUTs not specified individually in 'input', which randomization type must be performed ("random" or "polytomy"). Default value is "random".
+#' @param polyphyly.scheme For all PUTs not specified individually in 'input', which polyphyly scheme must be used ("largest", "complete" or "frequentist"). Default value is "largest".
+#' @param use.paraphyletic For all PUTs not specified individually in 'input', whether or not should paraphyletic clades be taken into account or not. Default value is TRUE.
+#' @param use.singleton For all PUTs not specified individually in 'input', should or not singleton MDCCs be considered for binding as a sister species, or contrarily binding should be performed anywhere below the parent node. Default value is TRUE.
+#' @param use.stem For all PUTs not specified individually in 'input', whether or not should the stem branch be considered as candidate for binding.  Default value is FALSE.
+#' @param respect.mono For all PUTs not specified individually in 'input', whether or not monophyletic groups should be respected when binding a PUT. Default value is TRUE.
+#' @param respect.para For all PUTs not specified individually in 'input', whether or not paraphyletic groups should be respected when binding a PUT. Default value is TRUE.
+#' @param clump.puts For all PUTs not specified individually in 'input', whether or not co-ranked PUTs should be clumped together in the phylogeny in case their taxonomic group is missing in the tree. Will also clump conspecific PUTs. Default value is TRUE.
+#' @param prob Whether or not branch selection probability must be proportional to branch length or equiprobable. Default value is TRUE.
+#' @param prune Whether or not the newly expanded tree will include only the species in the user’s list. Default value is TRUE.
+#' @param forceultrametric Whether or not the backbone tree will be forced to be ultrametric, only in case it is not. Default value is FALSE.
+#' @param verbose Whether or not to print information about the flow of the function. Default value is TRUE.
+
+#' @return An expanded phylogeny.
+#'
+#' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
+#'
 #' @export
 rand.tip <- function(input, tree,rand.type = "random",
                     polyphyly.scheme="largest", use.paraphyletic=TRUE,use.singleton=TRUE, use.stem=FALSE,
