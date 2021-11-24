@@ -1,5 +1,19 @@
 
-
+#' Edit an 'info' file using a simple function.
+#'
+#' Function to edit randtip's 'info' file.
+#'
+#' @param info An 'info' object.
+#' @param PUTs Character vector with the PUT (or PUTs) to be edited or removed.
+#' @param column Which column is to be edited for the specified PUTs. NULL value is only accepted if \code{remove.rows} is set to TRUE.
+#' @param edit Any allowed value for the column of info that is to be edited. NULL value is only accepted if \code{remove.rows} is set to TRUE.
+#' @param remove.rows If TRUE, the specified PUTs will be eliminated from the 'info' object. Default is FALSE.
+#'
+#' @return An 'info' object including the editions or deletions asked.
+#'
+#' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
+#'
+#' @export
 edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.rows=FALSE){
 
   info <- randtip::correct.DF(info)
@@ -49,6 +63,20 @@ edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.rows=FALSE)
 }
 
 
+#' Edit backbone tree using a simple function.
+#'
+#' Function to edit a backbone tree.
+#'
+#' @param tree A backbone tree.
+#' @param tips Character vector with the phylogenetic tips to be edited or removed.
+#' @param edit A vector of the same length as \code{tips}, including the new labels for the specified phylogenetic tips. NULL value is only accepted if \code{remove.tips} is set to TRUE.
+#' @param remove.tips If TRUE, the specified tips will be pruned from the backbone tree. Default is FALSE.
+#'
+#' @return A backbone tree including the tip editions or deletions asked.
+#'
+#' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
+#'
+#' @export
 edit.tree <- function(tree,tips, edit=NULL, remove.tips=FALSE) {
 
   tips<- gsub(" ", "_", tips)
