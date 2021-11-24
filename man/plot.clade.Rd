@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualize_tree.R
 \name{plot.clade}
 \alias{plot.clade}
-\title{Function to plot subtree}
+\title{Function to plot a subtree representing a specified clade.}
 \usage{
 \method{plot}{clade}(
   get.clade.out,
@@ -12,6 +12,23 @@
   ...
 )
 }
+\arguments{
+\item{get.clade.out}{Output from \code{get.clade} function.}
+
+\item{ppcr.col}{Color to represent tips included in the specified clade. Default value is green.}
+
+\item{nonppcr.col}{Color to represent tips included in a different clade from the specified one (at the same taxonomic rank). Default value is blue.}
+
+\item{unknown.col}{Color to represent tips without taxonomic information at the specifed clade's taxonomic rank. Default value is grey}
+
+\item{...}{Arguments to pass through \code{plot.phylo} fuction.}
+}
+\value{
+A plot representing the clade specified in \code{get.clade} function using the selected colors.
+}
 \description{
-Function to plot subtree
+Plot a phylogenetic tree splitted from the backbone tree using \code{get.clade} function.
+}
+\author{
+Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 }

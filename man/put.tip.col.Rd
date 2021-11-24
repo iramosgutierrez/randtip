@@ -16,11 +16,11 @@ put.tip.col(newtree, oldtree, placed.col = "#adadad", put.col = "#C23B23")
 \item{put.col}{Color to plot bound PUTs in \code{new tree}. Default value is red.}
 }
 \value{
-A vector of length equal to the number of tips in newtree, to be used after \'tip.color\' in plot.phylo function.
+A vector of length equal to the number of tips in newtree, to be used after \code{tip.color} in plot.phylo function.
 }
 \description{
-Get a color vector to use in \'tip.color\' argument within plot.phylo function
+Set color pattern to distinguish between phylogenetically placed taxa and PUTs when plotting trees with the \code{plot.phylo} function of ‘ape’ R package using the \code{tip.color} argument
 }
 \author{
-Ignacio Ramos-Gutiérrez, Rafael Molina-Venegas, Herlander Lima
+Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 }
