@@ -44,7 +44,7 @@ rand.tip(
 
 \item{prob}{For all PUTs not specified individually in 'input', whether or not branch selection probability must be proportional to branch length or equiprobable. Default value is TRUE.}
 
-\item{prune}{Whether or not the newly expanded tree will include only the species in the user’s list. Default value is TRUE.}
+\item{prune}{Whether or not the newly expanded tree will include only the species in the user's list. Default value is TRUE.}
 
 \item{forceultrametric}{Whether or not the backbone tree will be forced to be ultrametric, only in case it is not. Default value is FALSE.}
 

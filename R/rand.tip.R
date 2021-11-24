@@ -14,7 +14,7 @@
 #' @param respect.para For all PUTs not specified individually in 'input', whether or not paraphyletic groups should be respected when binding a PUT. Default value is TRUE.
 #' @param clump.puts For all PUTs not specified individually in 'input', whether or not co-ranked PUTs should be clumped together in the phylogeny in case their taxonomic group is missing in the tree. Will also clump conspecific PUTs. Default value is TRUE.
 #' @param prob For all PUTs not specified individually in 'input', whether or not branch selection probability must be proportional to branch length or equiprobable. Default value is TRUE.
-#' @param prune Whether or not the newly expanded tree will include only the species in the user’s list. Default value is TRUE.
+#' @param prune Whether or not the newly expanded tree will include only the species in the user's list. Default value is TRUE.
 #' @param forceultrametric Whether or not the backbone tree will be forced to be ultrametric, only in case it is not. Default value is FALSE.
 #' @param verbose Whether or not to print information about the flow of the function. Default value is TRUE.
 
