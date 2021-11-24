@@ -497,14 +497,14 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
         if(node%in%descs ){table$eligible[i]<- "FALSE"}
       }
       table<- table[table$eligible=="TRUE",]
-      if(nrow(table)==1){nodes=table$node}else{
-        nodes<- sample(table$node, size = 1,prob=table$total.descs)}
-      nodes <- phytools::getDescendants(tree, nodes)
+      if(use.stem){table$descs<- paste0(table$node,",", table$descs)}
+      if(nrow(table)==1){nodes <- table$descs}else{
+        node<- sample(table$node, size = 1,prob=table$total.descs)
+        nodes <- table$descs[table$node==node]
+        nodes <- as.numeric(strsplit(nodes, split=",")[[1]])
+        }
 
-
-
-
-    }
+      }
 
     if(polyphyly.scheme == "largest"){
       MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
@@ -542,10 +542,11 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
       }
       table<- table[table$eligible=="TRUE",]
       table<-table[table$sharing.descs== max(table$sharing.descs),]
+      if(use.stem){table$descs<- paste0(table$node,",", table$descs)}
       if(nrow(table)>1){table<-table[sample(1:nrow(table), size=1),]}
 
-      nodes<- table$node
-      nodes <- phytools::getDescendants(tree, nodes)
+
+      nodes <- as.numeric(strsplit(table$descs, split=",")[[1]])
 
 
 
