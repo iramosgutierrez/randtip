@@ -498,6 +498,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
       }
       table<- table[table$eligible=="TRUE",]
       if(use.stem){table$descs<- paste0(table$node,",", table$descs)}
+      table[is.na(table$descs), "descs"]<- table[is.na(table$descs), "node"]
       if(nrow(table)==1){nodes <- table$descs}else{
         node<- sample(table$node, size = 1,prob=table$total.descs)
         nodes <- table$descs[table$node==node]
@@ -543,6 +544,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
       table<- table[table$eligible=="TRUE",]
       table<-table[table$sharing.descs== max(table$sharing.descs),]
       if(use.stem){table$descs<- paste0(table$node,",", table$descs)}
+      table[is.na(table$descs), "descs"]<- table[is.na(table$descs), "node"]
       if(nrow(table)>1){table<-table[sample(1:nrow(table), size=1),]}
 
 
