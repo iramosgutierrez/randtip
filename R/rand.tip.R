@@ -157,9 +157,9 @@ rand.tip <- function(input, tree,rand.type = "random",
 
 
             if(verbose){
-              cat(paste0("\n",i, "/", length(rand.PUTs),
+              cat(paste0(i, "/", length(rand.PUTs),
                            " (",round(i/length(rand.PUTs)*100, 2), "%). ",
-                           "Binding ", PUT, " to ", MDCC ,"\r")) }
+                           "Binding ", PUT, " to ", MDCC ,"\n")) }
 
 
             perm.nodes<- NULL
@@ -261,7 +261,7 @@ rand.tip <- function(input, tree,rand.type = "random",
 
 
     if(verbose){
-      cat(paste0("\n","\n","\U2713", " PUT binding completed in ",
+      cat(paste0("\n","\U2713", " PUT binding completed in ",
                  round(as.numeric(difftime(end, start,units = "mins")), 2), " mins\n"))
     }
     return(new.tree)
