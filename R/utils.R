@@ -402,7 +402,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
     MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
     nodes <- phytools::getDescendants(tree, MDCC.mrca, curr=NULL)
     if(use.stem){nodes <- c(MDCC.mrca,nodes)}
-    return(nodes)
+
   }
 
   if(MDCC.type=="Paraphyletic"){
@@ -410,7 +410,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
       MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
       nodes <- phytools::getDescendants(tree, MDCC.mrca, curr=NULL)
       if(use.stem){nodes <- c(MDCC.mrca,nodes)}
-      return(nodes)
+
     }
     if(use.paraphyletic){
 
@@ -432,7 +432,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
 
       nodes <- descendants.nodes[!(descendants.nodes%in%intruder.descs.nodes)]
       if(use.stem){nodes <- c(MDCC.mrca,nodes)}
-      return(nodes)
+
     }
 
   }
@@ -451,7 +451,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
       nodes<- phytools::getDescendants(tree, get.parent.siblings(tree, tip)$parent, curr=NULL)
 
     }
-return(nodes)
+
   }
 
   if(MDCC.type=="Polyphyletic"){
@@ -459,17 +459,17 @@ return(nodes)
       MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
       nodes <- phytools::getDescendants(tree, MDCC.mrca, curr=NULL)
       if(use.stem){nodes <- c(MDCC.mrca,nodes)}
-      return(nodes)
+
     }
 
     if(polyphyly.scheme == "frequentist"){
       MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
       nodes <- phytools::getDescendants(tree, MDCC.mrca, curr=NULL)
       if(use.stem){nodes <- c(MDCC.mrca,nodes)}
-      table<- data.frame("node"=as.numeric(nodes), "descs"=as.numeric(NA), "total.descs"=as.numeric(NA),
-                         "sharing.descs"=as.numeric(NA), "eligible"=as.logical(NA))
+      table<- data.frame("node"=as.numeric(nodes), "descs"=NA, "total.descs"=NA,
+                         "sharing.descs"=NA, "eligible"=NA)
       for(i in seq_along(table$node)){
-        node<- as.numeric(as.character(table$node[i]))
+        node<- table$node[i]
         if(is.tip(tree,node)){
           table$descs[i]   <- NA
           table$total.descs[i]<-1
@@ -492,13 +492,12 @@ return(nodes)
       }
       table<- table[table$eligible=="TRUE",]
       for(i in seq_along(table$node)){
-        node<- as.numeric(as.character(table$node[i]))
+        node<- table$node[i]
         descs<- unique(unlist(strsplit(table$descs, split=",")))
         if(node%in%descs ){table$eligible[i]<- "FALSE"}
       }
       table<- table[table$eligible=="TRUE",]
       if(use.stem){table$descs<- paste0(table$node,",", table$descs)}
-      table[is.na(table$descs), "descs"]<- table[is.na(table$descs), "node"]
       if(nrow(table)==1){nodes <- table$descs}else{
         node<- sample(table$node, size = 1,prob=table$total.descs)
         nodes <- table$descs[table$node==node]
@@ -509,12 +508,12 @@ return(nodes)
 
     if(polyphyly.scheme == "largest"){
       MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
-      nodes <- as.numeric(phytools::getDescendants(tree, MDCC.mrca, curr=NULL))
+      nodes <- phytools::getDescendants(tree, MDCC.mrca, curr=NULL)
       if(use.stem){nodes <- c(MDCC.mrca,nodes)}
-      table<- data.frame("node"=as.numeric(nodes), "descs"=as.numeric(NA), "total.descs"=as.numeric(NA),
-                         "sharing.descs"=as.numeric(NA), "eligible"=as.logical(NA))
+      table<- data.frame("node"=as.numeric(nodes), "descs"=NA, "total.descs"=NA,
+                         "sharing.descs"=NA, "eligible"=NA)
       for(i in seq_along(table$node)){
-        node<- as.numeric(as.character(table$node[i]))
+        node<- table$node[i]
         if(is.tip(tree,node)){
           table$descs[i]   <- NA
           table$total.descs[i]<-1
@@ -537,29 +536,25 @@ return(nodes)
       }
       table<- table[table$eligible=="TRUE",]
       for(i in seq_along(table$node)){
-        node<- as.numeric(as.character(table$node[i]))
+        node<- table$node[i]
         descs<- unique(unlist(strsplit(table$descs, split=",")))
         if(node%in%descs ){table$eligible[i]<- "FALSE"}
       }
       table<- table[table$eligible=="TRUE",]
       table<-table[table$sharing.descs== max(table$sharing.descs),]
       if(use.stem){table$descs<- paste0(table$node,",", table$descs)}
-      table[is.na(table$descs), "descs"]<- as.numeric(table[is.na(table$descs), "node"])
-      table$descs<- as.character(table$descs)
       if(nrow(table)>1){table<-table[sample(1:nrow(table), size=1),]}
 
 
-      nodes <- strsplit(table$descs, split=",")[[1]]
-      nodes <-as.numeric(nodes[nodes!="NA"])
+      nodes <- as.numeric(strsplit(table$descs, split=",")[[1]])
 
 
 
 
     }
-
-    return(nodes)
   }
 
+ return(nodes)
 }
 
 get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono, respect.para){
