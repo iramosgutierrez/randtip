@@ -1,5 +1,3 @@
-
-
 phyleticity<- function(tree, genus){
 
     if(length(genus) != 1){ stop("Only one genus accepted.") }

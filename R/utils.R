@@ -522,9 +522,6 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
           if ( tree$tip.label[node]%in% input[input[,rank]==MDCC,"taxon"]){
             table$sharing.descs[i]<-1;table$eligible[i]<- "TRUE"}else{
               table$sharing.descs[i]<-0;table$eligible[i]<- "FALSE"}
-
-
-
         }
         if(is.node(tree,node)){
           descs<- phytools::getDescendants(tree, node, curr=NULL)
@@ -548,12 +545,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
       table$descs<- gsub(",NA", "", table$descs)
       if(nrow(table)>1){table<-table[sample(1:nrow(table), size=1),]}
 
-
       nodes <- as.numeric(strsplit(table$descs, split=",")[[1]])
-
-
-
-
     }
   }
 

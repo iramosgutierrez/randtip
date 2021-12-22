@@ -325,7 +325,7 @@ info2input<- function(info, tree){
   # Taxa with no MDCC
   not.included <- input[is.na(input$MDCC),]
   if(length(not.included$taxon) > 0){
-    message("The following taxa were not assigned MDCC and will not be "
+    message("The following taxa were not assigned MDCC and will not be ",
             "bound to the tree:\n",
             paste0(not.included$taxon, "\n"))
   }
