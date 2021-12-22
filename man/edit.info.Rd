@@ -4,7 +4,7 @@
 \alias{edit.info}
 \title{Edit an 'info' file using a simple function.}
 \usage{
-\method{edit}{info}(info, PUTs, column = NULL, edit = NULL, remove.rows = FALSE)
+edit.info(info, PUTs, column = NULL, edit = NULL, remove.rows = FALSE)
 }
 \arguments{
 \item{info}{An 'info' object.}
