@@ -118,6 +118,7 @@ custom.branch <- function(tree, edges, rand.type="random",
 #'                      \code{edges} data frame as candidates. Default value 1.
 #' @param ... Arguments to pass through \code{\link[ape]{plot.phylo}} function.
 #'
+#' @export plot.custom.branch
 #' @export
 plot.custom.branch<- function(tree, edges, PUT=NULL,
                               candidate.col="#bf2828", forbidden.col="#3d3d3d",

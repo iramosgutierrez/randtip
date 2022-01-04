@@ -69,6 +69,7 @@ get.clade<- function(info, tree, clade){
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
+#' @export plot.clade
 #' @export
 plot.clade<- function(get.clade.out, ppcr.col="#4a8a21",
                       nonppcr.col="#48bce0",unknown.col="#adadad", ...){

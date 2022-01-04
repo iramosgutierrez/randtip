@@ -16,6 +16,7 @@
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
+#' @export edit.info
 #' @export
 edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.rows=FALSE){
 
@@ -78,6 +79,7 @@ edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.rows=FALSE)
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
+#' @export edit.tree
 #' @export
 edit.tree <- function(tree, tips, edit=NULL, remove.tips=FALSE) {
 
