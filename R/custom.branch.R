@@ -38,8 +38,8 @@ custom.branch <- function(tree, edges, rand.type="random", forceultrametric=F, p
 
     edges.i   <- edges[edges[,1]==PUT,]
 
-    df <- data.frame("parent"=new.tree$edges[,1], "node"=new.tree$edges[,2],
-                     "length"= new.tree$edges.length, "id"=1:length(new.tree$edges[,1]) )
+    df <- data.frame("parent"=new.tree$edge[,1], "node"=new.tree$edge[,2],
+                     "length"= new.tree$edge.length, "id"=1:length(new.tree$edge[,1]) )
 
     permittednodes<- as.numeric(NULL)
     root<- randtip::findRoot(new.tree)
@@ -148,8 +148,8 @@ plot.custom.branch<- function(tree, edges, PUT=NULL,
                               candidate.col="#bf2828", forbidden.col="#3d3d3d",
                               candidate.lwd=2, forbidden.lwd=1,...){
 
-  df <- data.frame("parent"=tree$edges[,1], "node"=tree$edges[,2],
-                   "length"= tree$edges.length, "id"=1:length(tree$edges[,1]) )
+  df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
+                   "length"= tree$edge.length, "id"=1:length(tree$edge[,1]) )
 
   if(length(unique(edges[,1]))==1 & is.null(PUT)){PUT<- unique(edges[,1])}
   if(!is.null(PUT)){
@@ -219,16 +219,16 @@ plot.custom.branch<- function(tree, edges, PUT=NULL,
   if(length(permittednodes)==0){stop("No branches could be selected")}
   permittednodes<- unique(permittednodes)
 
-  col <- vector(mode = "character", length(tree$edges[,1]))
+  col <- vector(mode = "character", length(tree$edge[,1]))
   col[1:length(col)] <- forbidden.col
   col[df$node%in%permittednodes]<- candidate.col
 
-  lwd <- vector(mode = "character", length(tree$edges[,1]))
+  lwd <- vector(mode = "character", length(tree$edge[,1]))
   lwd[1:length(lwd)] <- forbidden.lwd
   lwd[df$node%in%permittednodes]<- candidate.lwd
 
 
 
-  return(ape::plot.phylo(tree, edges.color = col, edges.width = lwd, ...))
+  return(ape::plot.phylo(tree, edge.color = col, edge.width = lwd, ...))
 }
 
