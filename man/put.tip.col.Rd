@@ -11,15 +11,18 @@ put.tip.col(newtree, oldtree, placed.col = "#adadad", put.col = "#C23B23")
 
 \item{oldtree}{The original backbone tree where the PUTs have been bound.}
 
-\item{placed.col}{Color to plot phylogenetic tips which were already placed in the original backbone tree. Default value is grey.}
+\item{placed.col}{Color to plot phylogenetic tips which were already placed in the original backbone tree.
+Default value is grey.}
 
 \item{put.col}{Color to plot bound PUTs in \code{new tree}. Default value is red.}
 }
 \value{
-A vector of length equal to the number of tips in newtree, to be used after \code{tip.color} in plot.phylo function.
+A vector of length equal to the number of tips in newtree, to be used after \code{tip.color}
+in plot.phylo function.
 }
 \description{
-Set color pattern to distinguish between phylogenetically placed taxa and PUTs when plotting trees with the \code{plot.phylo} function of ‘ape’ R package using the \code{tip.color} argument
+Set color pattern to distinguish between phylogenetically placed taxa and PUTs when plotting trees
+with the \code{plot.phylo} function of ‘ape’ R package using the \code{tip.color} argument
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

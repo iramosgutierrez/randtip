@@ -14,12 +14,17 @@ get.clade(info, tree, clade)
 \item{clade}{Clade to be extracted}
 }
 \value{
-A list of four objects which will be used for automatic plotting using \code{\link{plot.clade}} function.
-'Tree' will contain the splitted tree; 'info' will contain the handed info file; 'rank' will contain the taxonomic rank of the specified clade, and 'clade' will contain the clade name.
+A list of four objects which will be used for automatic plotting
+using \code{\link{plot.clade}} function.
+'Tree' will contain the splitted tree; 'info' will contain the handed info
+file; 'rank' will contain the taxonomic rank of the specified clade,
+and 'clade' will contain the clade name.
 }
 \description{
-Obtain a phylogenetic tree representing a specified clade split from an original backbone tree.
-Note that the tree splitting will be performed at the MRCA node of all the taxa included in the clade in the 'info' object.
+Obtain a phylogenetic tree representing a specified clade split from an
+original backbone tree.
+Note that the tree splitting will be performed at the MRCA node of all the taxa included in the
+clade in the 'info' object.
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
