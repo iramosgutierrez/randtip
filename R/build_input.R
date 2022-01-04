@@ -30,27 +30,26 @@
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @export
-
 build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",
                       mode="backbone", interactive=FALSE, genus=FALSE){
 
 
-  species.input.msg <- paste(
-    "Species must be provided as a character vector",
-    "or single-column dataframe.")
-
   if(is.data.frame(species)){
     if(ncol(species)!=1){
-      stop(species.input.msg)
+      stop("Species must be provided as a character vector ",
+          "or single-column dataframe.")
     }else{species <- species[,1]}
   }
   if(!(is.vector(species))){
-      stop(species.input.msg)
+      stop("Species must be provided as a character vector ",
+          "or single-column dataframe.")
   }
+  species <- remove.spaces(species)
   duplicated_sp <-  species[duplicated(species)]
   if(length(duplicated_sp)>=1){
     stop("Taxa ", paste0(duplicated_sp, collapse=", ")," are duplicated.")
   }
+
   if(is.null(tree) & mode=="backbone"){
     stop("Parameter 'mode' is set to 'backbone', ",
          "but the backbone tree is missing. ",
@@ -63,20 +62,9 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",
     stop("Parameter 'mode' must be 'list' or 'backbone' ")
   }
   if(!(db %in% c("ncbi", "itis", "gbif", "bold"))){
-    stop("Parameter chosen for 'db' is not one of the allowed databases.")
+    stop(paste0(db, " is not one of the allowed databases."))
   }
-
-  names_df <- c("taxon", randtip.ranks(),
-                "taxon1", "taxon2", "rand.type", "polyphyly.scheme",
-                "use.paraphyletic", "use.singleton","use.stem",
-                "respect.mono", "respect.para","clump.puts",
-                "prob","keep.tip")
-
-  species <- stringr::str_trim(species)
-  species<- gsub(" ", "_", species)
-
   tree$tip.label <- gsub("_x_|_X_", "_x-", tree$tip.label)
-
   spp.in.tree<- tree$tip.label
   spp.original<- species
 
@@ -84,35 +72,38 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",
     species<- c(species, spp.in.tree[!(spp.in.tree%in%species)])
   }
 
+  names_df <- c("taxon", randtip.ranks(),
+                "taxon1", "taxon2", "rand.type", "polyphyly.scheme",
+                "use.paraphyletic", "use.singleton","use.stem",
+                "respect.mono", "respect.para","clump.puts",
+                "prob","keep.tip")
   info<- as.data.frame(matrix(nrow = length(species),
                               ncol = length(names_df),
                               dimnames = list(NULL, names_df)))
-  info$taxon<- species
+  info$taxon <- species
 
-  # Put suffix _sp in taxa with only the genus
-  only.genus<- which(!grepl("_", species))
-  for(t in only.genus){
-    if(paste0(info$taxon[t], "_sp.") %in% tree$tip.label){
-      info$taxon[t]<-paste0(info$taxon[t], "_sp2.")
-    }else{
-      info$taxon[t]<-paste0(info$taxon[t], "_sp.")
-    }
-  }
-
+  only.genus<- !grepl("_", species)
   if(isTRUE(genus)){
-    if(length(only.genus) != 0){
-      stop("Taxa must specify only genera for \"genus\" mode")
+    if(!all(only.genus)){
+      stop("Taxa and tree tips must specify only genera for \"genus\" mode")
     }
-    if(any(grepl("_", tree$tip.label))){
-      stop("Tree tips must represent only genera for \"genus\" mode")
+  }
+  # Put suffix _sp in taxa with only the genus
+  for(t in which(only.genus)){
+    taxon.suffix.i <- "_sp."
+    i <- 2
+    while(paste0(info$taxon[t], taxon.suffix.i) %in% tree$tip.label){
+      taxon.suffix.i <- paste0("_sp", i, ".")
+      i <- i + 1
     }
-    info$taxon<- firstword(info$taxon)
+
+    info$taxon[t]<-paste0(info$taxon[t], taxon.suffix.i)
   }
 
-  info$genus<- firstword(species)
+  info$genus<- first.word(species)
   genera <- unique(info$genus)
 
-  cols_select <- c("taxon1", "taxon2","rand.type", "polyphyly.scheme",
+  cols.select <- c("taxon1", "taxon2","rand.type", "polyphyly.scheme",
                    "use.paraphyletic", "use.singleton",
                    "use.stem","respect.mono","respect.para",
                    "clump.puts", "prob" )
@@ -120,7 +111,7 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",
     info <- search.taxize(info, genera, interactive, db)
   }
 
-  info[!(species %in% spp.original), cols_select] <- "-"
+  info[!(species %in% spp.original), cols.select] <- "-"
   info$keep.tip <- ifelse(species %in% spp.original, 1, 0)
   return(info)
 }
@@ -154,13 +145,13 @@ check.info<- function(info, tree, sim=0.8){
 
   info <- correct.DF(info)
   info$keep.tip[is.na(info$keep.tip)]<-"1"
-  info$taxon<- gsub(" ", "_", info$taxon)
+  info$taxon<- remove.spaces(info$taxon)
 
-  tree$tip.label<- gsub(" ", "_", tree$tip.label)
-  info.taxa<-info$taxon
+  tree$tip.label<- remove.spaces(tree$tip.label)
+  info.taxa <- info$taxon
   tree.taxa<- tree$tip.label
 
-  DF<- info[info$keep.tip=="1",c("taxon",randtip.ranks())]
+  DF<- info[info$keep.tip=="1", c("taxon",randtip.ranks())]
   DF$PUT.status<- NA
   DF$Typo<- FALSE
   DF$Typo.names<- NA
@@ -190,11 +181,10 @@ check.info<- function(info, tree, sim=0.8){
 
   ranks<-randtip.ranks()
   for (rank in ranks){
-    groups<- unique(DF[,rank])
-    groups<- notNA(groups)
+    groups<- notNA(unique(DF[,rank]))
 
     if (length(groups)>0){
-      cat( paste0("Checking phyletic status at ", rank, " level...\n"))
+      cat(paste0("Checking phyletic status at ", rank, " level...\n"))
 
       cat(paste0("0%       25%       50%       75%       100%", "\n",
                  "|---------|---------|-----tree----|---------|", "\n"))
@@ -311,7 +301,7 @@ info2input<- function(info, tree){
   input$MDCC <- as.character(NA)
   input$MDCC.rank <- as.character(NA)
 
-  taxon.in.tree <- (input$taxon %in% tree.tip.label)
+  taxon.in.tree <- (input$taxon %in% tree$tip.label)
   input$MDCC[taxon.in.tree] <- "Tip"
   input$MDCC.rank[taxon.in.tree] <- "Tip"
 

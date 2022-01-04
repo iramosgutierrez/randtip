@@ -57,7 +57,6 @@ custom.branch <- function(tree, edges, rand.type="random",
                      "length"= new.tree$edge.length,
                      "id"=1:length(new.tree$edge[,1]) )
 
-    permittednodes<- as.numeric(NULL)
     root<- findRoot(new.tree)
     PUT  <- gsub(" ", "_", PUT)
 
@@ -66,7 +65,7 @@ custom.branch <- function(tree, edges, rand.type="random",
     edges.i[,4]<- gsub(" ", "_", edges.i[,4])
     edges.i[,5]<- gsub(" ", "_", edges.i[,5])
 
-    permittednodes <- get.permitted.nodes.custom(new.tree, edges)
+    permittednodes <- get.permitted.nodes.custom(new.tree, df, edges.i, root)
 
     df<- df[df$node%in%permittednodes,]
 
@@ -146,7 +145,7 @@ plot.custom.branch<- function(tree, edges, PUT=NULL,
   edges[,4]<- gsub(" ", "_", edges[,4])
   edges[,5]<- gsub(" ", "_", edges[,5])
 
-  permiited.nodes <- get.permitted.nodes.custom(tree, edges)
+  permittednodes <- get.permitted.nodes.custom(tree, df, edges, root)
 
   col <- vector(mode = "character", length(tree$edge[,1]))
   col[1:length(col)] <- forbidden.col
@@ -159,7 +158,7 @@ plot.custom.branch<- function(tree, edges, PUT=NULL,
   return(ape::plot.phylo(tree, edge.color = col, edge.width = lwd, ...))
 }
 
-get.permitted.nodes.custom <- function(tree, edges){
+get.permitted.nodes.custom <- function(tree, df, edges, root){
 
   permittednodes<- as.numeric(NULL)
 

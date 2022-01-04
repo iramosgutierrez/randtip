@@ -21,7 +21,7 @@ edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.rows=FALSE)
 
   info <- correct.DF(info)
 
-  PUTS <- stringr::str_trim(PUTS)
+  PUTs <- stringr::str_trim(PUTs)
   PUTs<- gsub(" ", "_", PUTs)
 
   if(length(PUTs[!(PUTs %in% info$taxon)])>=1){
