@@ -4,7 +4,7 @@
 \alias{edit.tree}
 \title{Edit backbone tree using a simple function.}
 \usage{
-\method{edit}{tree}(tree, tips, edit = NULL, remove.tips = FALSE)
+edit.tree(tree, tips, edit = NULL, remove.tips = FALSE)
 }
 \arguments{
 \item{tree}{A backbone tree.}

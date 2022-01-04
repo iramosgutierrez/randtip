@@ -1,13 +1,35 @@
-#GENERAL FUNCTIONS####
+notNA <- function(x){
+  vect<- x[!is.na(x)]
+  return(vect)
+}
 
-firstword<- function(string, sep="_"){
+############ String manipulation ###################
+first.word<- function(string, sep="_"){
   word<- stringr::word(string, 1, sep=sep)
   return(word)
 }
 
-notNA <- function(x){
-  vect<- x[!is.na(x)]
-  return(vect)
+remove.spaces <- function(species, sep = "_"){
+  sp <- stringr::str_trim(gsub("\\s+", " ", species))
+  sp <- stringr::str_replace(sp, " ", sep)
+  return(sp)
+}
+
+############### Dataframe ###################
+randtip.ranks<- function(){
+  return(as.vector(c("genus","subtribe","tribe",
+                     "subfamily","family","superfamily",
+                     "order","class")))
+}
+
+correct.DF<- function(DF){
+  for(i in 1:(ncol(DF))){
+    vect<- which(DF[,i]=="")
+    if(length(vect)>0){DF[vect,i]<-NA}
+    DF[,i]<- as.character(DF[,i])
+  }
+
+  return(DF)
 }
 
 isRoot<- function(tree, node){
@@ -23,19 +45,6 @@ findRoot<- function(tree){
 
 randtip_ranks<- function(){
   return(as.vector(c("genus","subtribe","tribe","subfamily","family","superfamily","order","class")))
-}
-
-correct.DF<- function(DF){
-  for(i in 1:(ncol(DF))){
-    vect<- which(DF[,i]=="")
-    if(length(vect)>0){DF[vect,i]<-NA}
-  }
-
-  for(col in names(DF)){
-    DF[,col]<- as.character(DF[,col])
-  }
-
-  return(DF)
 }
 
 is.node<-function(tree, node){
@@ -903,12 +912,4 @@ add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, respect
 
   return(new.tree)
 }
-
-
-
-
-
-
-
-
 

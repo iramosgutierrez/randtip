@@ -5,17 +5,30 @@
 #'
 #' @param input An 'input' data frame obtained with \code{\link{info2input}} fuction.
 #' @param tree A backbone tree.
-#' @param rand.type For all PUTs not specified individually in 'input', which randomization type ("random" or "polytomy") must be carried out. Default value is "random".
-#' @param polyphyly.scheme For all PUTs not specified individually in 'input', which polyphyly scheme ("largest", "complete" or "frequentist") must be used. Default value is "largest".
-#' @param use.paraphyletic For all PUTs not specified individually in 'input', whether or not should paraphyletic clades be taken into account or not. Default value is TRUE.
-#' @param use.singleton For all PUTs not specified individually in 'input', should or not singleton MDCCs be considered for binding as a sister species, or contrarily binding should be performed anywhere below the parent node. Default value is TRUE.
-#' @param use.stem For all PUTs not specified individually in 'input', whether or not should the stem branch be considered as candidate for binding.  Default value is FALSE.
-#' @param respect.mono For all PUTs not specified individually in 'input', whether or not monophyletic groups should be respected when binding a PUT. Default value is TRUE.
-#' @param respect.para For all PUTs not specified individually in 'input', whether or not paraphyletic groups should be respected when binding a PUT. Default value is TRUE.
-#' @param clump.puts For all PUTs not specified individually in 'input', whether or not co-ranked PUTs should be clumped together in the phylogeny in case their taxonomic group is missing in the tree. Will also clump conspecific PUTs. Default value is TRUE.
-#' @param prob For all PUTs not specified individually in 'input', whether or not branch selection probability must be proportional to branch length or equiprobable. Default value is TRUE.
-#' @param prune Whether or not the newly expanded tree will include only the species in the user's list. Default value is TRUE.
-#' @param forceultrametric Whether or not the backbone tree will be forced to be ultrametric, only in case it is not. Default value is FALSE.
+#' @param rand.type For all PUTs not specified individually in 'input', which randomization type ("random" or
+#'                  "polytomy") must be carried out. Default value is "random".
+#' @param polyphyly.scheme For all PUTs not specified individually in 'input', which polyphyly
+#'                         scheme ("largest", "complete" or "frequentist") must be used. Default value is "largest".
+#' @param use.paraphyletic For all PUTs not specified individually in 'input', whether or not should paraphyletic
+#'                         clades be taken into account or not. Default value is TRUE.
+#' @param use.singleton For all PUTs not specified individually in 'input', should or not singleton MDCCs be
+#'                      considered for binding as a sister species, or contrarily binding should be performed
+#'                      anywhere below the parent node. Default value is TRUE.
+#' @param use.stem For all PUTs not specified individually in 'input', whether or not should the stem branch be
+#'                 considered as candidate for binding.  Default value is FALSE.
+#' @param respect.mono For all PUTs not specified individually in 'input', whether or not monophyletic groups
+#'                     should be respected when binding a PUT. Default value is TRUE.
+#' @param respect.para For all PUTs not specified individually in 'input', whether or not paraphyletic groups
+#'                     should be respected when binding a PUT. Default value is TRUE.
+#' @param clump.puts For all PUTs not specified individually in 'input', whether or not co-ranked PUTs should be
+#'                   clumped together in the phylogeny in case their taxonomic group is missing in the tree.
+#'                   Will also clump conspecific PUTs. Default value is TRUE.
+#' @param prob For all PUTs not specified individually in 'input', whether or not branch selection probability
+#'             must be proportional to branch length or equiprobable. Default value is TRUE.
+#' @param prune Whether or not the newly expanded tree will include only the species in the user's list.
+#'              Default value is TRUE.
+#' @param forceultrametric Whether or not the backbone tree will be forced to be ultrametric, only in case it is
+#'                         not. Default value is FALSE.
 #' @param verbose Whether or not to print information about the flow of the function. Default value is TRUE.
 
 #' @return An expanded phylogeny.
@@ -35,12 +48,21 @@ rand.tip <- function(input, tree,rand.type = "random",
   if(polyphyly.scheme == "f"){polyphyly.scheme <- "frequentist"}
   if(polyphyly.scheme == "l"){polyphyly.scheme <- "largest"}
 
-  if (!inherits(tree, "phylo")) {stop("Backbone tree must be an object of class \"phylo\"")}
-  if(!(rand.type %in% c("random", "polytomy"))) {stop("Argument 'rand.type' must be \"random\" or \"polytomy\" ")}
-  if(!(polyphyly.scheme %in% c("frequentist", "complete", "largest"))) {stop("Argument 'polyphyly.scheme' must be \"frequentist\", \"complete\" or \"largest\" ")}
+  if (!inherits(tree, "phylo")){
+    stop("Backbone tree must be an object of class \"phylo\"")
+  }
+  if(!(rand.type %in% c("random", "polytomy"))){
+    stop("Argument 'rand.type' must be \"random\" or \"polytomy\" ")
+  }
+  if(!(polyphyly.scheme %in% c("frequentist", "complete", "largest"))){
+    stop("Argument 'polyphyly.scheme' must be \"frequentist\", \"complete\" or \"largest\" ")
+  }
 
-  if(length(tree$tip.label[duplicated(tree$tip.label)])==1){stop("Tip ", paste0(tree$tip.label[duplicated(tree$tip.label)], collapse=", "),     " is duplicated in the backbone tree. Please remove one of them.")}
-  if(length(tree$tip.label[duplicated(tree$tip.label)])>1 ) {stop("Tips ",  paste0(tree$tip.label[duplicated(tree$tip.label)], collapse=", "), " are duplicated in the backbone tree. Please remove one of them.")}
+  if(length(tree$tip.label[duplicated(tree$tip.label)])>=1){
+    stop("Tips ",
+         paste0(tree$tip.label[duplicated(tree$tip.label)], collapse=", "),
+         " are duplicated in the backbone tree. Please remove one of them.")
+  }
 
     start<- Sys.time()
 
@@ -58,12 +80,8 @@ rand.tip <- function(input, tree,rand.type = "random",
 
     if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
     if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
-      message("The backbone tree is not ultrametric. \nPlease, set the argument 'forceultrametric' to TRUE if the tree is genuinely ultrametric.")}
-
-
-
-
-
+      message("The backbone tree is not ultrametric.",
+              "\nPlease, set the argument 'forceultrametric' to TRUE if the tree is genuinely ultrametric.")}
 
     if(prune){
       if(length(input$taxon[input$MDCC=="Tip"])>0){
@@ -78,10 +96,10 @@ rand.tip <- function(input, tree,rand.type = "random",
         using.rank<- as.character(notNA(unique(spp.df$MDCC.rank)))
 
         if(!(using.rank%in%names(input))){
-          mdcc.genera<-firstword(spp.df[,c("taxon1","taxon2")]) }else{
-          mdcc.genera<-firstword(input$taxon[input[,using.rank]==using.mdcc])}
+          mdcc.genera<-first.word(spp.df[,c("taxon1","taxon2")]) }else{
+          mdcc.genera<-first.word(input$taxon[input[,using.rank]==using.mdcc])}
 
-        mdcc.species<- new.tree$tip.label[firstword(new.tree$tip.label)%in%mdcc.genera]
+        mdcc.species<- new.tree$tip.label[first.word(new.tree$tip.label)%in%mdcc.genera]
         trimming.species<- c(trimming.species, mdcc.species)
         trimming.species<-trimming.species[trimming.species%in%new.tree$tip.label]
       }
@@ -98,7 +116,6 @@ rand.tip <- function(input, tree,rand.type = "random",
     input[is.na(input$use.singleton), "use.singleton"]<- use.singleton
     input[is.na(input$prob) , "prob"] <- prob
 
-
     input$use.paraphyletic  <- as.logical(input$use.paraphyletic)
     input$use.singleton <- as.logical(input$use.singleton)
     input$use.paraphyletic <- as.logical(input$use.paraphyletic)
@@ -108,23 +125,22 @@ rand.tip <- function(input, tree,rand.type = "random",
     input$respect.para <- as.logical(input$respect.para)
     input$prob <- as.logical(input$prob)
 
-
-
         input.bind<- input[!(input$taxon %in% new.tree$tip.label),]
         input.bind<- input.bind[!is.na(input.bind$MDCC),]
+
 
         manual.mdcc.taxa<-input.bind$taxon[!is.na(input.bind$taxon1)|!is.na(input.bind$taxon2)]
         rand.PUTs<- input.bind$taxon
         rand.PUTs<-sample(rand.PUTs, length(rand.PUTs), replace = F)
         rand.PUTs<- c(rand.PUTs[rand.PUTs%in%manual.mdcc.taxa], rand.PUTs[!(rand.PUTs%in%manual.mdcc.taxa)])
 
-
         for(i in seq_along(rand.PUTs)){
             PUT <- rand.PUTs[i]
 
             MDCC  <- inputfinder(input.bind,PUT, "MDCC")
             rank <- inputfinder(input.bind,PUT, "MDCC.rank")
-            if(rank%in%randtip_ranks()){
+
+            if(rank%in%randtip.ranks()){
             MDCC.type <- MDCC.phyleticity(input, new.tree,
                                                    MDCC.info = list(rank=rank,MDCC=MDCC), trim=F)}else{
             MDCC.type <- rank
@@ -141,8 +157,6 @@ rand.tip <- function(input, tree,rand.type = "random",
             clump.PUT<-as.logical(inputfinder(input.bind, PUT, "clump.puts"))
 
             prob<-as.logical(inputfinder(input.bind, PUT, "prob"))
-
-
 
 
             if(isTRUE(clump.PUT)){
@@ -169,7 +183,7 @@ rand.tip <- function(input, tree,rand.type = "random",
             }
 
             if(rank=="Sister genus"){
-              sister.genus.tips<- new.tree$tip.label[firstword(new.tree$tip.label)==MDCC]
+              sister.genus.tips<- new.tree$tip.label[first.word(new.tree$tip.label)==MDCC]
               sister.genus.mrca<- ape::getMRCA(new.tree, sister.genus.tips)
               perm.nodes <- sister.genus.mrca
               }
@@ -215,7 +229,8 @@ rand.tip <- function(input, tree,rand.type = "random",
                           polyphyly.scheme, use.paraphyletic, use.singleton, use.stem)}
               }
 
-            adding.DF<- data.frame("parent"=new.tree$edge[,1], "node"=new.tree$edge[,2], "length"= new.tree$edge.length )
+              adding.DF<- data.frame("parent"=new.tree$edge[,1], "node"=new.tree$edge[,2],
+                                     "length"= new.tree$edge.length )
             adding.DF<- adding.DF[adding.DF$node %in% perm.nodes,]
             adding.DF$id<- 1:nrow(adding.DF)
 
@@ -252,7 +267,9 @@ rand.tip <- function(input, tree,rand.type = "random",
     complete.taxa.list.in.tree <- complete.taxa.list[complete.taxa.list %in% new.tree$tip.label]
     not.included <- complete.taxa.list[!(complete.taxa.list %in% complete.taxa.list.in.tree)]
     if(length(not.included) > 0){
-        message("The following taxa were not bound to the tree:\n", paste0(not.included, "\n"))}
+      message("The following taxa were not bound to the tree:\n",
+              paste0(not.included, "\n"))
+    }
 
     if(isTRUE(prune)){new.tree <- ape::keep.tip(new.tree, complete.taxa.list.in.tree)}
     if(is.null(tree$edge.length)){new.tree$edge.length<-NULL}

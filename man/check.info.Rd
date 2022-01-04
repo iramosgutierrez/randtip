@@ -11,14 +11,18 @@ check.info(info, tree, sim = 0.8)
 
 \item{tree}{The original backbone tree.}
 
-\item{sim}{Name simmilarity threshold to detect possible misspellings on tip labels. Default value is 0.8.}
+\item{sim}{Name similarity threshold to detect possible misspellings
+on tip labels. Default value is 0.8.
+See \link[stringdist]{stringsim} for details.}
 }
 \value{
 A data frame containing possible typographic errors, taxonomic ranks extracted from 'info' and the phyletic nature of each of them.
 #'
 }
 \description{
-Function to account for the PUT status of the species in 'info', spelling errors, putative MDCCs and the phyletic nature of groups of PPCR species.
+Function to account for the PUT status of the species in 'info',
+spelling errors, putative MDCCs and the phyletic nature of
+groups of PPCR species.
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
