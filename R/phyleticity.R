@@ -62,7 +62,7 @@ MDCC.phyleticity<-function(input, tree, MDCC.info=list("rank"=NA, "MDCC"=NA),
 
     tips<- tree$tip.label[first.word(tree$tip.label) %in% first.word(input$taxon)]
     if(isTRUE(trim) & length(tips)>0){
-      tree<- ape::keep.tip(phy = tree, tip = tips)
+        tree<- ape::keep.tip(phy = tree, tip = tips)
     }
 
     species<- input[input[,rank]==MDCC,]

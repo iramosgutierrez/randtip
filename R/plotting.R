@@ -20,31 +20,32 @@
 #' @export
 get.clade<- function(info, tree, clade){
 
-  rankDF<-info[,c("taxon", randtip.ranks())]
-  rankDF.withclade<-as.data.frame(rankDF[,]==clade)
-  rankDF.withclade<- as.vector(colSums(rankDF.withclade, na.rm = T))
-  ranks<- which(rankDF.withclade>0)
-  if(length(ranks)==0){
-    stop("Specified clade is not reflected in the 'info' data frame")}
-  if(length(ranks)> 1){
-    stop("Specified clade reflect several ranks. ",
-         "Please correct your 'info' data frame!")
-  }
-  rank<-names(rankDF)[ranks]
+    rankDF<-info[,c("taxon", randtip.ranks())]
+    rankDF.withclade<-as.data.frame(rankDF[,]==clade)
+    rankDF.withclade<- as.vector(colSums(rankDF.withclade, na.rm = T))
+    ranks<- which(rankDF.withclade>0)
+    if(length(ranks)==0){
+        stop("Specified clade is not reflected in the 'info' data frame")}
+    if(length(ranks)> 1){
+        stop("Specified clade reflect several ranks. ",
+            "Please correct your 'info' data frame!")
+    }
+    rank<-names(rankDF)[ranks]
 
-  spss<- info[which(info[,rank]==clade),]
-  genera<- unique(spss$genus)
+    spss<- info[which(info[,rank]==clade),]
+    genera<- unique(spss$genus)
 
-  cut.list<- tree$tip.label[first.word(tree$tip.label)%in% genera]
-  if(length(cut.list)==0){stop("Specified clade is not reflected in the tree!")}
-  if(length(cut.list)==1){stop("Specified clade is related to just 1 tree tip!")}
-  cut.node<- ape::getMRCA(tree, tip = cut.list )
-  if(cut.node==findRoot(tree)){
-    return(list("Tree"=tree, "info"=info, "rank"=rank, "clade"=clade))
-  }
+    cut.list<- tree$tip.label[first.word(tree$tip.label)%in% genera]
+    if(length(cut.list)==0){stop("Specified clade is not reflected in the tree!")}
+    if(length(cut.list)==1){stop("Specified clade is related to just 1 tree tip!")}
+    cut.node<- ape::getMRCA(tree, tip = cut.list )
+    if(cut.node==findRoot(tree)){
+        return(list("Tree"=tree, "info"=info, "rank"=rank, "clade"=clade))
+    }
 
-  subtree<-  phytools::splitTree(tree, split = list("node"=cut.node, "bp"=0))[[2]]
-  return(list("Tree"=subtree, "info"=info, "rank"=rank, "clade"=clade))
+    subtree<-  phytools::splitTree(tree, split = list("node"=cut.node, "bp"=0))[[2]]
+
+    return(list("Tree"=subtree, "info"=info, "rank"=rank, "clade"=clade))
 }
 
 
@@ -74,15 +75,16 @@ get.clade<- function(info, tree, clade){
 plot.clade<- function(get.clade.out, ppcr.col="#4a8a21",
                       nonppcr.col="#48bce0",unknown.col="#adadad", ...){
 
-  get.clade.names <- c("Tree", "info", "rank", "clade")
-  if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.clade.names))){
-    stop("Please feed this function with the returned object from ",
-         "get.clade function")
-  }
+    get.clade.names <- c("Tree", "info", "rank", "clade")
+    if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.clade.names))){
+        stop("Please feed this function with the returned object from ",
+            "get.clade function")
+    }
 
-  tipcol<- clade.col(get.clade.out, ppcr.col=ppcr.col,
-                     nonppcr.col=nonppcr.col, unknown.col=unknown.col)
-  return(ape::plot.phylo(get.clade.out$Tree, tip.color = tipcol, ...))
+    tipcol <- clade.col(get.clade.out, ppcr.col=ppcr.col,
+                      nonppcr.col=nonppcr.col, unknown.col=unknown.col)
+
+    return(ape::plot.phylo(get.clade.out$Tree, tip.color = tipcol, ...))
 }
 
 #' Get PUT or placed color pattern
@@ -102,38 +104,37 @@ plot.clade<- function(get.clade.out, ppcr.col="#4a8a21",
 #'
 #' @export
 put.tip.col<- function(newtree, oldtree, placed.col="#adadad", put.col="#C23B23"){
-  col<- vector("character", length(newtree$tip.label))
-  col[1:length(col)]<- put.col
-  col[newtree$tip.label%in%oldtree$tip.label]<-placed.col
-  return(col)
-
+    col<- vector("character", length(newtree$tip.label))
+    col[1:length(col)]<- put.col
+    col[newtree$tip.label%in%oldtree$tip.label]<-placed.col
+    return(col)
 }
 
 clade.col <- function(get.clade.out, ppcr.col="#4a8a21",
                       nonppcr.col="#48bce0",unknown.col="#adadad"){
 
-  get.clade.names <- c("Tree", "info", "rank", "clade")
-  if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.clade.names))){
-    stop("Please feed this function with the returned object from ",
-         "get.clade function")
-  }
+    get.clade.names <- c("Tree", "info", "rank", "clade")
+    if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.clade.names))){
+        stop("Please feed this function with the returned object from ",
+            "get.clade function")
+    }
 
-  clade.tree<-get.clade.out$Tree
-  rank <- get.clade.out$rank
-  clade <- get.clade.out$clade
-  info   <- get.clade.out$info
+    clade.tree<-get.clade.out$Tree
+    rank <- get.clade.out$rank
+    clade <- get.clade.out$clade
+    info   <- get.clade.out$info
 
-  spss<- info[which(info[,rank]==clade),]
-  genera<- unique(spss$genus)
+    spss<- info[which(info[,rank]==clade),]
+    genera<- unique(spss$genus)
 
-  intruders<- info[which(info[,rank]!=clade),]
-  intrudergenera<- unique(intruders$genus)
+    intruders<- info[which(info[,rank]!=clade),]
+    intrudergenera<- unique(intruders$genus)
 
-  colours<- vector("character", length(clade.tree$tip.label))
-  colours[]<- unknown.col
-  colours[first.word(clade.tree$tip.label)%in%intrudergenera]<- nonppcr.col
-  colours[first.word(clade.tree$tip.label)%in%genera]<- ppcr.col
+    colours<- vector("character", length(clade.tree$tip.label))
+    colours[]<- unknown.col
+    colours[first.word(clade.tree$tip.label)%in%intrudergenera]<- nonppcr.col
+    colours[first.word(clade.tree$tip.label)%in%genera]<- ppcr.col
 
-  return(colours)
+    return(colours)
 
 }
