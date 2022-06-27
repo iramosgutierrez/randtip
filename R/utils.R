@@ -4,8 +4,8 @@ notNA <- function(x){
 }
 
 ############ String manipulation ###################
-first.word<- function(string, sep="_"){
-    word<- stringr::word(string, 1, sep=sep)
+first.word<- function(string){
+    word <- stringr::str_extract(string, "[A-Za-z]+")
     return(word)
 }
 
@@ -22,14 +22,15 @@ randtip.ranks<- function(){
                       "order","class")))
 }
 
-correct.DF<- function(DF){
-    for(i in 1:(ncol(DF))){
-        vect<- which(DF[,i]=="")
-        if(length(vect)>0){DF[vect,i]<-NA}
-        DF[,i]<- as.character(DF[,i])
-    }
+correct.DF<- function(df){
 
-    return(DF)
+    df_corrected <- apply(df, 2,
+                          function(x){
+                                      x[x == ""] <- NA
+                                      x <- as.character(x)
+    })
+    
+    return(as.data.frame(df_corrected))
 }
 
 isRoot<- function(tree, node){
@@ -97,8 +98,8 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
     taxa<- input[!is.na(input$taxon1)|!is.na(input$taxon2),]
     if(nrow(taxa)>0){
         for(tx in seq_along(taxa$taxon)){
-            if(isTRUE(length(strsplit( taxa$taxon1[tx], "_")[[1]])==1 &
-                      length(strsplit( taxa$taxon2[tx], "_")[[1]])==1 &
+            if(isTRUE(length(strsplit(taxa$taxon1[tx], "_")[[1]])==1 &
+                      length(strsplit(taxa$taxon2[tx], "_")[[1]])==1 &
                       taxa$taxon1[tx]==taxa$taxon2[tx] &
                       length(sp.genus.in.tree(tree, taxa$taxon1[tx]))>0)){
 
@@ -109,11 +110,11 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                 next
             }
 
-            if(!(taxa$taxon1[tx]%in%tree$tip.label)){taxa$taxon1[tx]<-NA}
-            if(!(taxa$taxon2[tx]%in%tree$tip.label)){taxa$taxon2[tx]<-NA}
+            if(!(any(tree$tip.label == taxa$taxon1[tx]))){taxa$taxon1[tx]<-NA}
+            if(!(any(tree$tip.label == taxa$taxon2[tx]))){taxa$taxon2[tx]<-NA}
 
-            if(isTRUE(taxa$taxon1[tx] %in% tree$tip.label &
-                      taxa$taxon2[tx] %in% tree$tip.label &
+            if(isTRUE(any(tree$tip.label == taxa$taxon1[tx]) &
+                      any(tree$tip.label == taxa$taxon2[tx]) &
                       taxa$taxon1[tx]==taxa$taxon2[tx])){
 
                 pos<- which(taxon==taxa$taxon[tx])
@@ -123,8 +124,8 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                 next
             }
 
-            if(isTRUE(taxa$taxon1[tx] %in% tree$tip.label &
-                      taxa$taxon2[tx] %in% tree$tip.label &
+            if(isTRUE(any(tree$tip.label == taxa$taxon1[tx]) &
+                      any(tree$tip.label == taxa$taxon2[tx]) &
                       taxa$taxon1[tx]!=taxa$taxon2[tx])){
 
                 pos<- which(taxon==taxa$taxon[tx])
@@ -134,7 +135,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                 next
             }
 
-            if(isTRUE(taxa$taxon1[tx] %in% tree$tip.label &
+            if(isTRUE(any(tree$tip.label == taxa$taxon1[tx]) &
                       is.na(taxa$taxon2[tx]))){
 
                 pos<- which(taxon==taxa$taxon[tx])
@@ -143,7 +144,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                 next
             }
 
-            if(isTRUE(taxa$taxon2[tx] %in% tree$tip.label &
+            if(isTRUE(any(tree$tip.label == taxa$taxon2[tx]) &
                       is.na(taxa$taxon1[tx]))){
 
                 pos<- which(taxon==taxa$taxon[tx])
@@ -163,20 +164,23 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
         vect<- which(taxon%in%taxa$taxon)
         for(v in vect){
 
-            if(v==vect[1]){
-                if(!silent){cat(paste0("0%       25%       50%       75%       100%", "\n",
-                          "|---------|---------|---------|---------|",   "\n"))}
+            if(!silent){
+
+                if(v==vect[1]){
+                    cat(paste0("0%       25%       50%       75%       100%", "\n",
+                        "|---------|---------|---------|---------|",   "\n"))
+                }
+
+                vec<- seq(from=0, to=40, by=40/length(vect))
+                vec<-ceiling(vec)
+                vec<- diff(vec)
+                cat(strrep("*", times=vec[which(vect==v)]))
+
+                if(v ==vect[length(vect)]){cat("*\n")}
+
             }
 
-            vec<- seq(from=0, to=40, by=40/length(vect))
-            vec<-ceiling(vec)
-            vec<- diff(vec)
-            if(!silent){cat(strrep("*", times=vec[which(vect==v)]))}
-
-            if(v ==vect[length(vect)]){if(!silent){cat("*\n")}}
-
-
-            if(taxon[v]%in%tree$tip.label){
+            if(any(tree$tip.label == taxon[v])){
               MDCC.vect[v]<- "Tip"
               MDCC.lev.vect[v]<-"Tip"
               next
@@ -468,7 +472,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
                 if(is.tip(tree,node)){
                     table$descs[i] <- NA
                     table$total.descs[i]<-1
-                    if(tree$tip.label[node]%in% input[input[,rank]==MDCC,"taxon"]){
+                    if(tree$tip.label[node] %in% input[input[,rank]==MDCC,"taxon"]){
                         table$sharing.descs[i]<-1;table$eligible[i]<- "TRUE"
                     }else{
                             table$sharing.descs[i]<-0;table$eligible[i]<- "FALSE"
@@ -567,12 +571,12 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
     #respect monophyletic clusters of species
     if(respect.mono){
         perm.tips<- notNA(tree$tip.label[perm.nodes])
-        perm.species<-paste0(stringr::word(perm.tips, 1, sep="_"), "_",
+        perm.species<-paste0(first.word(perm.tips), "_",
                              stringr::word(perm.tips, 2, sep="_"))
         ssps<-perm.species[duplicated(perm.species)]
         if(length(ssps)>0){
             for(ssp in ssps){
-                nodes<-which(paste0(stringr::word(tree$tip.label, 1, sep="_"), "_",
+                nodes<-which(paste0(first.word(tree$tip.label), "_",
                                     stringr::word(tree$tip.label, 2, sep="_"))==ssp)
                 if(length(nodes)==2){
                     forbidden.nodes<-c(forbidden.nodes, nodes)
@@ -584,7 +588,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
                     for(n in ssp.descs){
                         if(n %in%forbidden.nodes){next}
                         node.descs<- tree$tip.label[notNA(phytools::getDescendants(tree, n, curr=NULL))]
-                        node.descs<- paste0(stringr::word(node.descs, 1, sep="_"), "_",
+                        node.descs<- paste0(first.word(node.descs), "_",
                                             stringr::word(node.descs, 2, sep="_"))
                         if(all(node.descs==ssp)){forbidden.nodes<-c(forbidden.nodes, nodes)}
                     }
@@ -734,7 +738,6 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
                             nest.gen<- first.word(nest.tips)
                             nest.mrca<- nd
 
-
                             nested.nodes<- phytools::getDescendants(tree, node=nest.mrca,curr = NULL)
                             nest.desc.tips <- tree$tip.label[nested.nodes]
                             nest.desc.tips<- notNA(nest.desc.tips)
@@ -774,12 +777,15 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 bind.clump<- function(new.tree, tree, input, PUT){
 
     clumplist<- list("MDCC"=NULL, "rank"=NULL,"MDCC.type"=NULL, "taxa"=NULL)
-    sp<- paste0(stringr::word(PUT, 1,sep = "_"), "_", stringr::word(PUT, 2,sep = "_"))
-    treespp<- paste0(stringr::word(tree$tip.label, 1,sep = "_"), "_", stringr::word(tree$tip.label, 2,sep = "_"))
-    new.treespp<- paste0(stringr::word(new.tree$tip.label, 1,sep = "_"), "_", stringr::word(new.tree$tip.label, 2,sep = "_"))
+    sp<- paste0(first.word(PUT), "_", stringr::word(PUT, 2,sep = "_"))
+    treespp<- paste0(first.word(tree$tip.label), "_",
+                     stringr::word(tree$tip.label, 2,sep = "_"))
+    new.treespp<- paste0(first.word(new.tree$tip.label), "_",
+                         stringr::word(new.tree$tip.label, 2,sep = "_"))
 
     if(sp%in%new.treespp){
-        DFspp<- paste0(stringr::word(input$taxon, 1,sep = "_"), "_", stringr::word(input$taxon, 2,sep = "_"))
+        DFspp<- paste0(first.word(input$taxon), "_",
+                       stringr::word(input$taxon, 2,sep = "_"))
         clump<- tree$tip.label[treespp==sp]
         clumpDF<-input[DFspp==sp,]
         clumpDF<-clumpDF[clumpDF$clump.puts==TRUE,"taxon"]
@@ -825,7 +831,8 @@ bind.clump<- function(new.tree, tree, input, PUT){
         clumplist$rank<-newsearch$MDCC.ranks
         clumplist$taxa<-newclump
         clumplist$MDCC.type<- MDCC.phyleticity(input, new.tree,
-                                  MDCC.info = list(rank=newsearch$MDCC.ranks,MDCC=newsearch$MDCC, rank), trim = T)
+                                  MDCC.info = list(rank=newsearch$MDCC.ranks,
+                                                   MDCC=newsearch$MDCC, rank), trim = T)
 
     }
 
@@ -859,7 +866,7 @@ add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, respect
                     nodes<- get.permitted.nodes(new.tree, parent)
                     nodes<- nodes[nodes!=parent]
                     if(length(nodes)==0){nodes<-node}
-                }
+                 }
             }else{
                 nodes<-node
             }
@@ -888,9 +895,15 @@ add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, respect
         if(isFALSE(use.singleton)){
             if(!(isRoot(new.tree, mrca))){
                 parent<- get.parent.siblings(new.tree, mrca)[[1]]
-                if(isFALSE(respect.mono)){nodes<- phytools::getDescendants(new.tree, parent)}
-                if(isTRUE(respect.mono)& isFALSE(respect.para)){nodes<-get.permitted.nodes(new.tree, mrca, respect.para = F)}
-                if(isTRUE(respect.mono)& isTRUE(respect.para)) {nodes<-get.permitted.nodes(new.tree, mrca, respect.para = T)}
+                if(isFALSE(respect.mono)){
+                    nodes<- phytools::getDescendants(new.tree, parent)
+                }
+                if(isTRUE(respect.mono)& isFALSE(respect.para)){
+                    nodes<-get.permitted.nodes(new.tree, mrca, respect.para = F)
+                }
+                if(isTRUE(respect.mono)& isTRUE(respect.para)){
+                    nodes<-get.permitted.nodes(new.tree, mrca, respect.para = T)
+                }
 
               nodes<- nodes[nodes!=parent]
               if(length(nodes)==0){nodes<-c(node,mrca)}
@@ -898,7 +911,7 @@ add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, respect
                 nodes<-c(node,mrca)
             }
 
-            pos<- binding.position(new.tree, node = sample(nodes,1), insertion = "random",prob = T)
+            pos<- binding.position(new.tree, node = sample(nodes,1), insertion = "random",prob = TRUE)
             new.tree <- phytools::bind.tip(new.tree,
                                           new.tips,
                                           edge.length = pos$length,
