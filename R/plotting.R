@@ -37,7 +37,7 @@ get.clade<- function(info, tree, clade){
 
     cut.list<- tree$tip.label[first.word(tree$tip.label)%in% genera]
     if(length(cut.list)==0){stop("Specified clade is not reflected in the tree!")}
-    if(length(cut.list)==1){stop("Specified clade is related to just 1 tree tip!")}
+    if(length(cut.list)==1){stop("Specified clade is represented by a single tip in the phylogeny!")}
     cut.node<- ape::getMRCA(tree, tip = cut.list )
     if(cut.node==findRoot(tree)){
         return(list("Tree"=tree, "info"=info, "rank"=rank, "clade"=clade))

@@ -69,6 +69,13 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",
     spp.in.tree<- tree$tip.label
     spp.original<- species
 
+    if(any(first.word(spp.in.tree)=="X")|any(first.word(spp.in.tree)=="x")){
+        tree$tip.label[first.word(tree$tip.label)=="x"] <-
+            gsub("x_", "X-", tree$tip.label[first.word(tree$tip.label)=="x"])
+        tree$tip.label[first.word(tree$tip.label)=="X"] <-
+            gsub("X_", "X-", tree$tip.label[first.word(tree$tip.label)=="X"])
+    }
+
     if(mode=="backbone"){
          species <- c(species, spp.in.tree[!(spp.in.tree%in%species)])
     }
@@ -113,6 +120,16 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",
 
     info[!(species %in% spp.original), cols.select] <- "-"
     info$keep.tip <- ifelse(species %in% spp.original, 1, 0)
+
+    nonfoundtaxa<-info[is.na(info$subtribe)&is.na(info$tribe)&is.na(info$subfamily)&
+                       is.na(info$family)&is.na(info$superfamily)&is.na(info$order)&
+                       is.na(info$class),]
+    if(nrow(nonfoundtaxa)>0 & isTRUE(find.ranks)){
+        nonfoundgenera <- unique(first.word(nonfoundtaxa$taxon))
+        message(paste0("The following genera were detected as ambiguous or missing. Please, consider checking them manually.\n"),
+                paste0(nonfoundgenera, "\n"))
+    }
+
     return(info)
 }
 
@@ -344,6 +361,19 @@ input.to.MDCCfinder <- function(info, tree){
     input[is.na(input$keep.tip), "keep.tip"]<-"1"
     input<- correct.DF(input)
     input$taxon <- gsub(" ", "_", input$taxon)
+
+    if(any(duplicated(input$taxon))){
+        duptax <- unique(input$taxon[duplicated(input$taxon)])
+
+        lines <- which(input$taxon%in%duptax & input$keep.tip=="0")
+        input <- input[-lines,]
+        rm(lines)
+    }
+
+    if(any(duplicated(input$taxon))){
+        lines <- which(duplicated(input$taxon))
+        input <- input[-lines,]
+    }
 
     tree$tip.label <- gsub(" ", "_", tree$tip.label)
     tree$tip.label <- gsub("_x_|_X_", "_x-", tree$tip.label)

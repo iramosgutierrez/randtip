@@ -4,12 +4,12 @@
 #' Function to edit randtip's 'info' file.
 #'
 #' @param info An 'info' object.
-#' @param PUTs Character vector with the PUT (or PUTs) to be edited or removed.
-#' @param column The column name to be edited for the specified PUTs.
+#' @param taxa Character vector with the taxa to be edited or removed.
+#' @param column The column name to be edited for the specified taxa.
 #'               NULL value is only accepted if \code{remove.rows} is set to TRUE.
 #' @param edit Any allowed value for the column of info that is to be edited.
 #'             NULL value is only accepted if \code{remove.rows} is set to TRUE.
-#' @param remove.rows If TRUE, the specified PUTs will be eliminated from the
+#' @param remove.rows If TRUE, the specified taxa will be eliminated from the
 #'                    'info' object. Default is FALSE.
 #'
 #' @return An 'info' object including the editions or deletions asked.
@@ -18,19 +18,19 @@
 #'
 #' @export edit.info
 #' @export
-edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.rows=FALSE){
+edit.info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE){
 
     info <- correct.DF(info)
 
-    PUTs <- stringr::str_trim(PUTs)
-    PUTs<- gsub(" ", "_", PUTs)
+    taxa <- stringr::str_trim(taxa)
+    taxa<- gsub(" ", "_", taxa)
 
-    if(length(PUTs[!(PUTs %in% info$taxon)])>=1){
-        stop("PUTs ",
-            paste0("\"",PUTs[!(PUTs %in% info$taxon)], "\"", collapse = ", "),
+    if(length(taxa[!(taxa %in% info$taxon)])>=1){
+        stop("taxa ",
+            paste0("\"",taxa[!(taxa %in% info$taxon)], "\"", collapse = ", "),
             " are not included in the column taxon of info dataframe")
     }
-    if(isTRUE(remove.rows)){return(info[!(info$taxon%in%PUTs),])}
+    if(isTRUE(remove.rows)){return(info[!(info$taxon%in%taxa),])}
     if(is.null(column)|is.null(edit)){
         stop("Both \'column\' and \'edit\' arguments must be specified")
     }
@@ -38,14 +38,14 @@ edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.rows=FALSE)
         stop("Specified \'column\' value is not a correct info column name.")
     }
 
-    rand.types <- c("random", "polytomy")
+    rand.types <- c("random", "polytomy", NA)
     if(column=="rand.type" & !(edit %in% rand.types)){
-        stop("Argument 'rand.type' must be \"random\" or \"polytomy\"" )
+        stop("Argument 'rand.type' must be \"random\" or \"polytomy\" or NA." )
     }
-    polyphyly.schemes <- c("complete", "largest", "frequentist")
+    polyphyly.schemes <- c("complete", "largest", "frequentist", NA)
     if(column=="polyphyly.scheme" & !(edit %in% polyphyly.schemes)){
         stop("Argument 'polyphyly.scheme' must be \"frequentist\", ",
-            "\"complete\" or \"largest\".")
+            "\"complete\" or \"largest\" or NA.")
     }
 
     logical.cols <- c("use.paraphyletic", "use.singleton", "use.stem",
@@ -56,7 +56,7 @@ edit.info <- function (info, PUTs, column =NULL, edit = NULL, remove.rows=FALSE)
 
     if(column %in% c("taxon", "taxon1", "taxon2")){edit<- gsub(" ", "_", edit)}
 
-    info[which(info$taxon %in% PUTs), column] <- edit
+    info[which(info$taxon %in% taxa), column] <- edit
 
     return(info)
 
