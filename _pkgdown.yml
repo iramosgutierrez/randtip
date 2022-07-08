@@ -1,0 +1,13 @@
+url: https://iramosgutierrez.github.io/randtip/
+template:
+  bootstrap: 5
+  bootswatch: yeti
+navbar:
+  title: randtip
+  left:
+  - icon: fa-home fa-lg
+    href: index.html
+  right:
+  - icon: fa-github
+    href: https://github.com/iramosgutierrez/randtip
+

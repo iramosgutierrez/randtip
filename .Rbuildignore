@@ -5,3 +5,7 @@
 ^data-raw$
 ^.*ipynb.*$
 
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
