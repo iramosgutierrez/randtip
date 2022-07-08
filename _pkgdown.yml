@@ -1,7 +1,7 @@
 url: https://iramosgutierrez.github.io/randtip/
 template:
+  package: preferably
   bootstrap: 5
-  bootswatch: yeti
 navbar:
   title: randtip
   left:
