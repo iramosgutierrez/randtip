@@ -4,18 +4,12 @@ template:
   bootstrap: 5
 navbar:
   title: randtip
-  structure:
-    left:
-    - home
-    - reference
-    - articles
-    - news
-    right: github
-  components:
-    home:
-      icon: fa-home fa-lg
+  left:
+    - icon: fa-home fa-lg
       href: index.html
-    github:
-      icon: fa-github
+    - text: Functions
+      href: reference/index.html
+  right: 
+    - icon: fa-github
       href: https://github.com/iramosgutierrez/randtip
 
