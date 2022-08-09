@@ -196,12 +196,10 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                     if(is.na(MDCC)){
                         MDCC<-as.character(input[i, rank])
                         if(!is.na(MDCC)){
-                           # phyleticity<-MDCC.phyleticity(input, tree = tree,
-                           #         MDCC.info = list(rank=rank, MDCC= MDCC))
-                           #if(phyleticity=="Missing"){MDCC<-NA}
-                           #suppressed to try optimization
-                          
-                          if(sum(input[,rank]==MDCC)==0){MDCC<-NA}#added this instead
+                            phyleticity<-MDCC.phyleticity(input, tree = tree,
+                                    MDCC.info = list(rank=rank, MDCC= MDCC))
+                           if(phyleticity=="Missing"){MDCC<-NA}
+                           
                           }
 
                         lev<-rank
