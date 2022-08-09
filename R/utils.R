@@ -567,7 +567,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 
     forbidden.nodes<- vector("numeric")
     #groups which must not be forbid
-    perm.groups<- input[input[,rank]==MDCC,randtip_ranks()[(which(randtip_ranks()==rank)):8]]
+    perm.groups<- input[input[,rank]==MDCC,randtip.ranks()[(which(randtip.ranks()==rank)):8]]
     perm.groups<- notNA(unique(as.vector(unlist(perm.groups))))
 
     #respect monophyletic clusters of species
@@ -620,7 +620,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
             #respect monophyletic groups, according to input info
             sub.input <- input[first.word(input$taxon)%in%genera,]
 
-            for(rk in randtip_ranks()){
+            for(rk in randtip.ranks()){
                 rk.vals<-unique(sub.input[,rk])
                 if(all(is.na(rk.vals))){next}
                 if(length(rk.vals)==1){
@@ -705,7 +705,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
             #respect paraphyletic groups, according to input info
             sub.input <- input[first.word(input$taxon)%in%genera,]
 
-            for( rk in randtip_ranks()){
+            for( rk in randtip.ranks()){
                 rk.vals<-notNA(unique(sub.input[,rk]))
 
                 if(length(rk.vals)>1){
