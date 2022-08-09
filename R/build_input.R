@@ -155,7 +155,7 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @export
-check.info<- function(info, tree, sim=0.8){
+check.info<- function(info, tree, sim=0.8, find.phyleticity=T){
 
     if(is.null(info)){stop("Data frame 'info' is missing.")}
     if(is.null(tree)){stop("Backbone tree is missing.")}
@@ -200,24 +200,25 @@ check.info<- function(info, tree, sim=0.8){
     for(rank in ranks){
         groups<- notNA(unique(DF[,rank]))
 
-        if(length(groups)>0){
+        if(length(groups)&isTRUE(find.phyleticity)>0){
             cat(paste0("Checking phyletic status at ", rank, " level...\n"))
 
             cat(paste0("0%       25%       50%       75%       100%", "\n",
                        "|---------|---------|---------|---------|", "\n"))
         }
         for(group in groups){
-            phyle.type<- MDCC.phyleticity(info, tree,
+          if(isTRUE(find.phyleticity)){phyle.type<- MDCC.phyleticity(info, tree,
                                           MDCC.info = list("rank"= rank,
-                                                           "MDCC"= group))
+                                                           "MDCC"= group))}else{phyle.type <- "unknown"}
             DF[which(DF[,rank]==group),
                paste0(rank,"_phyletic.status")]<-phyle.type
 
-            v<- seq(from=0, to=40, by=40/length(groups))
+            if(isTRUE(find.phyleticity)){
+              v<- seq(from=0, to=40, by=40/length(groups))
             v<- diff(ceiling(v))
             cat(strrep("*", times=v[which(groups==group)]))
 
-            if(group == groups[length(groups)]){cat("*\n")}
+            if(group == groups[length(groups)]){cat("*\n")}}
         }
 
     }
