@@ -193,10 +193,14 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                     if(is.na(MDCC)){
                         MDCC<-as.character(input[i, rank])
                         if(!is.na(MDCC)){
-                            phyleticity<-MDCC.phyleticity(input, tree = tree,
-                                    MDCC.info = list(rank=rank, MDCC= MDCC))
-                           if(phyleticity=="Missing"){MDCC<-NA}
-                           
+                          #  phyleticity<-MDCC.phyleticity(input, tree = tree,
+                          #          MDCC.info = list(rank=rank, MDCC= MDCC))
+                          # if(phyleticity=="Missing"){MDCC<-NA}
+                          #supressed for optimization
+                          
+                          treegenera <- unique(first.word(tree$tip.label))
+                          if(length(input[first.word(input$taxon)%in%treegenera, rank]==MDCC)==0){MDCC<-NA}
+                      
                           }
 
                         lev<-rank
