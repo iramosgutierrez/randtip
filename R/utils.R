@@ -44,10 +44,6 @@ findRoot<- function(tree){
     return(tips+1L)
 }
 
-randtip_ranks<- function(){
-    return(as.vector(c("genus","subtribe","tribe","subfamily","family","superfamily","order","class")))
-}
-
 is.node<-function(tree, node){
     if(!(node %in% c(tree$edge[,1], tree$edge[,2]))){
         stop("Node number is not in your tree")
@@ -157,7 +153,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
     }
 
     #automatic MDCC search
-    ranks<- randtip_ranks()
+    ranks<- randtip.ranks()
     taxa<- input[!(!is.na(input$taxon1)|!is.na(input$taxon2)),]
 
     if(nrow(taxa)>0){
