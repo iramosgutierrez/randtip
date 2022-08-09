@@ -1,4 +1,4 @@
-############ String manipulation ###################
+#### String manipulation ####
 first.word<- function(string){
     word <- stringr::str_extract(string, "[A-Za-z]+")
     return(word)
@@ -15,7 +15,7 @@ notNA <- function(x){
   return(vect)
 }
 
-############### Auxiliary functions ###################
+#### Auxiliary functions ####
 randtip.ranks<- function(){
     return(as.vector(c("genus","subtribe","tribe",
                       "subfamily","family","superfamily",
@@ -56,7 +56,7 @@ is.tip <-function(tree, node){
 }
 
 
-############### Specific functions ###################
+#### Specific functions  #### 
 
 correct.DF<- function(df){
   
@@ -87,7 +87,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
     input<-correct.DF(input)
     MDCC.vect<- vector( mode="character", length = length(taxon))
     MDCC.lev.vect<- vector(mode="character", length = length(taxon))
-    #MDCC.phyletictype.vect<- vector(mode="character", length = length(taxon))
+    
 
     if(!silent){cat(paste0("Searching MDCCs...\n"))}
 
