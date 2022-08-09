@@ -1,8 +1,3 @@
-notNA <- function(x){
-    vect<- x[!is.na(x)]
-    return(vect)
-}
-
 ############ String manipulation ###################
 first.word<- function(string){
     word <- stringr::str_extract(string, "[A-Za-z]+")
@@ -15,22 +10,16 @@ remove.spaces <- function(species, sep = "_"){
     return(sp)
 }
 
-############### Dataframe ###################
+notNA <- function(x){
+  vect<- x[!is.na(x)]
+  return(vect)
+}
+
+############### Auxiliary functions ###################
 randtip.ranks<- function(){
     return(as.vector(c("genus","subtribe","tribe",
                       "subfamily","family","superfamily",
                       "order","class")))
-}
-
-correct.DF<- function(df){
-
-    df_corrected <- apply(df, 2,
-                          function(x){
-                                      x[x == ""] <- NA
-                                      x <- as.character(x)
-    })
-    
-    return(as.data.frame(df_corrected))
 }
 
 isRoot<- function(tree, node){
@@ -67,7 +56,19 @@ is.tip <-function(tree, node){
 }
 
 
-#SPECIFIC FUNCTIONS####
+############### Specific functions ###################
+
+correct.DF<- function(df){
+  
+  df_corrected <- apply(df, 2,
+                        function(x){
+                          x[x == ""] <- NA
+                          x <- as.character(x)
+                        })
+  
+  return(as.data.frame(df_corrected))
+}
+
 # Return a vector of all species in the tree that match a given genus
 sp.genus.in.tree <- function(tree, genus){
     sp <- tree$tip.label
