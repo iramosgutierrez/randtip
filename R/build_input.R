@@ -204,7 +204,7 @@ check.info<- function(info, tree, sim=0.8){
             cat(paste0("Checking phyletic status at ", rank, " level...\n"))
 
             cat(paste0("0%       25%       50%       75%       100%", "\n",
-                      "|---------|---------|-----tree----|---------|", "\n"))
+                       "|---------|---------|---------|---------|", "\n"))
         }
         for(group in groups){
             phyle.type<- MDCC.phyleticity(info, tree,
