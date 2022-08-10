@@ -56,16 +56,16 @@ is.tip <-function(tree, node){
 }
 
 
-#### Specific functions  #### 
+#### Specific functions  ####
 
 correct.DF<- function(df){
-  
+
   df_corrected <- apply(df, 2,
                         function(x){
                           x[x == ""] <- NA
                           x <- as.character(x)
                         })
-  
+
   return(as.data.frame(df_corrected))
 }
 
@@ -87,7 +87,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
     input<-correct.DF(input)
     MDCC.vect<- vector( mode="character", length = length(taxon))
     MDCC.lev.vect<- vector(mode="character", length = length(taxon))
-    
+
 
     if(!silent){cat(paste0("Searching MDCCs...\n"))}
 
@@ -197,10 +197,11 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                           #          MDCC.info = list(rank=rank, MDCC= MDCC))
                           # if(phyleticity=="Missing"){MDCC<-NA}
                           #supressed for optimization
-                          
+
                           treegenera <- unique(first.word(tree$tip.label))
-                          if(length(input[first.word(input$taxon)%in%treegenera, rank]==MDCC)==0){MDCC<-NA}
-                      
+                          tree.input <- input[first.word(input$taxon)%in%treegenera,]
+                          if(sum(tree.input[, rank]==MDCC)==0){MDCC<-NA}
+
                           }
 
                         lev<-rank
