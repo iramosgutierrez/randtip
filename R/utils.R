@@ -200,7 +200,8 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
 
                           treegenera <- unique(first.word(tree$tip.label))
                           tree.input <- input[first.word(input$taxon)%in%treegenera,]
-                          if(sum(tree.input[, rank]==MDCC)==0){MDCC<-NA}
+                          tree.input <- tree.input[!is.na(tree.input[,rank]),]
+                          {if(sum(tree.input[, rank]==MDCC)==0){MDCC<-NA}}
 
                           }
 
