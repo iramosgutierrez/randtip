@@ -267,7 +267,7 @@ check.info<- function(info, tree, sim=0.8, find.phyleticity=T){
 
 
 
-#' Convert 'info' to'input'.
+#' Convert 'info' to 'input'.
 #'
 #' Convert an 'info' object into an 'input' one.
 #'
