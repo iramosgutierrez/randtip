@@ -1,6 +1,6 @@
 #### String manipulation ####
 first.word<- function(string){
-    word <- stringr::str_extract(string, "[A-Za-z]+")
+    word <- stringr::str_extract(as.character(string), "[A-Za-z]+")
     return(word)
 }
 
