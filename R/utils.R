@@ -110,9 +110,9 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
             if(!(any(tree$tip.label == taxa$taxon1[tx]))){taxa$taxon1[tx]<-NA}
             if(!(any(tree$tip.label == taxa$taxon2[tx]))){taxa$taxon2[tx]<-NA}
 
-            if(isTRUE(any(tree$tip.label == taxa$taxon1[tx]) &
+            if(any(tree$tip.label == taxa$taxon1[tx]) &
                       any(tree$tip.label == taxa$taxon2[tx]) &
-                      taxa$taxon1[tx]==taxa$taxon2[tx])){
+                      taxa$taxon1[tx]==taxa$taxon2[tx]){
 
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon1[tx]

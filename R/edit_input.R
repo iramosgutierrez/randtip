@@ -30,7 +30,7 @@ edit.info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE)
             paste0("\"",taxa[!(taxa %in% info$taxon)], "\"", collapse = ", "),
             " are not included in the column taxon of info dataframe")
     }
-    if(isTRUE(remove.rows)){return(info[!(info$taxon%in%taxa),])}
+    if(remove.rows){return(info[!(info$taxon%in%taxa),])}
     if(is.null(column)|is.null(edit)){
         stop("Both \'column\' and \'edit\' arguments must be specified")
     }
