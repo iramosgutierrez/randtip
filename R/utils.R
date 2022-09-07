@@ -95,10 +95,10 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
     taxa<- input[!is.na(input$taxon1)|!is.na(input$taxon2),]
     if(nrow(taxa)>0){
         for(tx in seq_along(taxa$taxon)){
-            if(isTRUE(length(strsplit(taxa$taxon1[tx], "_")[[1]])==1 &
+            if(length(strsplit(taxa$taxon1[tx], "_")[[1]])==1 &
                       length(strsplit(taxa$taxon2[tx], "_")[[1]])==1 &
                       taxa$taxon1[tx]==taxa$taxon2[tx] &
-                      length(sp.genus.in.tree(tree, taxa$taxon1[tx]))>0)){
+                      length(sp.genus.in.tree(tree, taxa$taxon1[tx]))>0){
 
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon1[tx]
@@ -121,9 +121,9 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                 next
             }
 
-            if(isTRUE(any(tree$tip.label == taxa$taxon1[tx]) &
+            if(any(tree$tip.label == taxa$taxon1[tx]) &
                       any(tree$tip.label == taxa$taxon2[tx]) &
-                      taxa$taxon1[tx]!=taxa$taxon2[tx])){
+                      taxa$taxon1[tx]!=taxa$taxon2[tx]){
 
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- paste0("Clade ", taxa$taxon1[tx], "-", taxa$taxon2[tx])
@@ -132,8 +132,8 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                 next
             }
 
-            if(isTRUE(any(tree$tip.label == taxa$taxon1[tx]) &
-                      is.na(taxa$taxon2[tx]))){
+            if(any(tree$tip.label == taxa$taxon1[tx]) &
+                      is.na(taxa$taxon2[tx])){
 
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon1[tx]
@@ -141,8 +141,8 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                 next
             }
 
-            if(isTRUE(any(tree$tip.label == taxa$taxon2[tx]) &
-                      is.na(taxa$taxon1[tx]))){
+            if(any(tree$tip.label == taxa$taxon2[tx]) &
+                      is.na(taxa$taxon1[tx])){
 
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon2[tx]
@@ -854,7 +854,7 @@ add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, respect
 
         node<-which(new.tree$tip.label==singleton)
 
-        if(isTRUE(use.singleton)){
+        if(use.singleton){
             pos<- binding.position(new.tree, node = node, insertion = "random",prob = T)
             new.tree <- phytools::bind.tip(new.tree,
                                           new.tips,
@@ -866,7 +866,7 @@ add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, respect
             if(!(isRoot(new.tree, node))){
                 parent<- get.parent.siblings(new.tree, node)[[1]]
                 if(isFALSE(respect.mono)){nodes<- phytools::getDescendants(new.tree, parent)}
-                if(isTRUE(respect.mono)){
+                if(respect.mono){
                     nodes<- get.permitted.nodes(new.tree, parent)
                     nodes<- nodes[nodes!=parent]
                     if(length(nodes)==0){nodes<-node}
@@ -887,7 +887,7 @@ add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, respect
         node<-which(new.tree$tip.label%in%singleton)
         mrca<- ape::getMRCA(new.tree, singleton)
 
-        if(isTRUE(use.singleton)){
+        if(use.singleton){
             nodes<- c(mrca, node)
             pos<- binding.position(new.tree, node = sample(nodes,1), insertion = "random",prob = T)
             new.tree <- phytools::bind.tip(new.tree,
@@ -902,10 +902,10 @@ add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, respect
                 if(isFALSE(respect.mono)){
                     nodes<- phytools::getDescendants(new.tree, parent)
                 }
-                if(isTRUE(respect.mono)& isFALSE(respect.para)){
+                if(respect.mono & isFALSE(respect.para)){
                     nodes<-get.permitted.nodes(new.tree, mrca, respect.para = F)
                 }
-                if(isTRUE(respect.mono)& isTRUE(respect.para)){
+                if(respect.mono & respect.para ){
                     nodes<-get.permitted.nodes(new.tree, mrca, respect.para = T)
                 }
 
@@ -991,7 +991,7 @@ MDCC.phyleticity<-function(input, tree, MDCC.info=list("rank"=NA, "MDCC"=NA),
     }
 
     tips<- tree$tip.label[first.word(tree$tip.label) %in% first.word(input$taxon)]
-    if(isTRUE(trim) & length(tips)>0){
+    if(trim & length(tips)>0){
         tree<- ape::keep.tip(phy = tree, tip = tips)
     }
 
