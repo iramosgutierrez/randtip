@@ -396,6 +396,7 @@ sharingtaxa.descs<-function(tree, nodes, MDCC.genera){
     return(table)
 }
 
+#given the group and specifications, which nodes can be selected to bind a tip over
 get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
                                  polyphyly.scheme, use.paraphyletic, use.singleton, use.stem){
 
@@ -565,6 +566,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
     return(nodes)
 }
 
+#given a set of nodes with get.permitted.nodes, must som of them should not be considered?
 get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono, respect.para){
 
     forbidden.nodes<- vector("numeric")
@@ -978,15 +980,16 @@ phyleticity<- function(tree, genus){
     return(genus.type)
 }
 
+#function to obtain the phyletic nature of a group (genus or above)
 MDCC.phyleticity<-function(input, tree, MDCC.info=list("rank"=NA, "MDCC"=NA),
                            trim=TRUE){
 
-    rank<- MDCC.info$rank
+    rank<- MDCC.info$rank 
     MDCC <- MDCC.info$MDCC
-    input<-input[!is.na(input[,rank]),]
+    input<-input[!is.na(input[,rank]),] #NAs must be erased to avoid errors
 
     if(rank=="genus"){
-        MDCC.type<-phyleticity(tree, MDCC)
+        MDCC.type<-phyleticity(tree, MDCC) #normal genus-level function
         return(MDCC.type)
     }
 
