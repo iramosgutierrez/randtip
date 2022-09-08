@@ -566,7 +566,7 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
     return(nodes)
 }
 
-#given a set of nodes with get.permitted.nodes, must som of them should not be considered?
+#given a set of nodes with get.permitted.nodes, must some of them should not be considered?
 get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono, respect.para){
 
     forbidden.nodes<- vector("numeric")
