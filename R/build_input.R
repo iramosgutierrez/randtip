@@ -159,7 +159,7 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #' 
-#' @example
+#' @examples 
 #' cats.checked <- check.info(info=cats.info, tree=cats, sim=0.75)
 #' 
 #'
@@ -288,6 +288,10 @@ check.info<- function(info, tree, sim=0.8, find.phyleticity=T){
 #'         alongside with a backbone tree to expand a tree.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
+#' 
+#' @examples 
+#' 
+#' cats.input <- info2input(info=cats.info, tree=cats)
 #'
 #' @export
 info2input<- function(info, tree){
