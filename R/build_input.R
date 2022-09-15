@@ -33,8 +33,8 @@
 #' cats <- c("Lynx_lynx","Panthera_uncia","Panthera_onca","Felis_catus",
 #'"Puma_concolor","Lynx_canadensis","Panthera_tigris","Panthera_leo","Felis_silvestris")
 #'cats.info <- build.info(species=cats, tree= felidae, find.ranks=TRUE, db="ncbi", mode="backbone", interactive=FALSE, genus=FALSE)
-#'
 #' @export
+#' 
 build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",
                       mode="backbone", interactive=FALSE, genus=FALSE){
 
