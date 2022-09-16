@@ -5,8 +5,12 @@ notNA <- function(x){
 
 ############ String manipulation ###################
 first.word<- function(string){
-    word <- stringr::str_extract(string, "[A-Za-z]+")
-    return(word)
+    return(stringr::str_extract(string, "[A-Za-z]+"))
+}
+
+second.word <- function(string){
+    return(sapply(stringr::str_extract_all(string, "[A-Za-z]+"), 
+                  `[`, 2))
 }
 
 remove.spaces <- function(species, sep = "_"){
@@ -49,10 +53,11 @@ randtip_ranks<- function(){
 }
 
 is.node<-function(tree, node){
-    if(!(node %in% c(tree$edge[,1], tree$edge[,2]))){
+    if(!(any(c(tree$edge[,1], tree$edge[,2]) == node))){
         stop("Node number is not in your tree")
     }
     if(length(phytools::getDescendants(tree = tree, node = node, curr=NULL )) > 1){
+    #if(node > length(tree$tip.label)){
         return(TRUE)
     }else{
         return(FALSE)
@@ -60,10 +65,11 @@ is.node<-function(tree, node){
 }
 
 is.tip <-function(tree, node){
-    if(!(node %in% c(tree$edge[,1], tree$edge[,2]))){
+    if(!(any(c(tree$edge[,1], tree$edge[,2]) == node))){
         stop("Node number is not in your tree")
     }
     if(length(phytools::getDescendants(tree = tree, node = node, curr=NULL)) == 1){
+    #if(node <= length(tree$tip.label)){
         return(TRUE)
     }else{
         return(FALSE)
@@ -572,12 +578,12 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
     if(respect.mono){
         perm.tips<- notNA(tree$tip.label[perm.nodes])
         perm.species<-paste0(first.word(perm.tips), "_",
-                             stringr::word(perm.tips, 2, sep="_"))
+                             second.word(perm.tips))
         ssps<-perm.species[duplicated(perm.species)]
         if(length(ssps)>0){
             for(ssp in ssps){
                 nodes<-which(paste0(first.word(tree$tip.label), "_",
-                                    stringr::word(tree$tip.label, 2, sep="_"))==ssp)
+                                    second.word(tree$tip.label)==ssp))
                 if(length(nodes)==2){
                     forbidden.nodes<-c(forbidden.nodes, nodes)
                     next
@@ -589,7 +595,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
                         if(n %in%forbidden.nodes){next}
                         node.descs<- tree$tip.label[notNA(phytools::getDescendants(tree, n, curr=NULL))]
                         node.descs<- paste0(first.word(node.descs), "_",
-                                            stringr::word(node.descs, 2, sep="_"))
+                                            second.word(node.descs))
                         if(all(node.descs==ssp)){forbidden.nodes<-c(forbidden.nodes, nodes)}
                     }
                 }
@@ -777,15 +783,15 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
 bind.clump<- function(new.tree, tree, input, PUT){
 
     clumplist<- list("MDCC"=NULL, "rank"=NULL,"MDCC.type"=NULL, "taxa"=NULL)
-    sp<- paste0(first.word(PUT), "_", stringr::word(PUT, 2,sep = "_"))
+    sp<- paste0(first.word(PUT), "_", second.word(PUT))
     treespp<- paste0(first.word(tree$tip.label), "_",
-                     stringr::word(tree$tip.label, 2,sep = "_"))
+                     second.word(tree$tip.label))
     new.treespp<- paste0(first.word(new.tree$tip.label), "_",
-                         stringr::word(new.tree$tip.label, 2,sep = "_"))
+                         second.word(new.tree$tip.label))
 
     if(sp%in%new.treespp){
         DFspp<- paste0(first.word(input$taxon), "_",
-                       stringr::word(input$taxon, 2,sep = "_"))
+                       second.word(input$taxon))
         clump<- tree$tip.label[treespp==sp]
         clumpDF<-input[DFspp==sp,]
         clumpDF<-clumpDF[clumpDF$clump.puts==TRUE,"taxon"]

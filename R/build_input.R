@@ -162,6 +162,12 @@ check.info<- function(info, tree, sim=0.8){
 
     info <- correct.DF(info)
     info$keep.tip[is.na(info$keep.tip)] <- "1"
+    if(all(info$keep.tip != "1")){
+        stop("No species in info with keep.tip equal to '1'.",
+             " Please set keep.tip equal to '1' for every species to ",
+            "keep in the final tree.")
+    }
+    
     info$taxon<- remove.spaces(info$taxon)
     info.taxa <- info$taxon
 
