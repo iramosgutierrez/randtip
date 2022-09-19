@@ -17,6 +17,9 @@
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
+#' @examples 
+#' felinae.clade <- get.clade(info=cats.info, tree=cats, clade="Felinae")
+#' 
 #' @export
 get.clade<- function(info, tree, clade){
 
@@ -69,6 +72,10 @@ get.clade<- function(info, tree, clade){
 #'         function using the selected colors.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
+#' 
+#' #' @examples 
+#' felinae.clade <- get.clade(info=cats.info, tree=cats, clade="Felinae")
+#' plot.clade(felinae.clade)
 #'
 #' @export plot.clade
 #' @export
