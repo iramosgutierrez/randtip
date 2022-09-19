@@ -24,7 +24,11 @@
 #' @return An expanded phylogeny.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
-#'
+#' 
+#' @examples 
+#' cats.edges <- data.frame("PUT"= "Felis_catus", "parent1"= "Felis_silvestris", 
+#' "parent2"= "Felis_silvestris", "child1"= "Felis_silvestris", "child2"= "Felis_silvestris")
+#' cats.expanded <- custom.branch(tree=cats, edges=cats.edges, forceultrametric=TRUE)
 #' @export
 custom.branch <- function(tree, edges, rand.type="random",
                           forceultrametric=FALSE, prob=TRUE){
@@ -117,6 +121,11 @@ custom.branch <- function(tree, edges, rand.type="random",
 #' @param forbidden.lwd Line width to represent branches not defined by the
 #'                      \code{edges} data frame as candidates. Default value 1.
 #' @param ... Arguments to pass through \code{\link[ape]{plot.phylo}} function.
+#' 
+#' #' @examples 
+#' cats.edges <- data.frame("PUT"= "Felis_catus", "parent1"= "Felis_silvestris", 
+#' "parent2"= "Felis_silvestris", "child1"= "Felis_silvestris", "child2"= "Felis_silvestris")
+#' plot.custom.branch(tree=cats, edges=cats.edges)
 #'
 #' @export plot.custom.branch
 #' @export
