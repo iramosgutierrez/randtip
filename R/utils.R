@@ -92,7 +92,8 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
     if(!silent){cat(paste0("Searching MDCCs...\n"))}
 
     #manual MDCC search
-    taxa<- input[!is.na(input$taxon1)|!is.na(input$taxon2),]
+    taxa <- input[!(input$taxon %in% tree$tip.label),]
+    taxa<- taxa[!is.na(taxa$taxon1)|!is.na(taxa$taxon2),]
     if(nrow(taxa)>0){
         for(tx in seq_along(taxa$taxon)){
             if(length(strsplit(taxa$taxon1[tx], "_")[[1]])==1 &
