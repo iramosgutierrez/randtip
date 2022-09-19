@@ -34,6 +34,10 @@
 #' @return An expanded phylogeny.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
+#' 
+#' @examples 
+#' expanded.cats <- rand.tip(cats.input, tree=cats, rand.type = "polytomy", forceultrametric = T)
+#' expanded.cats <- rand.tip(cats.input, tree=cats, rand.type = "random", forceultrametric = F)
 #'
 #' @export
 rand.tip <- function(input, tree,rand.type = "random",
