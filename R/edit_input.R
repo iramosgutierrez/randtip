@@ -16,6 +16,9 @@
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
+#' @examples 
+#' cats.info <- edit.info(cats.info, taxa= "Puma_concolor", column = "subfamily", edit = "Felinae")
+#' 
 #' @export edit.info
 #' @export
 edit.info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE){
@@ -78,6 +81,9 @@ edit.info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE)
 #' @return A backbone tree including the requested tip editions or deletions.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
+#' 
+#' @examples 
+#' cats <- edit.tree(cats, tips="Felis_silvestris", edit= "Felis_silvestris_ssp._silvestris")
 #'
 #' @export edit.tree
 #' @export
