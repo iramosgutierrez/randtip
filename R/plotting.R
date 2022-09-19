@@ -108,6 +108,11 @@ plot.clade<- function(get.clade.out, ppcr.col="#4a8a21",
 #'         in plot.phylo function.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
+#' 
+#' @examples 
+#' expanded.cats <- rand.tip(input=cats.input, tree=cats, rand.type = "polytomy", forceultrametric = T)
+#' cats.tip.cols <- put.tip.col(newtree = expanded.cats, oldtree = cats)
+#' plot.phylo(expanded.cats, tip.color = cats.tip.cols)
 #'
 #' @export
 put.tip.col<- function(newtree, oldtree, placed.col="#adadad", put.col="#C23B23"){
