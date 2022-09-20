@@ -44,15 +44,15 @@ Bind PUTs at completely customized tree branches
 \examples{
 #Create a 'edges' dataframe
 cats.edges <- data.frame(
-"PUT"= "Felis_catus", 
-"parent1"= "Felis_silvestris", 
-"parent2"= "Felis_silvestris", 
-"child1"= "Felis_silvestris", 
-"child2"= "Felis_silvestris")
+ "PUT"= "Felis_catus", 
+ "parent1"= "Felis_silvestris", 
+ "parent2"= "Felis_silvestris", 
+ "child1"= "Felis_silvestris", 
+ "child2"= "Felis_silvestris")
 
 #Bind the PUT to one of the selected branches
 cats.expanded <- custom.branch(tree=cats, 
-edges=cats.edges, forceultrametric=TRUE)
+ edges=cats.edges, forceultrametric=TRUE)
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

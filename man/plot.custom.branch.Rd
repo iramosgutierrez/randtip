@@ -56,11 +56,11 @@ Function to help users visualize the candidate branches for tip insertion with \
 \examples{
 #Create a 'edges' dataframe
 cats.edges <- data.frame(
-"PUT"= "Felis_catus", 
-"parent1"= "Felis_silvestris", 
-"parent2"= "Felis_silvestris", 
-"child1"= "Felis_silvestris", 
-"child2"= "Felis_silvestris")
+ "PUT"= "Felis_catus", 
+ "parent1"= "Felis_silvestris", 
+ "parent2"= "Felis_silvestris", 
+ "child1"= "Felis_silvestris", 
+ "child2"= "Felis_silvestris")
 
 #Plot the tree highlighting candidate branches
 plot.custom.branch(tree=cats, edges=cats.edges)

@@ -4,7 +4,7 @@
 \alias{info2input}
 \title{Convert 'info' to 'input'.}
 \usage{
-info2input(info, tree)
+info2input(info, tree, verbose = T)
 }
 \arguments{
 \item{info}{An 'info' data frame, including all the customized binding
