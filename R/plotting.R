@@ -18,7 +18,8 @@
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples 
-#' felinae.clade <- get.clade(info=cats.info, tree=cats, clade="Felinae")
+#' felinae.clade <- get.clade(info=cats.info,
+#' tree=cats, clade="Felinae")
 #' 
 #' @export
 get.clade<- function(info, tree, clade){
@@ -73,9 +74,14 @@ get.clade<- function(info, tree, clade){
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #' 
-#' #' @examples 
-#' felinae.clade <- get.clade(info=cats.info, tree=cats, clade="Felinae")
-#' plot.clade(felinae.clade)
+#' @examples 
+#' #First the clade information must be obtained
+#' felinae.clade <- get.clade(info=cats.info,
+#' tree=cats, clade="Felinae")
+#' 
+#' #Then it can be plotted
+#' plot.clade(felinae.clade, ppcr.col="green",
+#' nonppcr.col="red",unknown.col="grey" )
 #'
 #' @export plot.clade
 #' @export
@@ -110,8 +116,16 @@ plot.clade<- function(get.clade.out, ppcr.col="#4a8a21",
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #' 
 #' @examples 
-#' expanded.cats <- rand.tip(input=cats.input, tree=cats, rand.type = "polytomy", forceultrametric = T)
-#' cats.tip.cols <- put.tip.col(newtree = expanded.cats, oldtree = cats)
+#' #Perform a tree expansion
+#' expanded.cats <- rand.tip(input=cats.input, 
+#'  tree=cats, rand.type = "polytomy", 
+#'  forceultrametric = T)
+#' 
+#' #Set the colours for original tips and bound PUTs
+#' cats.tip.cols <- put.tip.col(newtree = expanded.cats,
+#'  oldtree = cats, placed.col="black", put.col="red")
+#' 
+#' #Plot the resulting tree visualizing original tips and PUTs  
 #' plot.phylo(expanded.cats, tip.color = cats.tip.cols)
 #'
 #' @export

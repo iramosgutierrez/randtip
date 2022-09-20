@@ -31,8 +31,7 @@
 #' 
 #' @examples
 #' # Create a list of species to include in the resulting tree
-#' 
-#' catspecies <- c("Lynx_lynx",
+#' #' catspecies <- c("Lynx_lynx",
 #' "Panthera_uncia",
 #' "Panthera_onca",
 #' "Felis_catus",
@@ -43,9 +42,8 @@
 #' "Felis_silvestris")
 #' 
 #' #Create the 'info' file
-#' 
-#'cats.info <- build.info(species=catspecies, tree= cats, 
-#'find.ranks=TRUE, db="ncbi", mode="backbone")
+#' cats.info <- build.info(species=catspecies, tree= cats, 
+#'      find.ranks=TRUE, db="ncbi", mode="backbone")
 #' @export
 #' 
 build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",

@@ -27,7 +27,8 @@ Note that the tree splitting will be performed at the MRCA node of all the taxa 
 clade in the 'info' object.
 }
 \examples{
-felinae.clade <- get.clade(info=cats.info, tree=cats, clade="Felinae")
+felinae.clade <- get.clade(info=cats.info,
+tree=cats, clade="Felinae")
 
 }
 \author{

@@ -70,8 +70,13 @@ An expanded phylogeny.
 Expand a phylogeny binding PUTs to a backbone tree.
 }
 \examples{
-expanded.cats <- rand.tip(input=cats.input, tree=cats, rand.type = "polytomy", forceultrametric = T)
-expanded.cats <- rand.tip(input=cats.input, tree=cats, rand.type = "random", forceultrametric = F)
+expanded.cats <- rand.tip(input=cats.input, 
+ tree=cats, rand.type = "polytomy",
+ forceultrametric = T)
+ 
+expanded.cats <- rand.tip(input=cats.input,
+ tree=cats, rand.type = "random",
+  forceultrametric = F)
 
 }
 \author{

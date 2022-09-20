@@ -79,8 +79,9 @@ An expanded phylogeny.
 Expand multiple phylogenies binding PUTs to a backbone tree.
 }
 \examples{
-expanded.cats.multiple <- rand.tip.multiple(input=cats.input, tree=cats, number = 10,
-path=getwd(), file=paste0("randtip_",Sys.Date()), rand.type = "random", forceultrametric = T)
+expanded.cats.multiple <- rand.tip.multiple(input=cats.input, 
+tree=cats, number = 10, path=getwd(), file="randtip",
+rand.type = "random", forceultrametric = T)
 
 }
 \author{

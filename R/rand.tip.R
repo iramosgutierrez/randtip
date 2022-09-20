@@ -36,8 +36,13 @@
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #' 
 #' @examples 
-#' expanded.cats <- rand.tip(input=cats.input, tree=cats, rand.type = "polytomy", forceultrametric = T)
-#' expanded.cats <- rand.tip(input=cats.input, tree=cats, rand.type = "random", forceultrametric = F)
+#' expanded.cats <- rand.tip(input=cats.input, 
+#'  tree=cats, rand.type = "polytomy",
+#'  forceultrametric = T)
+#'  
+#' expanded.cats <- rand.tip(input=cats.input,
+#'  tree=cats, rand.type = "random",
+#'   forceultrametric = F)
 #'
 #' @export
 rand.tip <- function(input, tree,rand.type = "random",
@@ -338,8 +343,9 @@ rand.tip <- function(input, tree,rand.type = "random",
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #' 
 #' @examples 
-#'expanded.cats.multiple <- rand.tip.multiple(input=cats.input, tree=cats, number = 10,
-#' path=getwd(), file=paste0("randtip_",Sys.Date()), rand.type = "random", forceultrametric = T)
+#'expanded.cats.multiple <- rand.tip.multiple(input=cats.input, 
+#' tree=cats, number = 10, path=getwd(), file="randtip",
+#' rand.type = "random", forceultrametric = T)
 #'
 #' @export
 rand.tip.multiple <- function(input, tree, number =1, path=NULL, file="randtip",

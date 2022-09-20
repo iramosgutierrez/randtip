@@ -27,7 +27,8 @@ An 'info' object including the editions or deletions asked.
 Function to edit randtip's 'info' file.
 }
 \examples{
-cats.info <- edit.info(cats.info, taxa= "Puma_concolor", column = "subfamily", edit = "Felinae")
+cats.info <- edit.info(cats.info, taxa= "Puma_concolor", 
+column = "subfamily", edit = "Felinae")
 
 }
 \author{
