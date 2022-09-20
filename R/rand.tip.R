@@ -338,7 +338,7 @@ rand.tip <- function(input, tree,rand.type = "random",
 #'                         not. Default value is FALSE.
 #' @param verbose Whether or not to print information about the flow of the function. Default value is TRUE.
 
-#' @return A list containing a phylogeny in each element. In case 'path' is not set to NULL, 
+#' @return A list containing a phylogeny in each slot. In case 'path' is not set to NULL, 
 #' a folder will be created and tree files will be saved.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
