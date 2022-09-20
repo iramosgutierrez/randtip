@@ -305,6 +305,8 @@ rand.tip <- function(input, tree,rand.type = "random",
 #' @param input An 'input' data frame obtained with \code{\link{info2input}} function.
 #' @param tree A backbone tree.
 #' @param number Integer. Number of phylogenies to be returned.
+#' @param path Directory where to save the resulting trees. If path is set to NULL, they will not be automatically saved.
+#' @param file File name for the resulting trees to be saved inside a folder with the same name.
 #' @param rand.type For all PUTs not specified individually in 'input', which randomization type ("random" or
 #'                  "polytomy") must be carried out. Default value is "random".
 #' @param polyphyly.scheme For all PUTs not specified individually in 'input', which polyphyly
@@ -337,10 +339,10 @@ rand.tip <- function(input, tree,rand.type = "random",
 #' 
 #' @examples 
 #'expanded.cats.multiple <- rand.tip.multiple(input=cats.input, tree=cats, number = 10,
-#' rand.type = "random", forceultrametric = T)
+#' path=getwd(), file=paste0("randtip_",Sys.Date()), rand.type = "random", forceultrametric = T)
 #'
 #' @export
-rand.tip.multiple <- function(input, tree, number =1, path=NULL, file=paste0("randtip_",Sys.Date()),
+rand.tip.multiple <- function(input, tree, number =1, path=NULL, file="randtip",
                     rand.type = "random",polyphyly.scheme="largest",
                       use.paraphyletic=TRUE,use.singleton=TRUE, use.stem=FALSE,
                      respect.mono=TRUE, respect.para=TRUE, clump.puts = TRUE, prob=TRUE,
@@ -360,7 +362,7 @@ rand.tip.multiple <- function(input, tree, number =1, path=NULL, file=paste0("ra
                                  respect.mono=respect.mono, respect.para=respect.para,
                                  clump.puts = clump.puts, prob=prob, prune=prune, 
                                 forceultrametric=forceultrametric, verbose = verbose)
-    if(!is.null(path)){ape::write.tree(randtip.list[[i]],paste0(path, "/", file, "/", file, "_", i))}  
+    if(!is.null(path)){ape::write.tree(randtip.list[[i]],paste0(path, "/", file, "/", file, "_", i, ".tre"))}  
   }
   return(randtip.list)
 }
