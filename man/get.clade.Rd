@@ -26,6 +26,10 @@ original backbone tree.
 Note that the tree splitting will be performed at the MRCA node of all the taxa included in the
 clade in the 'info' object.
 }
+\examples{
+felinae.clade <- get.clade(info=cats.info, tree=cats, clade="Felinae")
+
+}
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 }

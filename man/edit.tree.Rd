@@ -24,6 +24,10 @@ A backbone tree including the requested tip editions or deletions.
 \description{
 Function to edit a backbone tree.
 }
+\examples{
+cats <- edit.tree(cats, tips="Felis_silvestris", edit= "Felis_silvestris_ssp._silvestris")
+
+}
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 }

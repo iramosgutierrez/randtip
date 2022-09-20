@@ -24,6 +24,12 @@ in plot.phylo function.
 Set color pattern to distinguish between phylogenetically placed taxa and PUTs when plotting trees
 with the \code{plot.phylo} function of ‘ape’ R package using the \code{tip.color} argument
 }
+\examples{
+expanded.cats <- rand.tip(input=cats.input, tree=cats, rand.type = "polytomy", forceultrametric = T)
+cats.tip.cols <- put.tip.col(newtree = expanded.cats, oldtree = cats)
+plot.phylo(expanded.cats, tip.color = cats.tip.cols)
+
+}
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 }

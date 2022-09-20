@@ -38,4 +38,8 @@ using \code{get.clade} function.
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
+
+#' @examples
+felinae.clade <- get.clade(info=cats.info, tree=cats, clade="Felinae")
+plot.clade(felinae.clade)
 }

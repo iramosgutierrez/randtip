@@ -30,9 +30,22 @@
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #' 
 #' @examples
-#' catspecies <- c("Lynx_lynx","Panthera_uncia","Panthera_onca","Felis_catus",
-#'"Puma_concolor","Lynx_canadensis","Panthera_tigris","Panthera_leo","Felis_silvestris")
-#'cats.info <- build.info(species=catspecies, tree= cats, find.ranks=TRUE, db="ncbi", mode="backbone", interactive=FALSE, genus=FALSE)
+#' # Create a list of species to include in the resulting tree
+#' 
+#' catspecies <- c("Lynx_lynx",
+#' "Panthera_uncia",
+#' "Panthera_onca",
+#' "Felis_catus",
+#' "Puma_concolor",
+#' "Lynx_canadensis",
+#' "Panthera_tigris",
+#' "Panthera_leo",
+#' "Felis_silvestris")
+#' 
+#' #Create the 'info' file
+#' 
+#'cats.info <- build.info(species=catspecies, tree= cats, 
+#'find.ranks=TRUE, db="ncbi", mode="backbone")
 #' @export
 #' 
 build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",
