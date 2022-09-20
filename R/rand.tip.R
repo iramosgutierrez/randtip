@@ -340,11 +340,19 @@ rand.tip <- function(input, tree,rand.type = "random",
 #' rand.type = "random", forceultrametric = T)
 #'
 #' @export
-rand.tip.multiple <- function(input, tree, number =1, rand.type = "random",
-                     polyphyly.scheme="largest", use.paraphyletic=TRUE,use.singleton=TRUE, use.stem=FALSE,
+rand.tip.multiple <- function(input, tree, number =1, path=NULL, file=paste0("randtip_",Sys.Date()),
+                    rand.type = "random",polyphyly.scheme="largest",
+                      use.paraphyletic=TRUE,use.singleton=TRUE, use.stem=FALSE,
                      respect.mono=TRUE, respect.para=TRUE, clump.puts = TRUE, prob=TRUE,
                      prune=TRUE, forceultrametric=FALSE, verbose = TRUE){
+  
   randtip.list <- rep(list(NA), times=as.integer(number))
+  if(!is.null(path)){
+    while(substr(path,nchar(path), nchar(path))=="/"){
+      path <- substr(path,1, nchar(path)-1)
+    }
+  }
+  if(!is.null(path)){dir.create(paste0(path, "/", file))}
   for (i in 1:number){
     randtip.list[[i]]<- rand.tip(input=input, tree = tree,  rand.type = rand.type,
                                  polyphyly.scheme=polyphyly.scheme, use.paraphyletic=use.paraphyletic,
@@ -352,6 +360,7 @@ rand.tip.multiple <- function(input, tree, number =1, rand.type = "random",
                                  respect.mono=respect.mono, respect.para=respect.para,
                                  clump.puts = clump.puts, prob=prob, prune=prune, 
                                 forceultrametric=forceultrametric, verbose = verbose)
+    if(!is.null(path)){ape::write.tree(randtip.list[[i]],paste0(path, "/", file, "/", file, "_", i))}  
   }
   return(randtip.list)
 }
