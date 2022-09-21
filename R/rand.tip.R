@@ -361,7 +361,20 @@ rand.tip.multiple <- function(input, tree, number =1, path=NULL, file="randtip",
       path <- substr(path,1, nchar(path)-1)
     }
   }
-  if(!is.null(path)){dir.create(paste0(path, "/", file))}
+  if(!is.null(path)){
+    folderpath <- paste0(path, "/", file)
+    while(dir.exists(folderpath)){
+      pos <- unlist(gregexpr('/', folderpath))[length(unlist(gregexpr('/', folderpath)))]
+      if(substr(folderpath, pos+1, nchar(folderpath))==file){folderpath <- paste0(folderpath, "(1)")}else{
+      pos1 <-unlist(gregexpr("\\(", folderpath))[length(unlist(gregexpr("\\(", folderpath)))]
+      pos2 <-unlist(gregexpr("\\)", folderpath))[length(unlist(gregexpr("\\)", folderpath)))]
+      num <- as.numeric(substr(folderpath, pos1+1, pos2-1))+1
+      
+      folderpath <- paste0(substr(folderpath, 1, pos1), num, ")")
+      }
+    }
+    dir.create(folderpath)
+    }
   for (i in 1:number){
     randtip.list[[i]]<- rand.tip(input=input, tree = tree,  rand.type = rand.type,
                                  polyphyly.scheme=polyphyly.scheme, use.paraphyletic=use.paraphyletic,
@@ -369,7 +382,7 @@ rand.tip.multiple <- function(input, tree, number =1, path=NULL, file="randtip",
                                  respect.mono=respect.mono, respect.para=respect.para,
                                  clump.puts = clump.puts, prob=prob, prune=prune, 
                                 forceultrametric=forceultrametric, verbose = verbose)
-    if(!is.null(path)){ape::write.tree(randtip.list[[i]],paste0(path, "/", file, "/", file, "_", i, ".tre"))}  
+    if(!is.null(path)){ape::write.tree(randtip.list[[i]],paste0(folderpath, "/", file, "_", i, ".tre"))}  
   }
   return(randtip.list)
 }
