@@ -9,7 +9,7 @@ first.word<- function(string){
 }
 
 second.word <- function(string){
-    return(sapply(stringr::str_extract_all(string, "[A-Za-z]+"), `[`, 2))
+    return(sapply(stringr::str_extract_all(string, "[A-Za-z\\-]+"), `[`, 2))
     
 }
 
