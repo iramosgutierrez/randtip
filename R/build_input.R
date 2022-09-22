@@ -341,10 +341,14 @@ search.taxize <- function(info, genera, interactive, db, verbose=T){
             if(interactive){
                 search <- suppressMessages(taxize::classification(as.character(genera[i]),
                                                                   db = db))[[1]]
-            }else{
+            }else if (db!="itis"){
                 out<-capture.output(suppressMessages(
                   search <- taxize::classification(as.character(genera[i]),
                                                    db = db, rows=Inf)[[1]]))
+            }else{
+              out<-capture.output(suppressMessages(
+                search <- taxize::classification(as.character(genera[i]),
+                                                 db = db)[[1]]))   
             }
             for(cat in searching.categories){
                 if(length(search[which(search$rank==cat), "name"])==0){

@@ -57,3 +57,29 @@ test_that("name similarity in check.info", {
 
 
 })
+
+test_that("The following genera were detected as ambiguous or missing", {
+  catspecies <- c("Lynx_lynx",
+                  "Panthera_uncia",
+                  "Panthera_onca",
+                  "Felis_catus",
+                  "Puma_concolor",
+                  "Lynx_canadensis",
+                  "Panthera_tigris",
+                  "Panthera_leo",
+                  "Felis_silvestris")
+  
+  expect_message(build.info(catspecies, cats), "ambiguous")
+})
+
+test_that("MDCC search", {
+  input <- info2input(mythology$info.list, mythology$back.tree)
+  expect_equal(input[input$taxon=="Grindylowia_yorkii","MDCC" ], "Aquatia")
+  
+  info <- edit.info(mythology$info.list, "Grindylowia_yorkii", "order", NA )
+  input <- info2input(info, mythology$back.tree)
+  expect_equal(input[input$taxon=="Grindylowia_yorkii","MDCC" ], "Paradoxanimalia")
+  
+})
+
+
