@@ -1,16 +1,10 @@
-notNA <- function(x){
-    vect<- x[!is.na(x)]
-    return(vect)
-}
-
-############ String manipulation ###################
+#### String manipulation ####
 first.word<- function(string){
     return(stringr::str_extract(string, "[A-Za-z]+"))
 }
 
 second.word <- function(string){
-    return(sapply(stringr::str_extract_all(string, "[A-Za-z\\-]+"), `[`, 2))
-    
+    return(sapply(stringr::str_extract_all(string, "[A-Za-z\\-\\.]+"), `[`, 2))
 }
 
 remove.spaces <- function(species, sep = "_"){
@@ -19,22 +13,16 @@ remove.spaces <- function(species, sep = "_"){
     return(sp)
 }
 
-############### Dataframe ###################
+notNA <- function(x){
+  vect<- x[!is.na(x)]
+  return(vect)
+}
+
+#### Auxiliary functions ####
 randtip.ranks<- function(){
     return(as.vector(c("genus","subtribe","tribe",
                       "subfamily","family","superfamily",
                       "order","class")))
-}
-
-correct.DF<- function(df){
-
-    df_corrected <- apply(df, 2,
-                          function(x){
-                                      x[x == ""] <- NA
-                                      x <- as.character(x)
-    })
-    
-    return(as.data.frame(df_corrected))
 }
 
 isRoot<- function(tree, node){
@@ -46,10 +34,6 @@ isRoot<- function(tree, node){
 findRoot<- function(tree){
     tips<- length(tree$tip.label)
     return(tips+1L)
-}
-
-randtip_ranks<- function(){
-    return(as.vector(c("genus","subtribe","tribe","subfamily","family","superfamily","order","class")))
 }
 
 is.node<-function(tree, node){
@@ -77,7 +61,19 @@ is.tip <-function(tree, node){
 }
 
 
-#SPECIFIC FUNCTIONS####
+#### Specific functions  ####
+
+correct.DF<- function(df){
+
+  df_corrected <- apply(df, 2,
+                        function(x){
+                          x[x == ""] <- NA
+                          x <- as.character(x)
+                        })
+
+  return(as.data.frame(df_corrected))
+}
+
 # Return a vector of all species in the tree that match a given genus
 sp.genus.in.tree <- function(tree, genus){
     sp <- tree$tip.label
@@ -96,18 +92,19 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
     input<-correct.DF(input)
     MDCC.vect<- vector( mode="character", length = length(taxon))
     MDCC.lev.vect<- vector(mode="character", length = length(taxon))
-    #MDCC.phyletictype.vect<- vector(mode="character", length = length(taxon))
+
 
     if(!silent){cat(paste0("Searching MDCCs...\n"))}
 
     #manual MDCC search
-    taxa<- input[!is.na(input$taxon1)|!is.na(input$taxon2),]
+    taxa <- input[!(input$taxon %in% tree$tip.label),]
+    taxa<- taxa[!is.na(taxa$taxon1)|!is.na(taxa$taxon2),]
     if(nrow(taxa)>0){
         for(tx in seq_along(taxa$taxon)){
-            if(isTRUE(length(strsplit(taxa$taxon1[tx], "_")[[1]])==1 &
+            if(length(strsplit(taxa$taxon1[tx], "_")[[1]])==1 &
                       length(strsplit(taxa$taxon2[tx], "_")[[1]])==1 &
                       taxa$taxon1[tx]==taxa$taxon2[tx] &
-                      length(sp.genus.in.tree(tree, taxa$taxon1[tx]))>0)){
+                      length(sp.genus.in.tree(tree, taxa$taxon1[tx]))>0){
 
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon1[tx]
@@ -119,9 +116,9 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
             if(!(any(tree$tip.label == taxa$taxon1[tx]))){taxa$taxon1[tx]<-NA}
             if(!(any(tree$tip.label == taxa$taxon2[tx]))){taxa$taxon2[tx]<-NA}
 
-            if(isTRUE(any(tree$tip.label == taxa$taxon1[tx]) &
+            if(any(tree$tip.label == taxa$taxon1[tx]) &
                       any(tree$tip.label == taxa$taxon2[tx]) &
-                      taxa$taxon1[tx]==taxa$taxon2[tx])){
+                      taxa$taxon1[tx]==taxa$taxon2[tx]){
 
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon1[tx]
@@ -130,9 +127,9 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                 next
             }
 
-            if(isTRUE(any(tree$tip.label == taxa$taxon1[tx]) &
+            if(any(tree$tip.label == taxa$taxon1[tx]) &
                       any(tree$tip.label == taxa$taxon2[tx]) &
-                      taxa$taxon1[tx]!=taxa$taxon2[tx])){
+                      taxa$taxon1[tx]!=taxa$taxon2[tx]){
 
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- paste0("Clade ", taxa$taxon1[tx], "-", taxa$taxon2[tx])
@@ -141,8 +138,8 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                 next
             }
 
-            if(isTRUE(any(tree$tip.label == taxa$taxon1[tx]) &
-                      is.na(taxa$taxon2[tx]))){
+            if(any(tree$tip.label == taxa$taxon1[tx]) &
+                      is.na(taxa$taxon2[tx])){
 
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon1[tx]
@@ -150,8 +147,8 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                 next
             }
 
-            if(isTRUE(any(tree$tip.label == taxa$taxon2[tx]) &
-                      is.na(taxa$taxon1[tx]))){
+            if(any(tree$tip.label == taxa$taxon2[tx]) &
+                      is.na(taxa$taxon1[tx])){
 
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon2[tx]
@@ -163,7 +160,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
     }
 
     #automatic MDCC search
-    ranks<- randtip_ranks()
+    ranks<- randtip.ranks()
     taxa<- input[!(!is.na(input$taxon1)|!is.na(input$taxon2)),]
 
     if(nrow(taxa)>0){
@@ -202,10 +199,17 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                     if(is.na(MDCC)){
                         MDCC<-as.character(input[i, rank])
                         if(!is.na(MDCC)){
-                            phyleticity<-MDCC.phyleticity(input, tree = tree,
-                                                      MDCC.info = list(rank=rank, MDCC= MDCC))
-                            if(phyleticity=="Missing"){MDCC<-NA}
-                        }
+                          #  phyleticity<-MDCC.phyleticity(input, tree = tree,
+                          #          MDCC.info = list(rank=rank, MDCC= MDCC))
+                          # if(phyleticity=="Missing"){MDCC<-NA}
+                          #supressed for optimization
+
+                          treegenera <- unique(first.word(tree$tip.label))
+                          tree.input <- input[first.word(input$taxon)%in%treegenera,]
+                          tree.input <- tree.input[!is.na(tree.input[,rank]),]
+                          {if(sum(tree.input[, rank]==MDCC)==0){MDCC<-NA}}
+
+                          }
 
                         lev<-rank
                     }else{next}
@@ -398,6 +402,7 @@ sharingtaxa.descs<-function(tree, nodes, MDCC.genera){
     return(table)
 }
 
+#given the group and specifications, which nodes can be selected to bind a tip over
 get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
                                  polyphyly.scheme, use.paraphyletic, use.singleton, use.stem){
 
@@ -567,11 +572,12 @@ get.permitted.nodes <- function (tree, input, MDCC, rank, MDCC.type,
     return(nodes)
 }
 
+#given a set of nodes with get.permitted.nodes, must some of them should not be considered?
 get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono, respect.para){
 
     forbidden.nodes<- vector("numeric")
     #groups which must not be forbid
-    perm.groups<- input[input[,rank]==MDCC,randtip_ranks()[(which(randtip_ranks()==rank)):8]]
+    perm.groups<- input[input[,rank]==MDCC,randtip.ranks()[(which(randtip.ranks()==rank)):8]]
     perm.groups<- notNA(unique(as.vector(unlist(perm.groups))))
 
     #respect monophyletic clusters of species
@@ -624,7 +630,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
             #respect monophyletic groups, according to input info
             sub.input <- input[first.word(input$taxon)%in%genera,]
 
-            for(rk in randtip_ranks()){
+            for(rk in randtip.ranks()){
                 rk.vals<-unique(sub.input[,rk])
                 if(all(is.na(rk.vals))){next}
                 if(length(rk.vals)==1){
@@ -709,7 +715,7 @@ get.forbidden.nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono
             #respect paraphyletic groups, according to input info
             sub.input <- input[first.word(input$taxon)%in%genera,]
 
-            for( rk in randtip_ranks()){
+            for( rk in randtip.ranks()){
                 rk.vals<-notNA(unique(sub.input[,rk]))
 
                 if(length(rk.vals)>1){
@@ -856,7 +862,7 @@ add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, respect
 
         node<-which(new.tree$tip.label==singleton)
 
-        if(isTRUE(use.singleton)){
+        if(use.singleton){
             pos<- binding.position(new.tree, node = node, insertion = "random",prob = T)
             new.tree <- phytools::bind.tip(new.tree,
                                           new.tips,
@@ -868,7 +874,7 @@ add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, respect
             if(!(isRoot(new.tree, node))){
                 parent<- get.parent.siblings(new.tree, node)[[1]]
                 if(isFALSE(respect.mono)){nodes<- phytools::getDescendants(new.tree, parent)}
-                if(isTRUE(respect.mono)){
+                if(respect.mono){
                     nodes<- get.permitted.nodes(new.tree, parent)
                     nodes<- nodes[nodes!=parent]
                     if(length(nodes)==0){nodes<-node}
@@ -889,7 +895,7 @@ add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, respect
         node<-which(new.tree$tip.label%in%singleton)
         mrca<- ape::getMRCA(new.tree, singleton)
 
-        if(isTRUE(use.singleton)){
+        if(use.singleton){
             nodes<- c(mrca, node)
             pos<- binding.position(new.tree, node = sample(nodes,1), insertion = "random",prob = T)
             new.tree <- phytools::bind.tip(new.tree,
@@ -904,10 +910,10 @@ add.to.singleton <- function(tree, singleton, new.tips, use.singleton=F, respect
                 if(isFALSE(respect.mono)){
                     nodes<- phytools::getDescendants(new.tree, parent)
                 }
-                if(isTRUE(respect.mono)& isFALSE(respect.para)){
+                if(respect.mono & isFALSE(respect.para)){
                     nodes<-get.permitted.nodes(new.tree, mrca, respect.para = F)
                 }
-                if(isTRUE(respect.mono)& isTRUE(respect.para)){
+                if(respect.mono & respect.para ){
                     nodes<-get.permitted.nodes(new.tree, mrca, respect.para = T)
                 }
 
@@ -980,20 +986,21 @@ phyleticity<- function(tree, genus){
     return(genus.type)
 }
 
+#function to obtain the phyletic nature of a group (genus or above)
 MDCC.phyleticity<-function(input, tree, MDCC.info=list("rank"=NA, "MDCC"=NA),
                            trim=TRUE){
 
-    rank<- MDCC.info$rank
+    rank<- MDCC.info$rank 
     MDCC <- MDCC.info$MDCC
-    input<-input[!is.na(input[,rank]),]
+    input<-input[!is.na(input[,rank]),] #NAs must be erased to avoid errors
 
     if(rank=="genus"){
-        MDCC.type<-phyleticity(tree, MDCC)
+        MDCC.type<-phyleticity(tree, MDCC) #normal genus-level function
         return(MDCC.type)
     }
 
     tips<- tree$tip.label[first.word(tree$tip.label) %in% first.word(input$taxon)]
-    if(isTRUE(trim) & length(tips)>0){
+    if(trim & length(tips)>0){
         tree<- ape::keep.tip(phy = tree, tip = tips)
     }
 

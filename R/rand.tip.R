@@ -3,7 +3,7 @@
 #'
 #' Expand a phylogeny binding PUTs to a backbone tree.
 #'
-#' @param input An 'input' data frame obtained with \code{\link{info2input}} fuction.
+#' @param input An 'input' data frame obtained with \code{\link{info2input}} function.
 #' @param tree A backbone tree.
 #' @param rand.type For all PUTs not specified individually in 'input', which randomization type ("random" or
 #'                  "polytomy") must be carried out. Default value is "random".
@@ -34,6 +34,15 @@
 #' @return An expanded phylogeny.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
+#' 
+#' @examples 
+#' expanded.cats <- rand.tip(input=cats.input, 
+#'  tree=cats, rand.type = "polytomy",
+#'  forceultrametric = T)
+#'  
+#' expanded.cats <- rand.tip(input=cats.input,
+#'  tree=cats, rand.type = "random",
+#'   forceultrametric = F)
 #'
 #' @export
 rand.tip <- function(input, tree,rand.type = "random",
@@ -292,3 +301,90 @@ rand.tip <- function(input, tree,rand.type = "random",
 
     return(new.tree)
 }
+
+
+
+
+#' Expand multiple phylogenies binding PUTs to a backbone tree.
+#'
+#' @param input An 'input' data frame obtained with \code{\link{info2input}} function.
+#' @param tree A backbone tree.
+#' @param number Integer. Number of phylogenies to be returned.
+#' @param path Directory where to save the resulting trees. If path is set to NULL, they will not be automatically saved.
+#' @param file File name for the resulting trees to be saved inside a folder with the same name.
+#' @param rand.type For all PUTs not specified individually in 'input', which randomization type ("random" or
+#'                  "polytomy") must be carried out. Default value is "random".
+#' @param polyphyly.scheme For all PUTs not specified individually in 'input', which polyphyly
+#'                         scheme ("largest", "complete" or "frequentist") must be used. Default value is "largest".
+#' @param use.paraphyletic For all PUTs not specified individually in 'input', whether or not should paraphyletic
+#'                         clades be taken into account or not. Default value is TRUE.
+#' @param use.singleton For all PUTs not specified individually in 'input', should or not singleton MDCCs be
+#'                      considered for binding as a sister species, or contrarily binding should be performed
+#'                      anywhere below the parent node. Default value is TRUE.
+#' @param use.stem For all PUTs not specified individually in 'input', whether or not should the stem branch be
+#'                 considered as candidate for binding.  Default value is FALSE.
+#' @param respect.mono For all PUTs not specified individually in 'input', whether or not monophyletic groups
+#'                     should be respected when binding a PUT. Default value is TRUE.
+#' @param respect.para For all PUTs not specified individually in 'input', whether or not paraphyletic groups
+#'                     should be respected when binding a PUT. Default value is TRUE.
+#' @param clump.puts For all PUTs not specified individually in 'input', whether or not co-ranked PUTs should be
+#'                   clumped together in the phylogeny in case their taxonomic group is missing in the tree.
+#'                   Will also clump conspecific PUTs. Default value is TRUE.
+#' @param prob For all PUTs not specified individually in 'input', whether or not branch selection probability
+#'             must be proportional to branch length or equiprobable. Default value is TRUE.
+#' @param prune Whether or not the newly expanded tree will include only the species in the user's list.
+#'              Default value is TRUE.
+#' @param forceultrametric Whether or not the backbone tree will be forced to be ultrametric, only in case it is
+#'                         not. Default value is FALSE.
+#' @param verbose Whether or not to print information about the flow of the function. Default value is TRUE.
+
+#' @return A list containing a phylogeny in each slot. In case 'path' is not set to NULL, 
+#' a folder will be created and tree files will be saved.
+#'
+#' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
+#' 
+#' @examples 
+#'expanded.cats.multiple <- rand.tip.multiple(input=cats.input, 
+#' tree=cats, number = 10, path=getwd(), file="randtip",
+#' rand.type = "random", forceultrametric = T)
+#'
+#' @export
+rand.tip.multiple <- function(input, tree, number =1, path=NULL, file="randtip",
+                    rand.type = "random",polyphyly.scheme="largest",
+                      use.paraphyletic=TRUE,use.singleton=TRUE, use.stem=FALSE,
+                     respect.mono=TRUE, respect.para=TRUE, clump.puts = TRUE, prob=TRUE,
+                     prune=TRUE, forceultrametric=FALSE, verbose = TRUE){
+  
+  randtip.list <- rep(list(NA), times=as.integer(number))
+  if(!is.null(path)){
+    while(substr(path,nchar(path), nchar(path))=="/"){
+      path <- substr(path,1, nchar(path)-1)
+    }
+  }
+  if(!is.null(path)){
+    folderpath <- paste0(path, "/", file)
+    while(dir.exists(folderpath)){
+      pos <- unlist(gregexpr('/', folderpath))[length(unlist(gregexpr('/', folderpath)))]
+      if(substr(folderpath, pos+1, nchar(folderpath))==file){folderpath <- paste0(folderpath, "(1)")}else{
+      pos1 <-unlist(gregexpr("\\(", folderpath))[length(unlist(gregexpr("\\(", folderpath)))]
+      pos2 <-unlist(gregexpr("\\)", folderpath))[length(unlist(gregexpr("\\)", folderpath)))]
+      num <- as.numeric(substr(folderpath, pos1+1, pos2-1))+1
+      
+      folderpath <- paste0(substr(folderpath, 1, pos1), num, ")")
+      }
+    }
+    dir.create(folderpath)
+    }
+  for (i in 1:number){
+    randtip.list[[i]]<- rand.tip(input=input, tree = tree,  rand.type = rand.type,
+                                 polyphyly.scheme=polyphyly.scheme, use.paraphyletic=use.paraphyletic,
+                                 use.singleton=use.singleton, use.stem=use.stem,
+                                 respect.mono=respect.mono, respect.para=respect.para,
+                                 clump.puts = clump.puts, prob=prob, prune=prune, 
+                                forceultrametric=forceultrametric, verbose = verbose)
+    if(!is.null(path)){ape::write.tree(randtip.list[[i]],paste0(folderpath, "/", file, "_", i, ".tre"))}  
+  }
+  return(randtip.list)
+}
+
+

@@ -36,6 +36,16 @@ function using the selected colors.
 Plot a phylogenetic tree splitted from the backbone tree
 using \code{get.clade} function.
 }
+\examples{
+#First the clade information must be obtained
+felinae.clade <- get.clade(info=cats.info,
+tree=cats, clade="Felinae")
+
+#Then it can be plotted
+plot.clade(felinae.clade, ppcr.col="green",
+nonppcr.col="red",unknown.col="grey" )
+
+}
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 }

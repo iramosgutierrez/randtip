@@ -1,5 +1,4 @@
 
-#' custom.branch
 #'
 #' Bind PUTs at completely customized tree branches
 #'
@@ -24,7 +23,19 @@
 #' @return An expanded phylogeny.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
-#'
+#' 
+#' @examples 
+#' #Create a 'edges' dataframe
+#' cats.edges <- data.frame(
+#'  "PUT"= "Felis_catus", 
+#'  "parent1"= "Felis_silvestris", 
+#'  "parent2"= "Felis_silvestris", 
+#'  "child1"= "Felis_silvestris", 
+#'  "child2"= "Felis_silvestris")
+#' 
+#' #Bind the PUT to one of the selected branches
+#' cats.expanded <- custom.branch(tree=cats, 
+#'  edges=cats.edges, forceultrametric=TRUE)
 #' @export
 custom.branch <- function(tree, edges, rand.type="random",
                           forceultrametric=FALSE, prob=TRUE){
@@ -117,6 +128,18 @@ custom.branch <- function(tree, edges, rand.type="random",
 #' @param forbidden.lwd Line width to represent branches not defined by the
 #'                      \code{edges} data frame as candidates. Default value 1.
 #' @param ... Arguments to pass through \code{\link[ape]{plot.phylo}} function.
+#' 
+#' @examples 
+#' #Create a 'edges' dataframe
+#' cats.edges <- data.frame(
+#'  "PUT"= "Felis_catus", 
+#'  "parent1"= "Felis_silvestris", 
+#'  "parent2"= "Felis_silvestris", 
+#'  "child1"= "Felis_silvestris", 
+#'  "child2"= "Felis_silvestris")
+#' 
+#' #Plot the tree highlighting candidate branches
+#' plot.custom.branch(tree=cats, edges=cats.edges)
 #'
 #' @export plot.custom.branch
 #' @export

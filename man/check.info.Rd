@@ -4,7 +4,7 @@
 \alias{check.info}
 \title{Function to check randtip's files.}
 \usage{
-check.info(info, tree, sim = 0.8)
+check.info(info, tree, sim = 0.8, find.phyleticity = T, verbose = T)
 }
 \arguments{
 \item{info}{An 'info' object.}
@@ -15,6 +15,8 @@ check.info(info, tree, sim = 0.8)
 on tip labels. Default value is 0.8. Similarity is obtained
 with \code{stringsim} function from \code{stringdist} package.
 See \link[stringdist]{stringsim} for details.}
+
+\item{verbose}{Logical. Should or not progress be printed.}
 }
 \value{
 A data frame containing possible typographic errors,
@@ -25,6 +27,11 @@ nature of each of them.
 Function to account for the PUT status of the species in 'info',
 spelling errors, putative MDCCs and the phyletic nature of
 groups of PPCR species.
+}
+\examples{
+cats.checked <- check.info(info=cats.info, tree=cats, sim=0.75)
+
+
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

@@ -4,20 +4,20 @@
 \alias{edit.info}
 \title{Edit an 'info' file using a simple function.}
 \usage{
-\method{edit}{info}(info, PUTs, column = NULL, edit = NULL, remove.rows = FALSE)
+\method{edit}{info}(info, taxa, column = NULL, edit = NULL, remove.rows = FALSE)
 }
 \arguments{
 \item{info}{An 'info' object.}
 
-\item{PUTs}{Character vector with the PUT (or PUTs) to be edited or removed.}
+\item{taxa}{Character vector with the taxa to be edited or removed.}
 
-\item{column}{The column name to be edited for the specified PUTs.
+\item{column}{The column name to be edited for the specified taxa.
 NULL value is only accepted if \code{remove.rows} is set to TRUE.}
 
 \item{edit}{Any allowed value for the column of info that is to be edited.
 NULL value is only accepted if \code{remove.rows} is set to TRUE.}
 
-\item{remove.rows}{If TRUE, the specified PUTs will be eliminated from the
+\item{remove.rows}{If TRUE, the specified taxa will be eliminated from the
 'info' object. Default is FALSE.}
 }
 \value{
@@ -25,6 +25,11 @@ An 'info' object including the editions or deletions asked.
 }
 \description{
 Function to edit randtip's 'info' file.
+}
+\examples{
+cats.info <- edit.info(cats.info, taxa= "Puma_concolor", 
+column = "subfamily", edit = "Felinae")
+
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

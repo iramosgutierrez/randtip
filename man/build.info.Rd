@@ -11,7 +11,8 @@ build.info(
   db = "ncbi",
   mode = "backbone",
   interactive = FALSE,
-  genus = FALSE
+  genus = FALSE,
+  verbose = T
 )
 }
 \arguments{
@@ -42,12 +43,30 @@ information.}
 \item{genus}{Logical. Whether or not a genus-level backbone tree is to
 be expanded. If set to TRUE, all tips in the backbone tree
 and taxa in the species vector must represent genera.}
+
+\item{verbose}{Logical. Should or not progress be printed.}
 }
 \value{
 A randtip 'info' data frame
 }
 \description{
 Function to create an 'info' object given a list of species.
+}
+\examples{
+# Create a list of species to include in the resulting tree
+ catspecies <- c("Lynx_lynx",
+"Panthera_uncia",
+"Panthera_onca",
+"Felis_catus",
+"Puma_concolor",
+"Lynx_canadensis",
+"Panthera_tigris",
+"Panthera_leo",
+"Felis_silvestris")
+
+#Create the 'info' file
+cats.info <- build.info(species=catspecies, tree= cats, 
+     find.ranks=TRUE, db="ncbi", mode="backbone")
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

@@ -2,9 +2,9 @@
 % Please edit documentation in R/build_input.R
 \name{info2input}
 \alias{info2input}
-\title{Convert 'info' to'input'.}
+\title{Convert 'info' to 'input'.}
 \usage{
-info2input(info, tree)
+info2input(info, tree, verbose = T)
 }
 \arguments{
 \item{info}{An 'info' data frame, including all the customized binding
@@ -18,6 +18,11 @@ alongside with a backbone tree to expand a tree.
 }
 \description{
 Convert an 'info' object into an 'input' one.
+}
+\examples{
+
+cats.input <- info2input(info=cats.info, tree=cats)
+
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

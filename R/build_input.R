@@ -24,14 +24,31 @@
 #' @param genus Logical. Whether or not a genus-level backbone tree is to
 #'              be expanded. If set to TRUE, all tips in the backbone tree
 #'              and taxa in the species vector must represent genera.
+#' @param verbose Logical. Should or not progress be printed.
 #'
 #' @return A randtip 'info' data frame
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
-#'
+#' 
+#' @examples
+#' # Create a list of species to include in the resulting tree
+#'  catspecies <- c("Lynx_lynx",
+#' "Panthera_uncia",
+#' "Panthera_onca",
+#' "Felis_catus",
+#' "Puma_concolor",
+#' "Lynx_canadensis",
+#' "Panthera_tigris",
+#' "Panthera_leo",
+#' "Felis_silvestris")
+#' 
+#' #Create the 'info' file
+#' cats.info <- build.info(species=catspecies, tree= cats, 
+#'      find.ranks=TRUE, db="ncbi", mode="backbone")
 #' @export
-build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",
-                      mode="backbone", interactive=FALSE, genus=FALSE){
+#' 
+build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backbone", 
+                      interactive=FALSE, genus=FALSE, verbose = T){
 
 
     if(is.data.frame(species)){
@@ -115,7 +132,7 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",
                     "use.stem","respect.mono","respect.para",
                     "clump.puts", "prob" )
     if(find.ranks){
-        info <- search.taxize(info, genera, interactive, db)
+        info <- search.taxize(info, genera, interactive, db, verbose=verbose)
     }
 
     info[!(species %in% spp.original), cols.select] <- "-"
@@ -147,15 +164,20 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",
 #'            on tip labels. Default value is 0.8. Similarity is obtained
 #'            with \code{stringsim} function from \code{stringdist} package.
 #'            See \link[stringdist]{stringsim} for details.
+#' @param verbose Logical. Should or not progress be printed.
 #'
 #' @return A data frame containing possible typographic errors,
 #'         taxonomic ranks extracted from 'info' and the phyletic
 #'         nature of each of them.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
+#' 
+#' @examples 
+#' cats.checked <- check.info(info=cats.info, tree=cats, sim=0.75)
+#' 
 #'
 #' @export
-check.info<- function(info, tree, sim=0.8){
+check.info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
 
     if(is.null(info)){stop("Data frame 'info' is missing.")}
     if(is.null(tree)){stop("Backbone tree is missing.")}
@@ -206,24 +228,25 @@ check.info<- function(info, tree, sim=0.8){
     for(rank in ranks){
         groups<- notNA(unique(DF[,rank]))
 
-        if(length(groups)>0){
+        if(verbose & length(groups)&isTRUE(find.phyleticity)>0){
             cat(paste0("Checking phyletic status at ", rank, " level...\n"))
 
             cat(paste0("0%       25%       50%       75%       100%", "\n",
-                      "|---------|---------|-----tree----|---------|", "\n"))
+                       "|---------|---------|---------|---------|", "\n"))
         }
         for(group in groups){
-            phyle.type<- MDCC.phyleticity(info, tree,
+          if(isTRUE(find.phyleticity)){phyle.type<- MDCC.phyleticity(info, tree,
                                           MDCC.info = list("rank"= rank,
-                                                           "MDCC"= group))
+                                                           "MDCC"= group))}else{phyle.type <- "unknown"}
             DF[which(DF[,rank]==group),
                paste0(rank,"_phyletic.status")]<-phyle.type
 
-            v<- seq(from=0, to=40, by=40/length(groups))
+            if(verbose & find.phyleticity){
+              v<- seq(from=0, to=40, by=40/length(groups))
             v<- diff(ceiling(v))
             cat(strrep("*", times=v[which(groups==group)]))
 
-            if(group == groups[length(groups)]){cat("*\n")}
+            if(group == groups[length(groups)]){cat("*\n")}}
         }
 
     }
@@ -272,7 +295,7 @@ check.info<- function(info, tree, sim=0.8){
 
 
 
-#' Convert 'info' to'input'.
+#' Convert 'info' to 'input'.
 #'
 #' Convert an 'info' object into an 'input' one.
 #'
@@ -284,9 +307,13 @@ check.info<- function(info, tree, sim=0.8){
 #'         alongside with a backbone tree to expand a tree.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
+#' 
+#' @examples 
+#' 
+#' cats.input <- info2input(info=cats.info, tree=cats)
 #'
 #' @export
-info2input<- function(info, tree){
+info2input<- function(info, tree, verbose=T){
 
     input.to.mdcc <- input.to.MDCCfinder(info, tree)
     input <- input.to.mdcc$input
@@ -295,7 +322,8 @@ info2input<- function(info, tree){
 
     input_search<- usingMDCCfinder(input = input,
                                   taxon = input$taxon[!(taxon.in.tree)],
-                                  tree = tree)
+                                  tree = tree,
+                                  silent = !verbose)
 
     input$MDCC[!(taxon.in.tree)] <- input_search[[1]]
     input$MDCC.rank[!(taxon.in.tree)] <- input_search[[2]]
@@ -311,7 +339,7 @@ info2input<- function(info, tree){
     return(input)
 }
 
-search.taxize <- function(info, genera, interactive, db){
+search.taxize <- function(info, genera, interactive, db, verbose=T){
     searching.categories<- randtip.ranks()[-1]
 
     for(i in 1:length(genera)){
@@ -319,10 +347,14 @@ search.taxize <- function(info, genera, interactive, db){
             if(interactive){
                 search <- suppressMessages(taxize::classification(as.character(genera[i]),
                                                                   db = db))[[1]]
-            }else{
+            }else if (db!="itis"){
                 out<-capture.output(suppressMessages(
                   search <- taxize::classification(as.character(genera[i]),
                                                    db = db, rows=Inf)[[1]]))
+            }else{
+              out<-capture.output(suppressMessages(
+                search <- taxize::classification(as.character(genera[i]),
+                                                 db = db)[[1]]))   
             }
             for(cat in searching.categories){
                 if(length(search[which(search$rank==cat), "name"])==0){
@@ -340,8 +372,8 @@ search.taxize <- function(info, genera, interactive, db){
         # Avoid ip blocks. Taxize allows only 3 searches per second.
         Sys.sleep(0.33)
 
-        if(!interactive){
-            if(i==1){
+        if(!interactive & verbose){
+            if(i==1 & verbose){
                 cat(paste0("Retrieving taxonomic information from ", db, " database.\n",
                           "0%       25%       50%       75%       100%", "\n",
                           "|---------|---------|---------|---------|", "\n"))
