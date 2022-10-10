@@ -9,7 +9,7 @@ second.word <- function(string){
 
 remove.spaces <- function(species, sep = "_"){
     sp <- stringr::str_trim(gsub("\\s+", " ", species))
-    sp <- stringr::str_replace(sp, " ", sep)
+    sp <- stringr::str_replace_all(sp, " ", sep)
     return(sp)
 }
 
@@ -990,7 +990,7 @@ phyleticity<- function(tree, genus){
 MDCC.phyleticity<-function(input, tree, MDCC.info=list("rank"=NA, "MDCC"=NA),
                            trim=TRUE){
 
-    rank<- MDCC.info$rank 
+    rank<- MDCC.info$rank
     MDCC <- MDCC.info$MDCC
     input<-input[!is.na(input[,rank]),] #NAs must be erased to avoid errors
 
