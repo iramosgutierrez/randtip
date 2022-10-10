@@ -34,12 +34,12 @@
 #' @return An expanded phylogeny.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
-#' 
-#' @examples 
-#' expanded.cats <- rand.tip(input=cats.input, 
+#'
+#' @examples
+#' expanded.cats <- rand.tip(input=cats.input,
 #'  tree=cats, rand.type = "polytomy",
 #'  forceultrametric = T)
-#'  
+#'
 #' expanded.cats <- rand.tip(input=cats.input,
 #'  tree=cats, rand.type = "random",
 #'   forceultrametric = F)
@@ -49,6 +49,11 @@ rand.tip <- function(input, tree,rand.type = "random",
                     polyphyly.scheme="largest", use.paraphyletic=TRUE,use.singleton=TRUE, use.stem=FALSE,
                     respect.mono=TRUE, respect.para=TRUE, clump.puts = TRUE, prob=TRUE,
                     prune=TRUE, forceultrametric=FALSE, verbose = TRUE){
+
+  if(file.exists(input)){
+    cat(paste0("Reading input file from\n", getwd(),"/", input))
+    input <- read.table(input)
+  }
 
     if(rand.type == "r"){rand.type <- "random"}
     if(rand.type == "p"){rand.type <- "polytomy"}
@@ -338,13 +343,13 @@ rand.tip <- function(input, tree,rand.type = "random",
 #'                         not. Default value is FALSE.
 #' @param verbose Whether or not to print information about the flow of the function. Default value is TRUE.
 
-#' @return A list containing a phylogeny in each slot. In case 'path' is not set to NULL, 
+#' @return A list containing a phylogeny in each slot. In case 'path' is not set to NULL,
 #' a folder will be created and tree files will be saved.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
-#' 
-#' @examples 
-#'expanded.cats.multiple <- rand.tip.multiple(input=cats.input, 
+#'
+#' @examples
+#'expanded.cats.multiple <- rand.tip.multiple(input=cats.input,
 #' tree=cats, number = 10, path=getwd(), file="randtip",
 #' rand.type = "random", forceultrametric = T)
 #'
@@ -354,7 +359,7 @@ rand.tip.multiple <- function(input, tree, number =1, path=NULL, file="randtip",
                       use.paraphyletic=TRUE,use.singleton=TRUE, use.stem=FALSE,
                      respect.mono=TRUE, respect.para=TRUE, clump.puts = TRUE, prob=TRUE,
                      prune=TRUE, forceultrametric=FALSE, verbose = TRUE){
-  
+
   randtip.list <- rep(list(NA), times=as.integer(number))
   if(!is.null(path)){
     while(substr(path,nchar(path), nchar(path))=="/"){
@@ -369,7 +374,7 @@ rand.tip.multiple <- function(input, tree, number =1, path=NULL, file="randtip",
       pos1 <-unlist(gregexpr("\\(", folderpath))[length(unlist(gregexpr("\\(", folderpath)))]
       pos2 <-unlist(gregexpr("\\)", folderpath))[length(unlist(gregexpr("\\)", folderpath)))]
       num <- as.numeric(substr(folderpath, pos1+1, pos2-1))+1
-      
+
       folderpath <- paste0(substr(folderpath, 1, pos1), num, ")")
       }
     }
@@ -380,9 +385,9 @@ rand.tip.multiple <- function(input, tree, number =1, path=NULL, file="randtip",
                                  polyphyly.scheme=polyphyly.scheme, use.paraphyletic=use.paraphyletic,
                                  use.singleton=use.singleton, use.stem=use.stem,
                                  respect.mono=respect.mono, respect.para=respect.para,
-                                 clump.puts = clump.puts, prob=prob, prune=prune, 
+                                 clump.puts = clump.puts, prob=prob, prune=prune,
                                 forceultrametric=forceultrametric, verbose = verbose)
-    if(!is.null(path)){ape::write.tree(randtip.list[[i]],paste0(folderpath, "/", file, "_", i, ".tre"))}  
+    if(!is.null(path)){ape::write.tree(randtip.list[[i]],paste0(folderpath, "/", file, "_", i, ".tre"))}
   }
   return(randtip.list)
 }

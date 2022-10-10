@@ -12,6 +12,7 @@ build.info(
   mode = "backbone",
   interactive = FALSE,
   genus = FALSE,
+  bind.info = NULL,
   verbose = T
 )
 }
@@ -44,6 +45,10 @@ information.}
 be expanded. If set to TRUE, all tips in the backbone tree
 and taxa in the species vector must represent genera.}
 
+\item{bind.info}{A previously created 'info' file to bind after the built
+one. Rows regarding taxa included in both data frames will
+be removed from this one.}
+
 \item{verbose}{Logical. Should or not progress be printed.}
 }
 \value{
@@ -65,7 +70,7 @@ Function to create an 'info' object given a list of species.
 "Felis_silvestris")
 
 #Create the 'info' file
-cats.info <- build.info(species=catspecies, tree= cats, 
+cats.info <- build.info(species=catspecies, tree= cats,
      find.ranks=TRUE, db="ncbi", mode="backbone")
 }
 \author{

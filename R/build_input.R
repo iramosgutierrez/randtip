@@ -24,12 +24,15 @@
 #' @param genus Logical. Whether or not a genus-level backbone tree is to
 #'              be expanded. If set to TRUE, all tips in the backbone tree
 #'              and taxa in the species vector must represent genera.
+#' @param bind.info A previously created 'info' file to bind after the built
+#'                  one. Rows regarding taxa included in both data frames will
+#'                  be removed from this one.
 #' @param verbose Logical. Should or not progress be printed.
 #'
 #' @return A randtip 'info' data frame
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
-#' 
+#'
 #' @examples
 #' # Create a list of species to include in the resulting tree
 #'  catspecies <- c("Lynx_lynx",
@@ -41,14 +44,14 @@
 #' "Panthera_tigris",
 #' "Panthera_leo",
 #' "Felis_silvestris")
-#' 
+#'
 #' #Create the 'info' file
-#' cats.info <- build.info(species=catspecies, tree= cats, 
+#' cats.info <- build.info(species=catspecies, tree= cats,
 #'      find.ranks=TRUE, db="ncbi", mode="backbone")
 #' @export
-#' 
-build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backbone", 
-                      interactive=FALSE, genus=FALSE, verbose = T){
+#'
+build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backbone",
+                      interactive=FALSE, genus=FALSE, bind.info=NULL, verbose = T){
 
 
     if(is.data.frame(species)){
@@ -147,6 +150,17 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
                 paste0(nonfoundgenera, "\n"))
     }
 
+    if(!is.null(bind.info)){
+      if(!all(names(info)==names(bind.info))){
+        warning("Column names of bind.info object do not match an 'info' file column names.
+             Please correct this issue and combine them using 'rbind' function")
+        return(info)}else{
+          bind.info.cut <- bind.info[!(bind.info$taxon %in% info$taxon),]
+          info <- rbind(info, bind.info.cut)
+          return(info)
+      }
+
+    }
     return(info)
 }
 
@@ -171,13 +185,18 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #'         nature of each of them.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
-#' 
-#' @examples 
+#'
+#' @examples
 #' cats.checked <- check.info(info=cats.info, tree=cats, sim=0.75)
-#' 
+#'
 #'
 #' @export
 check.info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
+
+    if(file.exists(info)){
+      cat(paste0("Reading info file from\n", getwd(), "/", info))
+      info <- read.table(info)
+      }
 
     if(is.null(info)){stop("Data frame 'info' is missing.")}
     if(is.null(tree)){stop("Backbone tree is missing.")}
@@ -189,7 +208,7 @@ check.info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
              " Please set keep.tip equal to '1' for every species to ",
             "keep in the final tree.")
     }
-    
+
     info$taxon<- remove.spaces(info$taxon)
     info.taxa <- info$taxon
 
@@ -307,13 +326,18 @@ check.info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
 #'         alongside with a backbone tree to expand a tree.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
-#' 
-#' @examples 
-#' 
+#'
+#' @examples
+#'
 #' cats.input <- info2input(info=cats.info, tree=cats)
 #'
 #' @export
 info2input<- function(info, tree, verbose=T){
+
+    if(file.exists(info)){
+      cat(paste0("Reading info file from\n", getwd(), "/", info))
+      info <- read.table(info)
+    }
 
     input.to.mdcc <- input.to.MDCCfinder(info, tree)
     input <- input.to.mdcc$input
@@ -354,7 +378,7 @@ search.taxize <- function(info, genera, interactive, db, verbose=T){
             }else{
               out<-capture.output(suppressMessages(
                 search <- taxize::classification(as.character(genera[i]),
-                                                 db = db)[[1]]))   
+                                                 db = db)[[1]]))
             }
             for(cat in searching.categories){
                 if(length(search[which(search$rank==cat), "name"])==0){
