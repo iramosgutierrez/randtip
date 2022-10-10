@@ -194,7 +194,12 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 check.info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
 
     if(file.exists(info)){
-      cat(paste0("Reading info file from\n", getwd(), "/", info))
+
+      if(grep(getwd(), info)==1){filedir <-  info}else{
+        filedir <- paste0(getwd(), "/", info)
+      }
+
+      cat(paste0("Reading info file from\n", filedir))
       info <- read.table(info)
       }
 
@@ -335,7 +340,11 @@ check.info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
 info2input<- function(info, tree, verbose=T){
 
     if(file.exists(info)){
-      cat(paste0("Reading info file from\n", getwd(), "/", info))
+      if(grep(getwd(), info)==1){filedir <-  info}else{
+        filedir <- paste0(getwd(), "/", info)
+      }
+
+      cat(paste0("Reading info file from\n", filedir))
       info <- read.table(info)
     }
 

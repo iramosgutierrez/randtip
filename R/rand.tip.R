@@ -51,7 +51,11 @@ rand.tip <- function(input, tree,rand.type = "random",
                     prune=TRUE, forceultrametric=FALSE, verbose = TRUE){
 
   if(file.exists(input)){
-    cat(paste0("Reading input file from\n", getwd(),"/", input))
+    if(grep(getwd(), input)==1){filedir <-  input}else{
+      filedir <- paste0(getwd(), "/", input)
+    }
+
+    cat(paste0("Reading input file from\n", filedir))
     input <- read.table(input)
   }
 

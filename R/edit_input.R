@@ -25,7 +25,11 @@
 edit.info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE){
 
     if(file.exists(info)){
-      cat(paste0("Reading info file from\n", getwd(),"/",  info))
+      if(grep(getwd(), info)==1){filedir <-  info}else{
+        filedir <- paste0(getwd(), "/", info)
+      }
+
+      cat(paste0("Reading info file from\n", filedir))
       info <- read.table(info)
     }
 
@@ -95,6 +99,15 @@ edit.info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE)
 #' @export edit.tree
 #' @export
 edit.tree <- function(tree, tips, edit=NULL, remove.tips=FALSE) {
+
+   if(file.exists(tree)){
+     if(grep(getwd(), tree)==1){filedir <-  tree}else{
+       filedir <- paste0(getwd(), "/", tree)
+     }
+
+     cat(paste0("Reading tree file from\n", filedir))
+     tree <- ape::read.tree(tree)
+   }
 
     tips<- gsub(" ", "_", tips)
     edit<- gsub(" ", "_", edit)
