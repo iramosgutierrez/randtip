@@ -1,4 +1,3 @@
-
 #'
 #' Bind PUTs at completely customized tree branches
 #'
@@ -34,10 +33,10 @@
 #'  "child2"= "Felis_silvestris")
 #' 
 #' #Bind the PUT to one of the selected branches
-#' cats.expanded <- custom.branch(tree=cats, 
+#' cats.expanded <- custom_branch(tree=cats, 
 #'  edges=cats.edges, forceultrametric=TRUE)
 #' @export
-custom.branch <- function(tree, edges, rand.type="random",
+custom_branch <- function(tree, edges, rand.type="random",
                           forceultrametric=FALSE, prob=TRUE){
 
     if(rand.type == "r"){rand.type <- "random"}
@@ -75,7 +74,7 @@ custom.branch <- function(tree, edges, rand.type="random",
         edges.i[,4]<- gsub(" ", "_", edges.i[,4])
         edges.i[,5]<- gsub(" ", "_", edges.i[,5])
 
-        permittednodes <- get.permitted.nodes.custom(new.tree, df, edges.i, root)
+        permittednodes <- get_permitted_nodes_custom(new.tree, df, edges.i, root)
 
         df<- df[df$node%in%permittednodes,]
 
@@ -89,7 +88,7 @@ custom.branch <- function(tree, edges, rand.type="random",
             if(nrow(df)>1 & !prob){nd<-sample(df$parent, 1)}
         }
 
-        bp<-binding.position(new.tree, node = nd, insertion = rand.type)
+        bp<-binding_position(new.tree, node = nd, insertion = rand.type)
         new.tree<- phytools::bind.tip(new.tree, PUT, bp$length,
                                       bp$where, bp$position)
     }
@@ -100,7 +99,7 @@ custom.branch <- function(tree, edges, rand.type="random",
 
 #' plot.custom.branch
 #'
-#' Function to help users visualize the candidate branches for tip insertion with \code{\link{stick.to.branch}} function
+#' Function to help users visualize the candidate branches for tip insertion with \code{\link{custom_branch}} function
 #'
 #' @param tree "phylo" object used as backbone tree.
 #' @param edges matrix with 5 character vector columns.
@@ -139,11 +138,10 @@ custom.branch <- function(tree, edges, rand.type="random",
 #'  "child2"= "Felis_silvestris")
 #' 
 #' #Plot the tree highlighting candidate branches
-#' plot.custom.branch(tree=cats, edges=cats.edges)
+#' plot_custom_branch(tree=cats, edges=cats.edges)
 #'
-#' @export plot.custom.branch
 #' @export
-plot.custom.branch<- function(tree, edges, PUT=NULL,
+plot_custom_branch<- function(tree, edges, PUT=NULL,
                               candidate.col="#bf2828", forbidden.col="#3d3d3d",
                               candidate.lwd=2, forbidden.lwd=1,...){
 
@@ -168,7 +166,7 @@ plot.custom.branch<- function(tree, edges, PUT=NULL,
     edges[,4]<- gsub(" ", "_", edges[,4])
     edges[,5]<- gsub(" ", "_", edges[,5])
 
-    permittednodes <- get.permitted.nodes.custom(tree, df, edges, root)
+    permittednodes <- get_permitted_nodes_custom(tree, df, edges, root)
 
     col <- vector(mode = "character", length(tree$edge[,1]))
     col[1:length(col)] <- forbidden.col
@@ -181,7 +179,7 @@ plot.custom.branch<- function(tree, edges, PUT=NULL,
     return(ape::plot.phylo(tree, edge.color = col, edge.width = lwd, ...))
 }
 
-get.permitted.nodes.custom <- function(tree, df, edges, root){
+get_permitted_nodes_custom <- function(tree, df, edges, root){
 
     permittednodes<- as.numeric(NULL)
 
@@ -205,7 +203,7 @@ get.permitted.nodes.custom <- function(tree, df, edges, root){
         if(edges[i,2]==edges[i,3] & edges[i,2]== edges[i,4] &
             edges[i,2]==edges[i,5]){
 
-            parnode <- get.parent.siblings(tree,
+            parnode <- get_parent_siblings(tree,
                                           which(tree$tip.label==edges[i,2]))$parent
         }
         if(edges[i,2]==edges[i,4]|edges[i,2]==edges[i,5] &

@@ -20,8 +20,8 @@
 #' \describe{
 #' \item{back.tree}{Imaginary backbone tree where PUTs will be bound.}
 #' \item{sp.list}{List of species to include in the final expanded tree}
-#' \item{info.list}{'info' file resulting after running build.info using mode="list"}
-#' \item{info.backbone}{'info' file resulting after running build.info using mode="backbone"}
+#' \item{info.list}{'info' file resulting after running build_info using mode="list"}
+#' \item{info.backbone}{'info' file resulting after running build_info using mode="backbone"}
 #' \item{edges}{'edges' file used for manual selection of branches where to bind the PUT "Monoceros_x_alaricornus"}
 #' }
 "mythology"

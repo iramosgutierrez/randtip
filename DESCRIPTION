@@ -1,13 +1,13 @@
 Package: randtip
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Title: A generalized framework to expand incomplete phylogenies with taxonomic information
+Version: 0.1.0
+Authors@R: c(
+    person("Ignacio", "Ramos-Gutiérrez", , "ignacio.ramosgutierrez@uam.es", role = c("aut", "cre")),
+    person("Herlander", "Lima", role = "aut"),
+    person("Rafael", "Molina-Venegas", role = "aut"),
+    person("Bruno", "Vilela", role = "ctb")
+  )
+Description: Generate phylogenetic hypotheses based on taxonomic information and user expert decisions.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

@@ -10,7 +10,7 @@
 #' @param clade Clade to be extracted
 #'
 #' @return A list of four objects which will be used for automatic plotting
-#'         using \code{\link{plot.clade}} function.
+#'         using \code{\link{plot_clade}} function.
 #'  'Tree' will contain the splitted tree; 'info' will contain the handed info
 #'         file; 'rank' will contain the taxonomic rank of the specified clade,
 #'         and 'clade' will contain the clade name.
@@ -18,13 +18,13 @@
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
-#' felinae.clade <- get.clade(info=cats.info,
+#' felinae.clade <- get_clade(info=cats.info,
 #' tree=cats, clade="Felinae")
 #'
 #' @export
-get.clade<- function(info, tree, clade){
+get_clade<- function(info, tree, clade){
 
-    rankDF<-info[,c("taxon", randtip.ranks())]
+    rankDF<-info[,c("taxon", randtip_ranks())]
     rankDF.withclade<-as.data.frame(rankDF[,]==clade)
     rankDF.withclade<- as.vector(colSums(rankDF.withclade, na.rm = T))
     ranks<- which(rankDF.withclade>0)
@@ -39,7 +39,7 @@ get.clade<- function(info, tree, clade){
     spss<- info[which(info[,rank]==clade),]
     genera<- unique(spss$genus)
 
-    cut.list<- tree$tip.label[first.word(tree$tip.label)%in% genera]
+    cut.list<- tree$tip.label[first_word(tree$tip.label)%in% genera]
     if(length(cut.list)==0){stop("Specified clade is not reflected in the tree!")}
     if(length(cut.list)==1){stop("Specified clade is represented by a single tip in the phylogeny!")}
     cut.node<- ape::getMRCA(tree, tip = cut.list )
@@ -56,9 +56,9 @@ get.clade<- function(info, tree, clade){
 #' Function to plot a subtree representing a specified clade.
 #'
 #' Plot a phylogenetic tree splitted from the backbone tree
-#' using \code{get.clade} function.
+#' using \code{get_clade} function.
 #'
-#' @param get.clade.out Output from \code{\link{get.clade}} function.
+#' @param get.clade.out Output from \code{\link{get_clade}} function.
 #' @param ppcr.col Color to represent tips included in the specified clade.
 #'                 Default value is green.
 #' @param nonppcr.col Color to represent tips included in a different clade
@@ -69,32 +69,31 @@ get.clade<- function(info, tree, clade){
 #'                    Default value is grey
 #' @param ... Arguments to pass through \code{\link{plot.phylo}} function.
 #'
-#' @return A plot representing the clade specified in \code{\link{get.clade}}
+#' @return A plot representing the clade specified in \code{\link{get_clade}}
 #'         function using the selected colors.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
 #' #First the clade information must be obtained
-#' felinae.clade <- get.clade(info=cats.info,
+#' felinae.clade <- get_clade(info=cats.info,
 #' tree=cats, clade="Felinae")
 #'
 #' #Then it can be plotted
-#' plot.clade(felinae.clade, ppcr.col="green",
+#' plot_clade(felinae.clade, ppcr.col="green",
 #' nonppcr.col="red",unknown.col="grey" )
 #'
-#' @export plot.clade
 #' @export
-plot.clade<- function(get.clade.out, ppcr.col="#4a8a21",
+plot_clade<- function(get.clade.out, ppcr.col="#4a8a21",
                       nonppcr.col="#48bce0",unknown.col="#adadad", ...){
 
     get.clade.names <- c("Tree", "info", "rank", "clade")
     if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.clade.names))){
         stop("Please feed this function with the returned object from ",
-            "get.clade function")
+            "get_clade function")
     }
 
-    tipcol <- clade.col(get.clade.out, ppcr.col=ppcr.col,
+    tipcol <- clade_col(get.clade.out, ppcr.col=ppcr.col,
                       nonppcr.col=nonppcr.col, unknown.col=unknown.col)
 
     return(ape::plot.phylo(get.clade.out$Tree, tip.color = tipcol, ...))
@@ -117,32 +116,32 @@ plot.clade<- function(get.clade.out, ppcr.col="#4a8a21",
 #'
 #' @examples
 #' #Perform a tree expansion
-#' expanded.cats <- rand.tip(input=cats.input,
+#' expanded.cats <- rand_tip(input=cats.input,
 #'  tree=cats, rand.type = "polytomy",
 #'  forceultrametric = T)
 #'
 #' #Set the colours for original tips and bound PUTs
-#' cats.tip.cols <- put.tip.col(newtree = expanded.cats,
+#' cats.tip.cols <- put_tip_col(newtree = expanded.cats,
 #'  oldtree = cats, placed.col="black", put.col="red")
 #'
 #' #Plot the resulting tree visualizing original tips and PUTs
 #' plot.phylo(expanded.cats, tip.color = cats.tip.cols)
 #'
 #' @export
-put.tip.col<- function(newtree, oldtree, placed.col="#adadad", put.col="#C23B23"){
+put_tip_col<- function(newtree, oldtree, placed.col="#adadad", put.col="#C23B23"){
     col<- vector("character", length(newtree$tip.label))
     col[1:length(col)]<- put.col
     col[newtree$tip.label%in%oldtree$tip.label]<-placed.col
     return(col)
 }
 
-clade.col <- function(get.clade.out, ppcr.col="#4a8a21",
+clade_col <- function(get.clade.out, ppcr.col="#4a8a21",
                       nonppcr.col="#48bce0",unknown.col="#adadad"){
 
     get.clade.names <- c("Tree", "info", "rank", "clade")
     if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.clade.names))){
         stop("Please feed this function with the returned object from ",
-            "get.clade function")
+            "get_clade function")
     }
 
     clade.tree<-get.clade.out$Tree
@@ -158,8 +157,8 @@ clade.col <- function(get.clade.out, ppcr.col="#4a8a21",
 
     colours<- vector("character", length(clade.tree$tip.label))
     colours[]<- unknown.col
-    colours[first.word(clade.tree$tip.label)%in%intrudergenera]<- nonppcr.col
-    colours[first.word(clade.tree$tip.label)%in%genera]<- ppcr.col
+    colours[first_word(clade.tree$tip.label)%in%intrudergenera]<- nonppcr.col
+    colours[first_word(clade.tree$tip.label)%in%genera]<- ppcr.col
 
     return(colours)
 

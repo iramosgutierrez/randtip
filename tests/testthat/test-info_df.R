@@ -3,7 +3,7 @@ test_that("duplicated taxa in build info", {
                  "Achyllea_milleifolium", "Rubus_plicatus", "Abies",
                  "Achillum_millefolium", "    Rubus  albiflorus ", "Abies_pinsapo")
 
-    expect_error(build.info(species, mode = "list"), "duplicated")
+    expect_error(build_info(species, mode = "list"), "duplicated")
 })
 
 test_that("suffix in species", {
@@ -12,7 +12,7 @@ test_that("suffix in species", {
     tree$tip.label <- c("Rubus_albiflorus", "Rubus", "Pinus_sp.",
                         "Aa_sp.", "Aa_sp2.")
 
-    info <- build.info(species, tree)
+    info <- build_info(species, tree)
 
     expect_identical(info$taxon, c("Abies_sp.", "Rubus_sp.", "Pinus_sp2.", "Aa_sp3.",
                                  "Rubus_albiflorus", "Pinus_sp.", "Aa_sp.", "Aa_sp2."))
@@ -24,39 +24,28 @@ test_that("genus TRUE for build.info", {
     # Test not genus in species list
     species <- c("Abies", "Rubus", "Pinus", "Aa_sp")
     tree$tip.label <- c("Abies", "Rubus", "Pinus")
-    expect_error(build.info(species, tree,  genus = TRUE), ".*only genera.*")
+    expect_error(build_info(species, tree,  genus = TRUE), ".*only genera.*")
     # Test not genus in tree tip label
     species <- c("Abies", "Rubus", "Pinus", "Aa")
     tree$tip.label <- c("Abies", "Rubus", "Pinus_sp")
-    expect_error(build.info(species, tree,  genus = TRUE), ".*only genera.*")
+    expect_error(build_info(species, tree,  genus = TRUE), ".*only genera.*")
 
 })
 
 test_that("bad input for build.info", {
     species <- as.matrix(c("Abies", "Rubus", "Pinus", "Aa"))
-    expect_error(build.info(species), "character vector")
+    expect_error(build_info(species), "character vector")
 
     species <- cbind(
                     c("Abies", "Rubus", "Pinus", "Aa"),
                     c("Abies", "Rubus", "Pinus", "Aa")
                      )
 
-    expect_error(build.info(as.data.frame(species)), "character vector")
+    expect_error(build_info(as.data.frame(species)), "character vector")
 
 
 })
 
-test_that("name similarity in check.info", {
-    species <- c("Abies_pinsapo", "Abies_alba ", "Pinus_pinaster",
-                 "Achyllea_milleifolium", "Rubus_plicatus", "Abies",
-                 "Achillum_millefolium")
-    tree <- read.tree("../../data-raw/25tree.tre")
-
-    expect_message()
-
-
-
-})
 
 test_that("The following genera were detected as ambiguous or missing", {
   catspecies <- c("Lynx_lynx",
@@ -69,14 +58,14 @@ test_that("The following genera were detected as ambiguous or missing", {
                   "Panthera_leo",
                   "Felis_silvestris")
   
-  expect_message(build.info(catspecies, cats), "ambiguous")
+  expect_message(build_info(catspecies, cats), "ambiguous")
 })
 
 test_that("MDCC search", {
   input <- info2input(mythology$info.list, mythology$back.tree)
   expect_equal(input[input$taxon=="Grindylowia_yorkii","MDCC" ], "Aquatia")
   
-  info <- edit.info(mythology$info.list, "Grindylowia_yorkii", "order", NA )
+  info <- edit_info(mythology$info.list, "Grindylowia_yorkii", "order", NA )
   input <- info2input(info, mythology$back.tree)
   expect_equal(input[input$taxon=="Grindylowia_yorkii","MDCC" ], "Paradoxanimalia")
   

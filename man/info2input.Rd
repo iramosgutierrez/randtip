@@ -13,7 +13,7 @@ parameters.}
 \item{tree}{Backbone tree.}
 }
 \value{
-An 'input' data frame which can be fed to \code{rand.tip} function
+An 'input' data frame which can be fed to \code{rand_tip} function
 alongside with a backbone tree to expand a tree.
 }
 \description{

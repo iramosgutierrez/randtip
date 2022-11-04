@@ -46,11 +46,10 @@
 #' "Felis_silvestris")
 #'
 #' #Create the 'info' file
-#' cats.info <- build.info(species=catspecies, tree= cats,
+#' cats.info <- build_info(species=catspecies, tree= cats,
 #'      find.ranks=TRUE, db="ncbi", mode="backbone")
 #' @export
-#'
-build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backbone",
+build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backbone",
                       interactive=FALSE, genus=FALSE, bind.info=NULL, verbose = T){
 
 
@@ -64,7 +63,7 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
         stop("Species must be provided as a character vector ",
              "or single-column dataframe.")
     }
-    species <- remove.spaces(species)
+    species <- remove_spaces(species)
     duplicated_sp <-  species[duplicated(species)]
     if(length(duplicated_sp)>=1){
         stop("Taxa ", paste0(duplicated_sp, collapse=", ")," are duplicated.")
@@ -89,18 +88,18 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
     spp.in.tree<- tree$tip.label
     spp.original<- species
 
-    if(any(first.word(spp.in.tree)=="X")|any(first.word(spp.in.tree)=="x")){
-        tree$tip.label[first.word(tree$tip.label)=="x"] <-
-            gsub("x_", "X-", tree$tip.label[first.word(tree$tip.label)=="x"])
-        tree$tip.label[first.word(tree$tip.label)=="X"] <-
-            gsub("X_", "X-", tree$tip.label[first.word(tree$tip.label)=="X"])
+    if(any(first_word(spp.in.tree)=="X")|any(first_word(spp.in.tree)=="x")){
+        tree$tip.label[first_word(tree$tip.label)=="x"] <-
+            gsub("x_", "X-", tree$tip.label[first_word(tree$tip.label)=="x"])
+        tree$tip.label[first_word(tree$tip.label)=="X"] <-
+            gsub("X_", "X-", tree$tip.label[first_word(tree$tip.label)=="X"])
     }
 
     if(mode=="backbone"){
          species <- c(species, spp.in.tree[!(spp.in.tree%in%species)])
     }
 
-    names_df <- c("taxon", randtip.ranks(),
+    names_df <- c("taxon", randtip_ranks(),
                   "taxon1", "taxon2", "rand.type", "polyphyly.scheme",
                   "use.paraphyletic", "use.singleton","use.stem",
                   "respect.mono", "respect.para","clump.puts",
@@ -127,7 +126,7 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
         info$taxon[t]<-paste0(info$taxon[t], taxon.suffix.i)
     }
 
-    info$genus<- first.word(species)
+    info$genus<- first_word(species)
     genera <- unique(info$genus)
 
     cols.select <- c("taxon1", "taxon2","rand.type", "polyphyly.scheme",
@@ -135,7 +134,7 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
                     "use.stem","respect.mono","respect.para",
                     "clump.puts", "prob" )
     if(find.ranks){
-        info <- search.taxize(info, genera, interactive, db, verbose=verbose)
+        info <- search_taxize(info, genera, interactive, db, verbose=verbose)
     }
 
     info[!(species %in% spp.original), cols.select] <- "-"
@@ -145,7 +144,7 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
                        is.na(info$family)&is.na(info$superfamily)&is.na(info$order)&
                        is.na(info$class),]
     if(nrow(nonfoundtaxa)>0 & isTRUE(find.ranks)){
-        nonfoundgenera <- unique(first.word(nonfoundtaxa$taxon))
+        nonfoundgenera <- unique(first_word(nonfoundtaxa$taxon))
         message(paste0("The following genera were detected as ambiguous or missing. Please, consider checking them manually.\n"),
                 paste0(nonfoundgenera, "\n"))
     }
@@ -187,26 +186,25 @@ build.info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
-#' cats.checked <- check.info(info=cats.info, tree=cats, sim=0.75)
-#'
+#' cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75)
 #'
 #' @export
-check.info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
+check_info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
 
-    if(file.exists(info)){
+    #if(file.exists(info)){
 
-      if(grep(getwd(), info)==1){filedir <-  info}else{
-        filedir <- paste0(getwd(), "/", info)
-      }
+    #  if(grep(getwd(), info)==1){filedir <-  info}else{
+    #    filedir <- paste0(getwd(), "/", info)
+    #  }
 
-      cat(paste0("Reading info file from\n", filedir))
-      info <- read.table(info)
-      }
+    #  cat(paste0("Reading info file from\n", filedir))
+    #  info <- read.table(info)
+    #  }
 
     if(is.null(info)){stop("Data frame 'info' is missing.")}
     if(is.null(tree)){stop("Backbone tree is missing.")}
 
-    info <- correct.DF(info)
+    info <- correct_DF(info)
     info$keep.tip[is.na(info$keep.tip)] <- "1"
     if(all(info$keep.tip != "1")){
         stop("No species in info with keep.tip equal to '1'.",
@@ -214,13 +212,13 @@ check.info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
             "keep in the final tree.")
     }
 
-    info$taxon<- remove.spaces(info$taxon)
+    info$taxon<- remove_spaces(info$taxon)
     info.taxa <- info$taxon
 
-    tree$tip.label<- remove.spaces(tree$tip.label)
+    tree$tip.label<- remove_spaces(tree$tip.label)
     tree.taxa<- tree$tip.label
 
-    DF <- info[info$keep.tip=="1", c("taxon",randtip.ranks())]
+    DF <- info[info$keep.tip=="1", c("taxon",randtip_ranks())]
     DF$PUT.status <- NA
     DF$Typo<- FALSE
     DF$Typo.names<- NA
@@ -248,7 +246,7 @@ check.info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
     DF$order_phyletic.status<-NA
     DF$class_phyletic.status<-NA
 
-    ranks<-randtip.ranks()
+    ranks<-randtip_ranks()
     for(rank in ranks){
         groups<- notNA(unique(DF[,rank]))
 
@@ -259,7 +257,7 @@ check.info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
                        "|---------|---------|---------|---------|", "\n"))
         }
         for(group in groups){
-          if(isTRUE(find.phyleticity)){phyle.type<- MDCC.phyleticity(info, tree,
+          if(isTRUE(find.phyleticity)){phyle.type<- MDCC_phyleticity(info, tree,
                                           MDCC.info = list("rank"= rank,
                                                            "MDCC"= group))}else{phyle.type <- "unknown"}
             DF[which(DF[,rank]==group),
@@ -327,7 +325,7 @@ check.info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
 #'             parameters.
 #' @param tree Backbone tree.
 #'
-#' @return An 'input' data frame which can be fed to \code{rand.tip} function
+#' @return An 'input' data frame which can be fed to \code{rand_tip} function
 #'         alongside with a backbone tree to expand a tree.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
@@ -339,16 +337,16 @@ check.info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
 #' @export
 info2input<- function(info, tree, verbose=T){
 
-    if(file.exists(info)){
-      if(grep(getwd(), info)==1){filedir <-  info}else{
-        filedir <- paste0(getwd(), "/", info)
-      }
+    #if(file.exists(info)){
+    #  if(grep(getwd(), info)==1){filedir <-  info}else{
+    #    filedir <- paste0(getwd(), "/", info)
+    #  }
+    #
+    #  cat(paste0("Reading info file from\n", filedir))
+    #  info <- read.table(info)
+    #}
 
-      cat(paste0("Reading info file from\n", filedir))
-      info <- read.table(info)
-    }
-
-    input.to.mdcc <- input.to.MDCCfinder(info, tree)
+    input.to.mdcc <- input_to_MDCCfinder(info, tree)
     input <- input.to.mdcc$input
     tree <- input.to.mdcc$tree
     taxon.in.tree <- input.to.mdcc$taxon.in.tree
@@ -372,8 +370,8 @@ info2input<- function(info, tree, verbose=T){
     return(input)
 }
 
-search.taxize <- function(info, genera, interactive, db, verbose=T){
-    searching.categories<- randtip.ranks()[-1]
+search_taxize <- function(info, genera, interactive, db, verbose=T){
+    searching.categories<- randtip_ranks()[-1]
 
     for(i in 1:length(genera)){
         tryCatch({
@@ -426,11 +424,11 @@ search.taxize <- function(info, genera, interactive, db, verbose=T){
 
 # Provides the input to MDCC finder and facilitates unit testing of
 # usingMDCCfinder function in utils source file.
-input.to.MDCCfinder <- function(info, tree){
+input_to_MDCCfinder <- function(info, tree){
 
     input<-info
     input[is.na(input$keep.tip), "keep.tip"]<-"1"
-    input<- correct.DF(input)
+    input<- correct_DF(input)
     input$taxon <- gsub(" ", "_", input$taxon)
 
     if(any(duplicated(input$taxon))){

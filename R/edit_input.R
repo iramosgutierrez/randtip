@@ -17,23 +17,22 @@
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
-#' cats.info <- edit.info(cats.info, taxa= "Puma_concolor",
+#' cats.info <- edit_info(cats.info, taxa= "Puma_concolor",
 #' column = "subfamily", edit = "Felinae")
 #'
-#' @export edit.info
-#' @export
-edit.info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE){
+#' @export 
+edit_info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE){
 
-    if(file.exists(info)){
-      if(grep(getwd(), info)==1){filedir <-  info}else{
-        filedir <- paste0(getwd(), "/", info)
-      }
+    #if(file.exists(info)){
+    #  if(grep(getwd(), info)==1){filedir <-  info}else{
+    #    filedir <- paste0(getwd(), "/", info)
+    #  }
 
-      cat(paste0("Reading info file from\n", filedir))
-      info <- read.table(info)
-    }
+    #  cat(paste0("Reading info file from\n", filedir))
+    #  info <- read.table(info)
+    #}
 
-    info <- correct.DF(info)
+    info <- correct_DF(info)
 
     taxa <- stringr::str_trim(taxa)
     taxa<- gsub(" ", "_", taxa)
@@ -93,21 +92,20 @@ edit.info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE)
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
-#' cats <- edit.tree(cats, tips="Felis_silvestris",
+#' cats <- edit_tree(cats, tips="Felis_silvestris",
 #' edit= "Felis_silvestris_ssp._silvestris")
 #'
-#' @export edit.tree
 #' @export
-edit.tree <- function(tree, tips, edit=NULL, remove.tips=FALSE) {
+edit_tree <- function(tree, tips, edit=NULL, remove.tips=FALSE) {
 
-   if(file.exists(tree)){
-     if(grep(getwd(), tree)==1){filedir <-  tree}else{
-       filedir <- paste0(getwd(), "/", tree)
-     }
-
-     cat(paste0("Reading tree file from\n", filedir))
-     tree <- ape::read.tree(tree)
-   }
+   #if(file.exists(tree)){
+   #  if(grep(getwd(), tree)==1){filedir <-  tree}else{
+   #    filedir <- paste0(getwd(), "/", tree)
+   #  }
+   #
+   #  cat(paste0("Reading tree file from\n", filedir))
+   #  tree <- ape::read.tree(tree)
+   #}
 
     tips<- gsub(" ", "_", tips)
     edit<- gsub(" ", "_", edit)
