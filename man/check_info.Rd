@@ -4,7 +4,7 @@
 \alias{check_info}
 \title{Function to check randtip's files.}
 \usage{
-check_info(info, tree, sim = 0.8, find.phyleticity = T, verbose = T)
+my.check <- check_info(my.info, tree)
 }
 \arguments{
 \item{info}{An 'info' object.}
@@ -15,6 +15,9 @@ check_info(info, tree, sim = 0.8, find.phyleticity = T, verbose = T)
 on tip labels. Default value is 0.8. Similarity is obtained
 with \code{stringsim} function from \code{stringdist} package.
 See \link[stringdist]{stringsim} for details.}
+
+\item{find.phyleticity}{Logical. Should or not the phyletic nature o the
+taxonomic ranks be evaluated.}
 
 \item{verbose}{Logical. Should or not progress be printed.}
 }

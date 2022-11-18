@@ -3,6 +3,8 @@
 #'
 #' Function to create an 'info' object given a list of species.
 #'
+#' @usage my-info <- build_info(species.list, tree, db="gbif", mode="list")
+#'
 #' @param species A character vector or a single-column data frame including
 #'                the species of interest. Word breakers must be blanks (" ")
 #'                or underscores ("_").
@@ -11,7 +13,7 @@
 #' @param find.ranks Logical. If TRUE, taxonomic information will be retrieved to
 #'                   identify supra-generic MDCCs for the PUTs.
 #' @param db Taxonomic data base to search into if \code{find.ranks} is
-#'           set to TRUE.Accepted values are 'ncbi' (default),
+#'           set to TRUE. Accepted values are 'ncbi' (default),
 #'           'itis', 'gbif' and 'bold'.
 #' @param mode If mode is set to "list", the info file will be created
 #'             using only the species given in the \code{species} argument.
@@ -24,9 +26,8 @@
 #' @param genus Logical. Whether or not a genus-level backbone tree is to
 #'              be expanded. If set to TRUE, all tips in the backbone tree
 #'              and taxa in the species vector must represent genera.
-#' @param bind.info A previously created 'info' file to bind after the built
-#'                  one. Rows regarding taxa included in both data frames will
-#'                  be removed from this one.
+#' @param prior.info A previously created 'info' file used to fill blanks
+#'                  previously to the taxonomic database search.
 #' @param verbose Logical. Should or not progress be printed.
 #'
 #' @return A randtip 'info' data frame
@@ -50,7 +51,7 @@
 #'      find.ranks=TRUE, db="ncbi", mode="backbone")
 #' @export
 build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backbone",
-                      interactive=FALSE, genus=FALSE, bind.info=NULL, verbose = T){
+                      interactive=FALSE, genus=FALSE, prior.info=NULL, verbose = T){
 
 
     if(is.data.frame(species)){
@@ -126,13 +127,68 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
         info$taxon[t]<-paste0(info$taxon[t], taxon.suffix.i)
     }
 
-    info$genus<- first_word(species)
+    if(!is.null(prior.info)){
+      if(!all(names(info)==names(prior.info))){
+        stop("Column names of prior.info object do not match an 'info' file
+             column names. Please correct this issue.")
+        }else{
+
+
+          spp.in.prior <- species[species%in%prior.info$taxon]
+
+          spp.gen.in.prior <- species[!(species%in%prior.info$taxon) &
+                                        first_word(species)%in%first_word(prior.info$taxon)]
+          genera.in.prior <- unique(first_word(spp.gen.in.prior))
+
+
+          if(length(spp.in.prior)>0){
+            prior.info.cut <- prior.info[prior.info$taxon%in%spp.in.prior,]
+            v.spp<- order(spp.in.prior)
+
+            prior.info.cut <-prior.info.cut[v.spp,]
+
+            info[info$taxon%in% prior.info.cut$taxon,]<- prior.info.cut
+
+
+
+            ord1 <- match(spp.original, info$taxon)
+            ord2 <- match(info$taxon[!(info$taxon%in%spp.original)], info$taxon)
+            info <- info[c(ord1,ord2),]
+
+            }
+            #fill in taxonomic information with that included in prior.info
+
+          if(length(genera.in.prior)>0){for(gen in genera.in.prior){
+            gen.sp <- spp.gen.in.prior[first_word(spp.gen.in.prior)==gen]
+            prior.info.cut <- prior.info[first_word(prior.info$taxon)==gen,1:9]
+
+            if(nrow(unique(prior.info.cut[,3:9]))==1){
+              info[info$taxon%in%gen.sp, 3:9] <- unique(prior.info.cut[,3:9])
+            }
+
+
+          }} #fill information of included genera species, only if information is always equal
+
+
+
+
+        }
+
+    }#include information from prior.info
+
+    info$genus<- first_word(info$taxon)
     genera <- unique(info$genus)
+    if(!is.null(prior.info)){
+      unmatched <- info[which(rowSums(is.na(info[,3:9]))==7),]
+      genera <- unique(first_word(unmatched$taxon))
+    }#search only for unmatched genera
 
     cols.select <- c("taxon1", "taxon2","rand.type", "polyphyly.scheme",
                     "use.paraphyletic", "use.singleton",
                     "use.stem","respect.mono","respect.para",
                     "clump.puts", "prob" )
+
+
     if(find.ranks){
         info <- search_taxize(info, genera, interactive, db, verbose=verbose)
     }
@@ -149,17 +205,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
                 paste0(nonfoundgenera, "\n"))
     }
 
-    if(!is.null(bind.info)){
-      if(!all(names(info)==names(bind.info))){
-        warning("Column names of bind.info object do not match an 'info' file column names.
-             Please correct this issue and combine them using 'rbind' function")
-        return(info)}else{
-          bind.info.cut <- bind.info[!(bind.info$taxon %in% info$taxon),]
-          info <- rbind(info, bind.info.cut)
-          return(info)
-      }
 
-    }
     return(info)
 }
 
@@ -171,12 +217,16 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' spelling errors, putative MDCCs and the phyletic nature of
 #' groups of PPCR species.
 #'
+#' @usage my.check <- check_info(my.info, tree)
+#'
 #' @param info An 'info' object.
 #' @param tree The original backbone tree.
 #' @param sim Name similarity threshold to detect possible misspellings
 #'            on tip labels. Default value is 0.8. Similarity is obtained
 #'            with \code{stringsim} function from \code{stringdist} package.
 #'            See \link[stringdist]{stringsim} for details.
+#' @param find.phyleticity Logical. Should or not the phyletic nature o the
+#'            taxonomic ranks be evaluated.
 #' @param verbose Logical. Should or not progress be printed.
 #'
 #' @return A data frame containing possible typographic errors,

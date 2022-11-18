@@ -4,17 +4,7 @@
 \alias{build_info}
 \title{Create a 'info' data frame.}
 \usage{
-build_info(
-  species,
-  tree = NULL,
-  find.ranks = TRUE,
-  db = "ncbi",
-  mode = "backbone",
-  interactive = FALSE,
-  genus = FALSE,
-  bind.info = NULL,
-  verbose = T
-)
+my-info <- build_info(species.list, tree, db="gbif", mode="list")
 }
 \arguments{
 \item{species}{A character vector or a single-column data frame including
@@ -28,7 +18,7 @@ or underscores ("_").}
 identify supra-generic MDCCs for the PUTs.}
 
 \item{db}{Taxonomic data base to search into if \code{find.ranks} is
-set to TRUE.Accepted values are 'ncbi' (default),
+set to TRUE. Accepted values are 'ncbi' (default),
 'itis', 'gbif' and 'bold'.}
 
 \item{mode}{If mode is set to "list", the info file will be created
@@ -45,9 +35,8 @@ information.}
 be expanded. If set to TRUE, all tips in the backbone tree
 and taxa in the species vector must represent genera.}
 
-\item{bind.info}{A previously created 'info' file to bind after the built
-one. Rows regarding taxa included in both data frames will
-be removed from this one.}
+\item{prior.info}{A previously created 'info' file used to fill blanks
+previously to the taxonomic database search.}
 
 \item{verbose}{Logical. Should or not progress be printed.}
 }
