@@ -87,143 +87,144 @@ inputfinder<- function(input, taxon, column){
 }
 
 usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
-
+    
     if(is.null(taxon)){taxon<- input$taxon}
     input<-correct_DF(input)
     MDCC.vect<- vector( mode="character", length = length(taxon))
     MDCC.lev.vect<- vector(mode="character", length = length(taxon))
-
-
+    
+    
     if(!silent){cat(paste0("Searching MDCCs...\n"))}
-
+    
     #manual MDCC search
     taxa <- input[!(input$taxon %in% tree$tip.label),]
     taxa<- taxa[!is.na(taxa$taxon1)|!is.na(taxa$taxon2),]
     if(nrow(taxa)>0){
         for(tx in seq_along(taxa$taxon)){
             if(length(strsplit(taxa$taxon1[tx], "_")[[1]])==1 &
-                      length(strsplit(taxa$taxon2[tx], "_")[[1]])==1 &
-                      taxa$taxon1[tx]==taxa$taxon2[tx] &
-                      length(sp_genus_in_tree(tree, taxa$taxon1[tx]))>0){
-
+               length(strsplit(taxa$taxon2[tx], "_")[[1]])==1 &
+               taxa$taxon1[tx]==taxa$taxon2[tx] &
+               length(sp_genus_in_tree(tree, taxa$taxon1[tx]))>0){
+                
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon1[tx]
                 MDCC.lev.vect[pos] <- "Sister genus"
                 #MDCC.phyletictype.vect[pos]<-"-"
                 next
             }
-
+            
             if(!(any(tree$tip.label == taxa$taxon1[tx]))){taxa$taxon1[tx]<-NA}
             if(!(any(tree$tip.label == taxa$taxon2[tx]))){taxa$taxon2[tx]<-NA}
-
-            if(any(tree$tip.label == taxa$taxon1[tx]) &
-                      any(tree$tip.label == taxa$taxon2[tx]) &
-                      taxa$taxon1[tx]==taxa$taxon2[tx]){
-
+            
+            if(any(tree$tip.label == taxa$taxon1[tx], na.rm = TRUE) &
+               any(tree$tip.label == taxa$taxon2[tx], na.rm = TRUE) &
+               taxa$taxon1[tx]==taxa$taxon2[tx]){
+                
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon1[tx]
                 MDCC.lev.vect[pos] <- "Sister species"
-
+                
                 next
             }
-
-            if(any(tree$tip.label == taxa$taxon1[tx]) &
-                      any(tree$tip.label == taxa$taxon2[tx]) &
-                      taxa$taxon1[tx]!=taxa$taxon2[tx]){
-
+            
+            if(any(tree$tip.label == taxa$taxon1[tx], na.rm = TRUE) &
+               any(tree$tip.label == taxa$taxon2[tx], na.rm = TRUE) &
+               taxa$taxon1[tx]!=taxa$taxon2[tx]){
+                
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- paste0("Clade ", taxa$taxon1[tx], "-", taxa$taxon2[tx])
                 MDCC.lev.vect[pos] <- "Manual setting"
-
+                
                 next
             }
-
-            if(any(tree$tip.label == taxa$taxon1[tx]) &
-                      is.na(taxa$taxon2[tx])){
-
+            
+            if(any(tree$tip.label == taxa$taxon1[tx], na.rm = TRUE) &
+               is.na(taxa$taxon2[tx])){
+                
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon1[tx]
                 MDCC.lev.vect[pos] <- "Sister species"
                 next
             }
-
-            if(any(tree$tip.label == taxa$taxon2[tx]) &
-                      is.na(taxa$taxon1[tx])){
-
+            
+            if(any(tree$tip.label == taxa$taxon2[tx], na.rm = TRUE) &
+               is.na(taxa$taxon1[tx])){
+                
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon2[tx]
                 MDCC.lev.vect[pos] <- "Sister species"
                 next
             }
-
+            
         }
     }
-
+    
     #automatic MDCC search
     ranks<- randtip_ranks()
     taxa<- input[!(!is.na(input$taxon1)|!is.na(input$taxon2)),]
-
+    
     if(nrow(taxa)>0){
         vect<- which(taxon%in%taxa$taxon)
         for(v in vect){
-
+            
             if(!silent){
-
+                
                 if(v==vect[1]){
                     cat(paste0("0%       25%       50%       75%       100%", "\n",
-                        "|---------|---------|---------|---------|",   "\n"))
+                               "|---------|---------|---------|---------|",   "\n"))
                 }
-
+                
                 vec<- seq(from=0, to=40, by=40/length(vect))
                 vec<-ceiling(vec)
                 vec<- diff(vec)
                 cat(strrep("*", times=vec[which(vect==v)]))
-
+                
                 if(v ==vect[length(vect)]){cat("*\n")}
-
+                
             }
-
+            
             if(any(tree$tip.label == taxon[v])){
-              MDCC.vect[v]<- "Tip"
-              MDCC.lev.vect[v]<-"Tip"
-              next
+                MDCC.vect[v]<- "Tip"
+                MDCC.lev.vect[v]<-"Tip"
+                next
             }
-
+            
             i<- which(input$taxon==taxon[v])
             if((MDCC.vect[v])==""){
-
+                
                 MDCC<-as.character(NA)
                 MDCC.ranks<-as.character(NA)
-
+                
                 for(rank in ranks){
                     if(is.na(MDCC)){
                         MDCC<-as.character(input[i, rank])
                         if(!is.na(MDCC)){
-                          #  phyleticity<-MDCC_phyleticity(input, tree = tree,
-                          #          MDCC.info = list(rank=rank, MDCC= MDCC))
-                          # if(phyleticity=="Missing"){MDCC<-NA}
-                          #supressed for optimization
-
-                          treegenera <- unique(first_word(tree$tip.label))
-                          tree.input <- input[first_word(input$taxon)%in%treegenera,]
-                          tree.input <- tree.input[!is.na(tree.input[,rank]),]
-                          {if(sum(tree.input[, rank]==MDCC)==0){MDCC<-NA}}
-
-                          }
-
+                            #  phyleticity<-MDCC_phyleticity(input, tree = tree,
+                            #          MDCC.info = list(rank=rank, MDCC= MDCC))
+                            # if(phyleticity=="Missing"){MDCC<-NA}
+                            #supressed for optimization
+                            
+                            treegenera <- unique(first_word(tree$tip.label))
+                            tree.input <- input[first_word(input$taxon)%in%treegenera,]
+                            tree.input <- tree.input[!is.na(tree.input[,rank]),]
+                            {if(sum(tree.input[, rank]==MDCC)==0){MDCC<-NA}}
+                            
+                        }
+                        
                         lev<-rank
                     }else{next}
                 }
                 MDCC.vect[v]<-as.character(MDCC)
                 MDCC.lev.vect[v]<-as.character(lev)
                 if(is.na(MDCC)){MDCC.lev.vect[v]<-NA}
-
+                
             }
         }
     }
-
+    
     return(list(MDCC=MDCC.vect,MDCC.ranks=MDCC.lev.vect) )
 }
+
 
 get_parent_siblings <- function(tree, tip){
     tree.sp <- tree$tip.label
