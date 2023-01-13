@@ -7,8 +7,8 @@
 \format{
 a 'info' data frame
 \describe{
-Data frame with taxonomic information on the 655 species of birds included on
-'birds' object. This object was created after 'ncbi' database taxonomy.
+Data frame with taxonomic information on the 9993 species of birds included in
+'birds' object. This object was mainly created after 'ncbi' database taxonomy.
 
 }
 }

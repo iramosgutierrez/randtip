@@ -7,14 +7,15 @@
 \format{
 a Phylo object
 \describe{
-Phylogenetic tree comprising 74531 species of vascular plants.
-Data obtained from https://github.com/jinyizju/V.PhyloMaker/tree/master/data
+Phylogenetic tree comprising 73013 species of vascular plants.
+Data obtained from https://github.com/megatrees/plant_20221214
 }
 }
 \usage{
 plants
 }
 \description{
-Phylogenetic tree obtained from Jin & Quian (2019), based on Smith & Brown (2018) and Zanne et al. (2014).
+Phylogenetic tree obtained from Jin & Quian (2022), based on Smith & Brown (2018) and Zanne et al. (2014).
+Nomenclature stands for World Checklist of Vascular Plants (WCVP).
 }
 \keyword{datasets}

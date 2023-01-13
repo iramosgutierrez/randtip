@@ -29,36 +29,37 @@
 
 #' birds
 #'
-#' Phylogenetic tree obtained from Kimball et al. (2019).
+#' Phylogenetic tree based in Jetz et al. (2012).
 #'
 #' @format a Phylo object
 #' \describe{
-#' Phylogenetic tree comprising 655 species of birds.
-#' Data obtained from https://doi.org/10.3390/d11070109
+#' Phylogenetic tree comprising 9993 species of birds.
+#' Data obtained from https://github.com/megatrees/bird_20221117
 #' }
 "birds"
 
 
 #' plants
 #'
-#' Phylogenetic tree obtained from Jin & Quian (2019), based on Smith & Brown (2018) and Zanne et al. (2014).
+#' Phylogenetic tree obtained from Jin & Quian (2022), based on Smith & Brown (2018) and Zanne et al. (2014).
+#' Nomenclature stands for World Checklist of Vascular Plants (WCVP).
 #'
 #' @format a Phylo object
 #' \describe{
-#' Phylogenetic tree comprising 74531 species of vascular plants.
-#' Data obtained from https://github.com/jinyizju/V.PhyloMaker/tree/master/data
+#' Phylogenetic tree comprising 73013 species of vascular plants.
+#' Data obtained from https://github.com/megatrees/plant_20221214
 #' }
 "plants"
 
 
 #' fish
 #'
-#' Phylogenetic tree obtained from The Fish Tree of Life.
+#' Phylogenetic tree obtained from Rabosky et al. (2018).
 #'
 #' @format a Phylo object
 #' \describe{
-#' Phylogenetic tree comprising 11638 species of birds.
-#' Data obtained from https://fishtreeoflife.org/downloads/
+#' Phylogenetic tree comprising 31521 species of fish
+#' Data obtained from https://github.com/megatrees/fish_20221117
 #' }
 "fish"
 
@@ -69,8 +70,8 @@
 #'
 #' @format a Phylo object
 #' \describe{
-#' Phylogenetic tree comprising 4099 species of mammals.
-#' Data obtained from https://doi.org/10.1371/journal.pbio.3000494
+#' Phylogenetic tree comprising 5911 species of mammals.
+#' Data obtained from https://github.com/megatrees/mammal_20221117
 #' }
 "mammals"
 
@@ -87,14 +88,26 @@
 "squamates"
 
 
+#' amphibians
+#'
+#' Phylogenetic tree obtained from Jetz & Pyron, (2018).
+#'
+#' @format a Phylo object
+#' \describe{
+#' Phylogenetic tree comprising 7238 species of amphibians
+#' Data obtained from https://github.com/megatrees/amphibian_20221117
+#' }
+"amphibians"
+
+
 #' birds.info
 #'
 #' randtip 'info' file created after birds phylogeny
 #'
 #' @format a 'info' data frame
 #' \describe{
-#' Data frame with taxonomic information on the 655 species of birds included on
-#' 'birds' object. This object was created after 'ncbi' database taxonomy.
+#' Data frame with taxonomic information on the 9993 species of birds included in
+#' 'birds' object. This object was mainly created after 'ncbi' database taxonomy.
 #'
 #' }
 "birds.info"
@@ -106,8 +119,8 @@
 #'
 #' @format a 'info' data frame
 #' \describe{
-#' Data frame with taxonomic information on the 74531 species of vascular plants
-#'  included on 'plants' object. This object was created after 'ncbi' database taxonomy.
+#' Data frame with taxonomic information on the 73013 species of vascular plants
+#'  included in 'plants' object. This object was mainly created after 'ncbi' database taxonomy.
 #'
 #' }
 "plants.info"
@@ -119,8 +132,8 @@
 #'
 #' @format a 'info' data frame
 #' \describe{
-#' Data frame with taxonomic information on the 11638 species of vascular fish
-#'  included on 'fish' object. This object was created after 'ncbi' database taxonomy.
+#' Data frame with taxonomic information on the 31521 species of vascular fish
+#'  included in 'fish' object. This object was created after The Fish Tree of Life taxonomy.
 #'
 #' }
 "fish.info"
@@ -131,8 +144,8 @@
 #'
 #' @format a 'info' data frame
 #' \describe{
-#' Data frame with taxonomic information on the 4099 species of vascular mammals
-#'  included on 'mammals' object. This object was created after 'ncbi' database taxonomy.
+#' Data frame with taxonomic information on the 5911 species of vascular mammals
+#'  included in 'mammals' object. This object was mainly created after 'ncbi' database taxonomy.
 #'
 #' }
 "mammals.info"
@@ -144,8 +157,21 @@
 #'
 #' @format a 'info' data frame
 #' \describe{
-#' Data frame with taxonomic information on the 4161 species of vascular squamates
-#'  included on 'squamates' object. This object was created after 'ncbi' database taxonomy.
+#' Data frame with taxonomic information on the 4161 species of squamates
+#'  included in 'squamates' object. This object was created after 'ncbi' database taxonomy.
 #'
 #' }
 "squamates.info"
+
+
+#' amphibians.info
+#'
+#' randtip 'info' file created after amphibians phylogeny
+#'
+#' @format a 'info' data frame
+#' \describe{
+#' Data frame with taxonomic information on the 7238 species of amphibians
+#'  included in 'amphibians' object. This object was created after 'ncbi' database taxonomy.
+#'
+#' }
+"amphibians.info"

@@ -7,8 +7,8 @@
 \format{
 a Phylo object
 \describe{
-Phylogenetic tree comprising 4099 species of mammals.
-Data obtained from https://doi.org/10.1371/journal.pbio.3000494
+Phylogenetic tree comprising 5911 species of mammals.
+Data obtained from https://github.com/megatrees/mammal_20221117
 }
 }
 \usage{

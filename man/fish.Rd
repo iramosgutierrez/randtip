@@ -7,14 +7,14 @@
 \format{
 a Phylo object
 \describe{
-Phylogenetic tree comprising 11638 species of birds.
-Data obtained from https://fishtreeoflife.org/downloads/
+Phylogenetic tree comprising 31521 species of fish
+Data obtained from https://github.com/megatrees/fish_20221117
 }
 }
 \usage{
 fish
 }
 \description{
-Phylogenetic tree obtained from The Fish Tree of Life.
+Phylogenetic tree obtained from Rabosky et al. (2018).
 }
 \keyword{datasets}

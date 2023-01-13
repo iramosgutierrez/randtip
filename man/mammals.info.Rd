@@ -7,8 +7,8 @@
 \format{
 a 'info' data frame
 \describe{
-Data frame with taxonomic information on the 4099 species of vascular mammals
-included on 'mammals' object. This object was created after 'ncbi' database taxonomy.
+Data frame with taxonomic information on the 5911 species of vascular mammals
+included in 'mammals' object. This object was mainly created after 'ncbi' database taxonomy.
 
 }
 }

@@ -7,8 +7,8 @@
 \format{
 a 'info' data frame
 \describe{
-Data frame with taxonomic information on the 4161 species of vascular squamates
-included on 'squamates' object. This object was created after 'ncbi' database taxonomy.
+Data frame with taxonomic information on the 4161 species of squamates
+included in 'squamates' object. This object was created after 'ncbi' database taxonomy.
 
 }
 }
