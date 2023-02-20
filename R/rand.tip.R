@@ -96,7 +96,7 @@ rand_tip <- function(input, tree,rand.type = "random",
     new.tree <- tree
     if(is.null(tree$edge.length)){new.tree$edge.length<-rep(1, nrow(new.tree$edge))}
 
-    if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree)}
+    if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree, method = "extend")}
     if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
         message("The backbone tree is not ultrametric.",
                 "\nPlease, set the argument 'forceultrametric' to TRUE if the tree is genuinely ultrametric.")
