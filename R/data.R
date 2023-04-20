@@ -46,7 +46,7 @@
 #'
 #' @format a Phylo object
 #' \describe{
-#' Phylogenetic tree comprising 73013 species of vascular plants.
+#' Phylogenetic tree comprising 73011 species of vascular plants.
 #' Data obtained from https://github.com/megatrees/plant_20221214
 #' }
 "plants"
