@@ -95,8 +95,16 @@ plot_clade<- function(get.clade.out, ppcr.col="#4a8a21",
 
     tipcol <- clade_col(get.clade.out, ppcr.col=ppcr.col,
                       nonppcr.col=nonppcr.col, unknown.col=unknown.col)
+    legcols <- c(ppcr.col, nonppcr.col, unknown.col)
+    legnames<- c("PPCR taxa", "Non-PPCR taxa", "Unknown")
 
-    return(ape::plot.phylo(get.clade.out$Tree, tip.color = tipcol, ...))
+
+    ape::plot.phylo(get.clade.out$Tree, tip.color = tipcol, ...)
+    legend("topright", legend = legnames, border = legcols, fill=legcols,
+           cex = 0.7, bty = "n",  title = paste0(get.clade.out$clade, " ",
+                                                 get.clade.out$rank))
+
+
 }
 
 #' Get PUT or placed color pattern

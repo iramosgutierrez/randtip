@@ -3,7 +3,7 @@
 #'
 #' Function to create an 'info' object given a list of species.
 #'
-#' @usage my-info <- build_info(species.list, tree, db="gbif", mode="list")
+#' @usage my.info <- build_info(species.list, tree, db="gbif", mode="list")
 #'
 #' @param species A character vector or a single-column data frame including
 #'                the species of interest. Word breakers must be blanks (" ")
