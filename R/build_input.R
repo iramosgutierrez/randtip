@@ -225,7 +225,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #'            misspelling on tip labels. This match lookup will be performed for
 #'            all PUTs using all tree tips.
 #' @param sim Name similarity threshold to detect possible misspellings
-#'            on tip labels. Default value is 0.8. Similarity is obtained
+#'            on tip labels. Default value is 0.85. Similarity is obtained
 #'            with \code{stringsim} function from \code{stringdist} package.
 #'            See \link[stringdist]{stringsim} for details.
 #' @param find.phyleticity Logical. Should or not the phyletic nature o the
@@ -242,7 +242,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75)
 #'
 #' @export
-check_info<- function(info, tree, sim=0.8, find.phyleticity=T,search.typos =T, verbose=T){
+check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, verbose=T){
 
     #if(file.exists(info)){
 
