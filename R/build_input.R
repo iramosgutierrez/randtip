@@ -195,6 +195,9 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 
     info[!(species %in% spp.original), cols.select] <- "-"
     info$keep.tip <- ifelse(species %in% spp.original, 1, 0)
+    for(rank in randtip_ranks()){
+      info[,rank] <- gsub(" ", "_", info[,rank])
+    }
 
     nonfoundtaxa<-info[is.na(info$subtribe)&is.na(info$tribe)&is.na(info$subfamily)&
                        is.na(info$family)&is.na(info$superfamily)&is.na(info$order)&
