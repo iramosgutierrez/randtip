@@ -87,15 +87,15 @@ inputfinder<- function(input, taxon, column){
 }
 
 usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
-    
+
     if(is.null(taxon)){taxon<- input$taxon}
     input<-correct_DF(input)
     MDCC.vect<- vector( mode="character", length = length(taxon))
     MDCC.lev.vect<- vector(mode="character", length = length(taxon))
-    
-    
+
+
     if(!silent){cat(paste0("Searching MDCCs...\n"))}
-    
+
     #manual MDCC search
     taxa <- input[!(input$taxon %in% tree$tip.label),]
     taxa<- taxa[!is.na(taxa$taxon1)|!is.na(taxa$taxon2),]
@@ -105,96 +105,96 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                length(strsplit(taxa$taxon2[tx], "_")[[1]])==1 &
                taxa$taxon1[tx]==taxa$taxon2[tx] &
                length(sp_genus_in_tree(tree, taxa$taxon1[tx]))>0){
-                
+
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon1[tx]
                 MDCC.lev.vect[pos] <- "Sister genus"
                 #MDCC.phyletictype.vect[pos]<-"-"
                 next
             }
-            
+
             if(!(any(tree$tip.label == taxa$taxon1[tx]))){taxa$taxon1[tx]<-NA}
             if(!(any(tree$tip.label == taxa$taxon2[tx]))){taxa$taxon2[tx]<-NA}
-            
+
             if(any(tree$tip.label == taxa$taxon1[tx], na.rm = TRUE) &
                any(tree$tip.label == taxa$taxon2[tx], na.rm = TRUE) &
                taxa$taxon1[tx]==taxa$taxon2[tx]){
-                
+
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon1[tx]
                 MDCC.lev.vect[pos] <- "Sister species"
-                
+
                 next
             }
-            
+
             if(any(tree$tip.label == taxa$taxon1[tx], na.rm = TRUE) &
                any(tree$tip.label == taxa$taxon2[tx], na.rm = TRUE) &
                taxa$taxon1[tx]!=taxa$taxon2[tx]){
-                
+
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- paste0("Clade ", taxa$taxon1[tx], "-", taxa$taxon2[tx])
                 MDCC.lev.vect[pos] <- "Manual setting"
-                
+
                 next
             }
-            
+
             if(any(tree$tip.label == taxa$taxon1[tx], na.rm = TRUE) &
                is.na(taxa$taxon2[tx])){
-                
+
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon1[tx]
                 MDCC.lev.vect[pos] <- "Sister species"
                 next
             }
-            
+
             if(any(tree$tip.label == taxa$taxon2[tx], na.rm = TRUE) &
                is.na(taxa$taxon1[tx])){
-                
+
                 pos<- which(taxon==taxa$taxon[tx])
                 MDCC.vect[pos] <- taxa$taxon2[tx]
                 MDCC.lev.vect[pos] <- "Sister species"
                 next
             }
-            
+
         }
     }
-    
+
     #automatic MDCC search
     ranks<- randtip_ranks()
     taxa<- input[!(!is.na(input$taxon1)|!is.na(input$taxon2)),]
-    
+
     if(nrow(taxa)>0){
         vect<- which(taxon%in%taxa$taxon)
         for(v in vect){
-            
+
             if(!silent){
-                
+
                 if(v==vect[1]){
                     cat(paste0("0%       25%       50%       75%       100%", "\n",
                                "|---------|---------|---------|---------|",   "\n"))
                 }
-                
+
                 vec<- seq(from=0, to=40, by=40/length(vect))
                 vec<-ceiling(vec)
                 vec<- diff(vec)
                 cat(strrep("*", times=vec[which(vect==v)]))
-                
+
                 if(v ==vect[length(vect)]){cat("*\n")}
-                
+
             }
-            
+
             if(any(tree$tip.label == taxon[v])){
                 MDCC.vect[v]<- "Tip"
                 MDCC.lev.vect[v]<-"Tip"
                 next
             }
-            
+
             i<- which(input$taxon==taxon[v])
             if((MDCC.vect[v])==""){
-                
+
                 MDCC<-as.character(NA)
                 MDCC.ranks<-as.character(NA)
-                
+
                 for(rank in ranks){
                     if(is.na(MDCC)){
                         MDCC<-as.character(input[i, rank])
@@ -203,25 +203,25 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
                             #          MDCC.info = list(rank=rank, MDCC= MDCC))
                             # if(phyleticity=="Missing"){MDCC<-NA}
                             #supressed for optimization
-                            
+
                             treegenera <- unique(first_word(tree$tip.label))
                             tree.input <- input[first_word(input$taxon)%in%treegenera,]
                             tree.input <- tree.input[!is.na(tree.input[,rank]),]
                             {if(sum(tree.input[, rank]==MDCC)==0){MDCC<-NA}}
-                            
+
                         }
-                        
+
                         lev<-rank
                     }else{next}
                 }
                 MDCC.vect[v]<-as.character(MDCC)
                 MDCC.lev.vect[v]<-as.character(lev)
                 if(is.na(MDCC)){MDCC.lev.vect[v]<-NA}
-                
+
             }
         }
     }
-    
+
     return(list(MDCC=MDCC.vect,MDCC.ranks=MDCC.lev.vect) )
 }
 
@@ -853,7 +853,7 @@ bind_clump<- function(new.tree, tree, input, PUT){
 }
 
 
-add_to_singleton <- function(tree, singleton, new.tips, use.singleton=F, respect.mono=F, respect.para=F){
+add_to_singleton <- function(tree, singleton, new.tips, use.singleton=F){
     singleton<-gsub(" ", "_", singleton)
     singleton<-singleton[singleton%in%tree$tip.label]
 
@@ -861,78 +861,36 @@ add_to_singleton <- function(tree, singleton, new.tips, use.singleton=F, respect
 
     if(length(singleton)==1){
 
-        node<-which(new.tree$tip.label==singleton)
+        nodes<-which(new.tree$tip.label==singleton)
+        if(!(use.singleton)){
+          if(!(isRoot(new.tree, nodes))){
+            parent<- get_parent_siblings(new.tree, nodes)[[1]]
+            nodes <- c(nodes, parent)}
+          }
 
-        if(use.singleton){
-            pos<- binding_position(new.tree, node = node, insertion = "random",prob = T)
-            new.tree <- phytools::bind.tip(new.tree,
-                                          new.tips,
-                                          edge.length = pos$length,
-                                          where = pos$where,
-                                          position = pos$position)
-        }
-        if(isFALSE(use.singleton)){
-            if(!(isRoot(new.tree, node))){
-                parent<- get_parent_siblings(new.tree, node)[[1]]
-                if(isFALSE(respect.mono)){nodes<- phytools::getDescendants(new.tree, parent)}
-                if(respect.mono){
-                    nodes<- get_permitted_nodes(new.tree, parent)
-                    nodes<- nodes[nodes!=parent]
-                    if(length(nodes)==0){nodes<-node}
-                 }
-            }else{
-                nodes<-node
-            }
-            pos<- binding_position(new.tree, node = sample(nodes,1), insertion = "random",prob = T)
-            new.tree <- phytools::bind.tip(new.tree,
-                                          new.tips,
-                                          edge.length = pos$length,
-                                          where = pos$where,
-                                          position = pos$position)
-        }
-    }
+     }
 
     if(length(singleton)> 1){
-        node<-which(new.tree$tip.label%in%singleton)
+        nodes<-which(new.tree$tip.label%in%singleton)
         mrca<- ape::getMRCA(new.tree, singleton)
-
-        if(use.singleton){
-            nodes<- c(mrca, node)
-            pos<- binding_position(new.tree, node = sample(nodes,1), insertion = "random",prob = T)
-            new.tree <- phytools::bind.tip(new.tree,
-                                          new.tips,
-                                          edge.length = pos$length,
-                                          where = pos$where,
-                                          position = pos$position)
-        }
-        if(isFALSE(use.singleton)){
-            if(!(isRoot(new.tree, mrca))){
-                parent<- get_parent_siblings(new.tree, mrca)[[1]]
-                if(isFALSE(respect.mono)){
-                    nodes<- phytools::getDescendants(new.tree, parent)
-                }
-                if(respect.mono & isFALSE(respect.para)){
-                    nodes<-get_permitted_nodes(new.tree, mrca, respect.para = F)
-                }
-                if(respect.mono & respect.para ){
-                    nodes<-get_permitted_nodes(new.tree, mrca, respect.para = T)
-                }
-
-              nodes<- nodes[nodes!=parent]
-              if(length(nodes)==0){nodes<-c(node,mrca)}
-            }else{
-                nodes<-c(node,mrca)
-            }
-
-            pos<- binding_position(new.tree, node = sample(nodes,1), insertion = "random",prob = TRUE)
-            new.tree <- phytools::bind.tip(new.tree,
-                                          new.tips,
-                                          edge.length = pos$length,
-                                          where = pos$where,
-                                          position = pos$position)
-        }
-
+        nodes<- c(mrca, nodes)
     }
+    adding.DF<- data.frame("parent"=new.tree$edge[,1], "node"=new.tree$edge[,2],
+                           "length"= new.tree$edge.length )
+    adding.DF<- adding.DF[adding.DF$node %in% nodes,]
+    adding.DF$id<- 1:nrow(adding.DF)
+
+    node<-sample(adding.DF$node, 1, prob = adding.DF$length)
+
+
+      pos<- binding_position(new.tree, node = nodes, insertion = "random",prob = T)
+      new.tree <- phytools::bind.tip(new.tree,
+                                     new.tips,
+                                     edge.length = pos$length,
+                                     where = pos$where,
+                                     position = pos$position)
+
+
 
     return(new.tree)
 }
