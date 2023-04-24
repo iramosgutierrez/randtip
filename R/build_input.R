@@ -3,7 +3,7 @@
 #'
 #' Function to create an 'info' object given a list of species.
 #'
-#' @usage my-info <- build_info(species.list, tree, db="gbif", mode="list")
+#' @usage my.info <- build_info(species.list, tree, db="gbif", mode="list")
 #'
 #' @param species A character vector or a single-column data frame including
 #'                the species of interest. Word breakers must be blanks (" ")
@@ -195,6 +195,9 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 
     info[!(species %in% spp.original), cols.select] <- "-"
     info$keep.tip <- ifelse(species %in% spp.original, 1, 0)
+    for(rank in randtip_ranks()){
+      info[,rank] <- gsub(" ", "_", info[,rank])
+    }
 
     nonfoundtaxa<-info[is.na(info$subtribe)&is.na(info$tribe)&is.na(info$subfamily)&
                        is.na(info$family)&is.na(info$superfamily)&is.na(info$order)&
@@ -221,8 +224,11 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #'
 #' @param info An 'info' object.
 #' @param tree The original backbone tree.
+#' @param search.typos Logical. Should or not the function search for possible
+#'            misspelling on tip labels. This match lookup will be performed for
+#'            all PUTs using all tree tips.
 #' @param sim Name similarity threshold to detect possible misspellings
-#'            on tip labels. Default value is 0.8. Similarity is obtained
+#'            on tip labels. Default value is 0.85. Similarity is obtained
 #'            with \code{stringsim} function from \code{stringdist} package.
 #'            See \link[stringdist]{stringsim} for details.
 #' @param find.phyleticity Logical. Should or not the phyletic nature o the
@@ -239,7 +245,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75)
 #'
 #' @export
-check_info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
+check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, verbose=T){
 
     #if(file.exists(info)){
 
@@ -276,6 +282,11 @@ check_info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
     DF$PUT.status <- ifelse(DF$taxon %in% tree.taxa, "Tip", "PUT")
 
     # Look for name similarities
+    if(search.typos){
+    if(verbose){
+      cat(paste0("Searching for possible misspellings\n"))
+      putlength <- length(which(DF$PUT.status == "PUT"))
+      }
     for(i in which(DF$PUT.status == "PUT")){
         tax<-DF$taxon[i]
         sim.search<-tree.taxa[stringdist::stringsim(tree.taxa,tax)>sim]
@@ -283,8 +294,27 @@ check_info<- function(info, tree, sim=0.8, find.phyleticity=T, verbose=T){
             DF$Typo[i]<- TRUE
             sim.search<-paste0(sim.search, collapse = " / ")
             DF$Typo.names[i]<- sim.search
-        }
+         }
+        if(verbose){
+          if (i == which(DF$PUT.status == "PUT")[1]) {
+            cat(paste0("0%       25%       50%       75%       100%",
+                       "\n", "|---------|---------|---------|---------|",
+                       "\n"))
+            }
+            v <- seq(from = 0, to = 40, by = 40/putlength)
+            v <- diff(ceiling(v))
+            pos <- which(which(DF$PUT.status == "PUT")==i)
+            cat(paste0(strrep("*", times = v[pos])))
+            if (i == which(DF$PUT.status == "PUT")[putlength]) {
+              cat("*\n")
+
+            }
+
+          }
+
+
     }
+  }
 
     # Taxonomy lookup:
     DF$genus_phyletic.status<-NA
