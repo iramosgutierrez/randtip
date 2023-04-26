@@ -60,6 +60,38 @@ is_tip <-function(tree, node){
     }
 }
 
+name_tree_nodes <- function(tree){
+  if(is.null(tree$node.label)){tree$node.label <- rep("", times=tree$Nnode)}
+  if(length(tree$node.label)==0){tree$node.label <- rep("", times=tree$Nnode)}
+  tree$node.label[is.na(tree$node.label)]<-""
+  tree$node.label[which(tree$node.label=="")] <- paste0("ON_",which(tree$node.label==""))
+  if(any(duplicated(tree$node.label))){
+    tree$node.label[duplicated(tree$node.label)] <- paste0(
+      tree$node.label[duplicated(tree$node.label)], "_",
+           1:sum(duplicated(tree$node.label)))
+    }
+  return(tree)
+}
+
+listnodes2realnodes <- function(listnodes, tree){
+  realnodes <- c(which(tree$tip.label %in% listnodes),
+                 (which(tree$node.label %in% listnodes)+length(tree$tip.label)))
+  if(is.null(listnodes)){realnodes<-NULL}
+  return(realnodes)
+}
+
+realnodes2listnodes <- function(realnodes, tree){
+
+tips <- notNA(tree$tip.label[realnodes])
+nodes <- realnodes[realnodes>length(tree$tip.label)]
+nodes <- nodes-length(tree$tip.label)
+nodes <- tree$node.label[nodes]
+listnodes <- c(tips,nodes)
+return(listnodes)
+
+}
+
+
 
 #### Specific functions  ####
 
@@ -880,7 +912,7 @@ add_to_singleton <- function(tree, singleton, new.tips, use.singleton=F){
     adding.DF<- adding.DF[adding.DF$node %in% nodes,]
     adding.DF$id<- 1:nrow(adding.DF)
 
-    node<-sample(adding.DF$node, 1, prob = adding.DF$length)
+    if(length(nodes)>1){nodes<-sample(adding.DF$node, 1, prob = adding.DF$length)}
 
 
       pos<- binding_position(new.tree, node = nodes, insertion = "random",prob = T)
