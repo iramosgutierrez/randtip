@@ -234,6 +234,12 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' @param find.phyleticity Logical. Should or not the phyletic nature o the
 #'            taxonomic ranks be evaluated.
 #' @param verbose Logical. Should or not progress be printed.
+#' @param in_parallel Logical. If TRUE it allows the function to look for 
+#'                             phyletic status using multiple processing 
+#'                             cores.
+#' @param n_cores Number of cores to use in parallelization. If no number 
+#'                is provided it defaults to all but of system logical 
+#'                cores.
 #'
 #' @return A data frame containing possible typographic errors,
 #'         taxonomic ranks extracted from 'info' and the phyletic
@@ -245,7 +251,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75)
 #'
 #' @export
-check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, verbose=T){
+check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, verbose=T, in_parallel = FALSE, n_cores = NULL){
 
     #if(file.exists(info)){
 
@@ -256,6 +262,12 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, 
     #  cat(paste0("Reading info file from\n", filedir))
     #  info <- read.table(info)
     #  }
+    if(in_parallel & is.null(n_cores)){
+        cat("\nn_cores argument was not provided.",
+            "Using all but one of system cores.\n\n")
+        n_cores <- parallel::detectCores(logical = TRUE) - 1
+    }
+
 
     if(is.null(info)){stop("Data frame 'info' is missing.")}
     if(is.null(tree)){stop("Backbone tree is missing.")}
@@ -317,40 +329,31 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, 
   }
 
     # Taxonomy lookup:
-    DF$genus_phyletic.status<-NA
-    DF$subtribe_phyletic.status<-NA
-    DF$tribe_phyletic.status<-NA
-    DF$subfamily_phyletic.status<-NA
-    DF$family_phyletic.status<-NA
-    DF$superfamily_phyletic.status<-NA
-    DF$order_phyletic.status<-NA
-    DF$class_phyletic.status<-NA
-
     ranks<-randtip_ranks()
-    for(rank in ranks){
-        groups<- notNA(unique(DF[,rank]))
+    if(in_parallel){
+        cat("Checking phyletic status in parallel.",
+            "Output progress bars might get scrambled\n")
+        DF_out <- parallel::mclapply(1:length(ranks), 
+                                     function(rank_i){
+                                         check_phyletic(ranks, rank_i, 
+                                                        DF, info, tree, 
+                                                        find.phyleticity,
+                                                        verbose)
+                                     }, mc.cores = n_cores)
 
-        if(verbose & length(groups)&isTRUE(find.phyleticity)>0){
-            cat(paste0("Checking phyletic status at ", rank, " level...\n"))
-
-            cat(paste0("0%       25%       50%       75%       100%", "\n",
-                       "|---------|---------|---------|---------|", "\n"))
-        }
-        for(group in groups){
-          if(isTRUE(find.phyleticity)){phyle.type<- MDCC_phyleticity(info, tree,
-                                          MDCC.info = list("rank"= rank,
-                                                           "MDCC"= group))}else{phyle.type <- "unknown"}
-            DF[which(DF[,rank]==group),
-               paste0(rank,"_phyletic.status")]<-phyle.type
-
-            if(verbose & find.phyleticity){
-              v<- seq(from=0, to=40, by=40/length(groups))
-            v<- diff(ceiling(v))
-            cat(strrep("*", times=v[which(groups==group)]))
-
-            if(group == groups[length(groups)]){cat("*\n")}}
+        for(rank_i in seq_along(ranks)){
+            DF_col <- paste0(ranks[rank_i], "_phyletic.status")
+            DF[[DF_col]] <- DF_out[[rank_i]]
         }
 
+    }else{
+        for(rank_i in seq_along(ranks)){
+            DF_col <- paste0(ranks[rank_i], "_phyletic.status")
+            DF[[DF_col]] <- check_phyletic(ranks, rank_i, 
+                                           DF, info, tree, 
+                                           find.phyleticity, 
+                                           verbose)
+        }
     }
 
     if(length(DF$Typo[DF$Typo==TRUE])>0){
@@ -568,3 +571,44 @@ input_to_MDCCfinder <- function(info, tree){
 
     return(list(input = input, tree = tree, taxon.in.tree = taxon.in.tree))
 }
+
+
+# Check phyletic status
+check_phyletic <- function(ranks, rank_i, DF, info, tree, find.phyleticity, 
+                           verbose){
+
+    rank <- ranks[rank_i]
+
+    phyletic_status <- rep(NA, times = nrow(DF))
+
+    groups<- notNA(unique(DF[,rank]))
+
+    if(verbose & length(groups) & isTRUE(find.phyleticity)>0){
+        cat(paste0("Checking phyletic status at ", rank, " level...\n"))
+
+        cat(paste0("0%       25%       50%       75%       100%", "\n",
+                   "|---------|---------|---------|---------|", "\n"))
+    }
+    for(group in groups){
+        if(isTRUE(find.phyleticity)){
+            phyle.type<- MDCC_phyleticity(info, tree,
+                                        MDCC.info = list("rank"= rank,
+                                                         "MDCC"= group))
+        }else{
+            phyle.type <- "unknown"
+        }
+
+        phyletic_status[which(DF[,rank]==group)] <-phyle.type
+
+        if(verbose & find.phyleticity){
+          v<- seq(from=0, to=40, by=40/length(groups))
+          v<- diff(ceiling(v))
+          cat(strrep("*", times=v[which(groups==group)]))
+
+          if(group == groups[length(groups)]){cat("*\n")}
+        }
+    }
+
+    return(phyletic_status)
+}
+
