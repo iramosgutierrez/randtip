@@ -234,11 +234,11 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' @param find.phyleticity Logical. Should or not the phyletic nature o the
 #'            taxonomic ranks be evaluated.
 #' @param verbose Logical. Should or not progress be printed.
-#' @param in_parallel Logical. If TRUE it allows the function to look for 
+#' @param parallelize Logical. If TRUE it allows the function to look for 
 #'                             phyletic status using multiple processing 
 #'                             cores.
-#' @param n_cores Number of cores to use in parallelization. If no number 
-#'                is provided it defaults to all but of system logical 
+#' @param ncores Number of cores to use in parallelization. If no number 
+#'                is provided it defaults to all but one of system logical 
 #'                cores.
 #'
 #' @return A data frame containing possible typographic errors,
@@ -251,7 +251,8 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75)
 #'
 #' @export
-check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, verbose=T, in_parallel = FALSE, n_cores = NULL){
+check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, 
+                      verbose=T, parallelize = FALSE, ncores = NULL){
 
     #if(file.exists(info)){
 
@@ -262,10 +263,10 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, 
     #  cat(paste0("Reading info file from\n", filedir))
     #  info <- read.table(info)
     #  }
-    if(in_parallel & is.null(n_cores)){
-        cat("\nn_cores argument was not provided.",
+    if(parallelize & is.null(ncores)){
+        cat("\nncores argument was not provided.",
             "Using all but one of system cores.\n\n")
-        n_cores <- parallel::detectCores(logical = TRUE) - 1
+        ncores <- parallel::detectCores(logical = TRUE) - 1
     }
 
 
@@ -330,7 +331,7 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, 
 
     # Taxonomy lookup:
     ranks<-randtip_ranks()
-    if(in_parallel){
+    if(parallelize){
         cat("Checking phyletic status in parallel.",
             "Output progress bars might get scrambled\n")
         DF_out <- parallel::mclapply(1:length(ranks), 
@@ -339,7 +340,7 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, 
                                                         DF, info, tree, 
                                                         find.phyleticity,
                                                         verbose)
-                                     }, mc.cores = n_cores)
+                                     }, mc.cores = ncores)
 
         for(rank_i in seq_along(ranks)){
             DF_col <- paste0(ranks[rank_i], "_phyletic.status")
