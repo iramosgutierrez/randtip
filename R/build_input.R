@@ -234,11 +234,11 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' @param find.phyleticity Logical. Should or not the phyletic nature o the
 #'            taxonomic ranks be evaluated.
 #' @param verbose Logical. Should or not progress be printed.
-#' @param parallelize Logical. If TRUE it allows the function to look for 
-#'                             phyletic status using multiple processing 
+#' @param parallelize Logical. If TRUE it allows the function to look for
+#'                             phyletic status using multiple processing
 #'                             cores.
-#' @param ncores Number of cores to use in parallelization. If no number 
-#'                is provided it defaults to all but one of system logical 
+#' @param ncores Number of cores to use in parallelization. If no number
+#'                is provided it defaults to all but one of system logical
 #'                cores.
 #'
 #' @return A data frame containing possible typographic errors,
@@ -251,7 +251,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75)
 #'
 #' @export
-check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, 
+check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T,
                       verbose=T, parallelize = FALSE, ncores = NULL){
 
     #if(file.exists(info)){
@@ -263,11 +263,22 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T,
     #  cat(paste0("Reading info file from\n", filedir))
     #  info <- read.table(info)
     #  }
-    if(parallelize & is.null(ncores)){
+    if(parallelize & is.null(ncores) & verbose){
         cat("\nncores argument was not provided.",
             "Using all but one of system cores.\n\n")
         ncores <- parallel::detectCores(logical = TRUE) - 1
     }
+
+  if(parallelize & verbose){
+
+    if (ncores > (parallel::detectCores(logical = TRUE) - 1)){
+      cat("\nSpecified ncores argument is not available.",
+          "Using all but one of system cores.\n\n")
+
+      ncores <- parallel::detectCores(logical = TRUE) - 1
+
+    }
+  }
 
 
     if(is.null(info)){stop("Data frame 'info' is missing.")}
@@ -334,10 +345,10 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T,
     if(parallelize){
         cat("Checking phyletic status in parallel.",
             "Output progress bars might get scrambled\n")
-        DF_out <- parallel::mclapply(1:length(ranks), 
+        DF_out <- parallel::mclapply(1:length(ranks),
                                      function(rank_i){
-                                         check_phyletic(ranks, rank_i, 
-                                                        DF, info, tree, 
+                                         check_phyletic(ranks, rank_i,
+                                                        DF, info, tree,
                                                         find.phyleticity,
                                                         verbose)
                                      }, mc.cores = ncores)
@@ -350,9 +361,9 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T,
     }else{
         for(rank_i in seq_along(ranks)){
             DF_col <- paste0(ranks[rank_i], "_phyletic.status")
-            DF[[DF_col]] <- check_phyletic(ranks, rank_i, 
-                                           DF, info, tree, 
-                                           find.phyleticity, 
+            DF[[DF_col]] <- check_phyletic(ranks, rank_i,
+                                           DF, info, tree,
+                                           find.phyleticity,
                                            verbose)
         }
     }
@@ -575,7 +586,7 @@ input_to_MDCCfinder <- function(info, tree){
 
 
 # Check phyletic status
-check_phyletic <- function(ranks, rank_i, DF, info, tree, find.phyleticity, 
+check_phyletic <- function(ranks, rank_i, DF, info, tree, find.phyleticity,
                            verbose){
 
     rank <- ranks[rank_i]
