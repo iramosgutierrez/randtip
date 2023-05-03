@@ -188,7 +188,7 @@ rand_tip <- function(input, tree,rand.type = "random",
         prob<-as.logical(inputfinder(input.bind, PUT, "prob"))
 
 
-        if(isTRUE(clump.PUT) & (rank %in% randtip_ranks() )){ # & !(rank %in% randtip_ranks() added for speed
+        if(isTRUE(clump.PUT) & (rank != "Manual setting")){ # & !(rank %in% randtip_ranks() added for speed
             clump<- bind_clump(new.tree, tree, input, PUT)
             if(!is.null(unlist(clump))){
                 MDCC<-clump$MDCC
