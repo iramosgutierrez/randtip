@@ -155,7 +155,7 @@ rand_tip <- function(input, tree,rand.type = "random",
 
     manual.mdcc.taxa<-input.bind$taxon[!is.na(input.bind$taxon1)|!is.na(input.bind$taxon2)]
     rand.PUTs<- input.bind$taxon
-    rand.PUTs<-sample(rand.PUTs, length(rand.PUTs), replace = F)
+    # rand.PUTs<-sample(rand.PUTs, length(rand.PUTs), replace = F)
     rand.PUTs<- c(rand.PUTs[rand.PUTs%in%manual.mdcc.taxa], rand.PUTs[!(rand.PUTs%in%manual.mdcc.taxa)])
 
     new.tree <- name_tree_nodes(new.tree)
@@ -318,11 +318,19 @@ rand_tip <- function(input, tree,rand.type = "random",
 
         if(length(spec.id)>1){
           spec.id <- sample(x= spec.id, 1, prob=specification.list[["prob"]][spec.id])
-          }
+        }
+
+        if(!rank%in%randtip_ranks()){
+          listnodes <- realnodes2listnodes(perm.nodes, new.tree)
+          listnodes <- paste0(listnodes, collapse = ",")
+          specification.list[["nodes"]][spec.id] <-  listnodes
+          perm.nodes
+        }
 
         listnodes <- specification.list[["nodes"]][spec.id]
         if(!is.null(listnodes)){listnodes <- strsplit(listnodes, split=",")[[1]]}
         if(all(is.na(listnodes))){listnodes<-NULL}
+        if(is.null(perm.nodes))
         perm.nodes <- listnodes2realnodes(listnodes, new.tree)
 
 
