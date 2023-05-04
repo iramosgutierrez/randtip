@@ -27,6 +27,14 @@ An 'info' object including the editions or deletions asked.
 Function to edit randtip's 'info' file.
 }
 \examples{
+ catspecies <- c("Lynx_lynx", "Panthera_uncia",
+"Panthera_onca", "Felis_catus", "Puma_concolor",
+"Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
+"Felis_silvestris")
+
+cats.info <- build_info(species=catspecies, tree= cats,
+     find.ranks=TRUE, db="ncbi", mode="backbone")
+
 cats.info <- edit_info(cats.info, taxa= "Puma_concolor",
 column = "subfamily", edit = "Felinae")
 

@@ -25,12 +25,12 @@ all PUTs using all tree tips.}
 
 \item{verbose}{Logical. Should or not progress be printed.}
 
-\item{in_parallel}{Logical. If TRUE it allows the function to look for
+\item{parallelize}{Logical. If TRUE it allows the function to look for
 phyletic status using multiple processing
 cores.}
 
-\item{n_cores}{Number of cores to use in parallelization. If no number
-is provided it defaults to all but of system logical
+\item{ncores}{Number of cores to use in parallelization. If no number
+is provided it defaults to all but one of system logical
 cores.}
 }
 \value{
@@ -44,6 +44,14 @@ spelling errors, putative MDCCs and the phyletic nature of
 groups of PPCR species.
 }
 \examples{
+catspecies <- c("Lynx_lynx", "Panthera_uncia",
+"Panthera_onca", "Felis_catus", "Puma_concolor",
+"Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
+"Felis_silvestris")
+
+cats.info <- build_info(species=catspecies, tree= cats,
+     find.ranks=TRUE, db="ncbi", mode="backbone")
+
 cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75)
 
 }

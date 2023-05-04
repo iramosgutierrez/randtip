@@ -26,6 +26,16 @@ with the \code{plot.phylo} function of ‘ape’ R package using the \code{tip.c
 }
 \examples{
 #Perform a tree expansion
+catspecies <- c("Lynx_lynx", "Panthera_uncia",
+"Panthera_onca", "Felis_catus", "Puma_concolor",
+"Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
+"Felis_silvestris")
+
+cats.info <- build_info(species=catspecies, tree= cats,
+     find.ranks=TRUE, db="ncbi", mode="backbone")
+
+cats.input <- info2input(info=cats.info, tree=cats)
+
 expanded.cats <- rand_tip(input=cats.input,
  tree=cats, rand.type = "polytomy",
  forceultrametric = T)
