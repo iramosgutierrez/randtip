@@ -30,15 +30,22 @@
 #' @param forceultrametric Whether or not the backbone tree will be forced to be ultrametric, only in case it is
 #'                         not. Default value is FALSE.
 #' @param verbose Whether or not to print information about the flow of the function. Default value is TRUE.
-
+#'
 #' @return An expanded phylogeny.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
-#' expanded.cats <- rand_tip(input=cats.input,
-#'  tree=cats, rand.type = "polytomy",
-#'  forceultrametric = T)
+#'
+#'  catspecies <- c("Lynx_lynx", "Panthera_uncia",
+#' "Panthera_onca", "Felis_catus", "Puma_concolor",
+#' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
+#' "Felis_silvestris")
+#'
+#' cats.info <- build_info(species=catspecies, tree= cats,
+#'      find.ranks=TRUE, db="ncbi", mode="backbone")
+#'
+#' cats.input <- info2input(info=cats.info, tree=cats)
 #'
 #' expanded.cats <- rand_tip(input=cats.input,
 #'  tree=cats, rand.type = "random",
