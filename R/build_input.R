@@ -252,7 +252,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #'
 #' @export
 check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T,
-                      verbose=T, parallelize = FALSE, ncores = NULL){
+                      verbose=TRUE, parallelize = TRUE, ncores = NULL){
 
     #if(file.exists(info)){
 
@@ -263,7 +263,12 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T,
     #  cat(paste0("Reading info file from\n", filedir))
     #  info <- read.table(info)
     #  }
-    if(parallelize & is.null(ncores) & verbose){
+
+  if(Sys.info()[['sysname']]=="Windows" & parallelize){
+    message("Windows OS does not support parallelizing. Switching to parallelize = FALSE\n")
+    parallelize = FALSE
+  }
+  if(parallelize & is.null(ncores) & verbose){
         cat("\nncores argument was not provided.",
             "Using all but one of system cores.\n\n")
         ncores <- parallel::detectCores(logical = TRUE) - 1
@@ -343,14 +348,13 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T,
     # Taxonomy lookup:
     ranks<-randtip_ranks()
     if(parallelize){
-        cat("Checking phyletic status in parallel.",
-            "Output progress bars might get scrambled\n")
+        cat("Checking phyletic status in parallel.\n")
         DF_out <- parallel::mclapply(1:length(ranks),
                                      function(rank_i){
                                          check_phyletic(ranks, rank_i,
                                                         DF, info, tree,
                                                         find.phyleticity,
-                                                        verbose)
+                                                        verbose=F)
                                      }, mc.cores = ncores)
 
         for(rank_i in seq_along(ranks)){
