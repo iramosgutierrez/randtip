@@ -77,7 +77,7 @@
 #'
 #' expanded.cats <- rand_tip(input=cats.input,
 #'  tree=cats, rand.type = "random",
-#'   forceultrametric = F)
+#'   forceultrametric = FALSE)
 #'
 #' @export
 rand_tip <- function(input, tree,rand.type = "random",

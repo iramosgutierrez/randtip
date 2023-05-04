@@ -11,6 +11,8 @@ info2input(info, tree, verbose = T)
 parameters.}
 
 \item{tree}{Backbone tree.}
+
+\item{verbose}{Logical. Should or not progress be printed.}
 }
 \value{
 An 'input' data frame which can be fed to \code{rand_tip} function

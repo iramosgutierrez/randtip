@@ -18,6 +18,14 @@
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
+#' catspecies <- c("Lynx_lynx", "Panthera_uncia",
+#' "Panthera_onca", "Felis_catus", "Puma_concolor",
+#' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
+#' "Felis_silvestris")
+#'
+#' cats.info <- build_info(species=catspecies, tree= cats,
+#'      find.ranks=TRUE, db="ncbi", mode="backbone")
+#'
 #' felinae.clade <- get_clade(info=cats.info,
 #' tree=cats, clade="Felinae")
 #'
@@ -76,6 +84,15 @@ get_clade<- function(info, tree, clade){
 #'
 #' @examples
 #' #First the clade information must be obtained
+#'
+#' catspecies <- c("Lynx_lynx", "Panthera_uncia",
+#' "Panthera_onca", "Felis_catus", "Puma_concolor",
+#' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
+#' "Felis_silvestris")
+#'
+#' cats.info <- build_info(species=catspecies, tree= cats,
+#'      find.ranks=TRUE, db="ncbi", mode="backbone")
+#'
 #' felinae.clade <- get_clade(info=cats.info,
 #' tree=cats, clade="Felinae")
 #'
@@ -100,7 +117,7 @@ plot_clade<- function(get.clade.out, ppcr.col="#4a8a21",
 
 
     ape::plot.phylo(get.clade.out$Tree, tip.color = tipcol, ...)
-    legend("topright", legend = legnames, border = legcols, fill=legcols,
+    graphics::legend("topright", legend = legnames, border = legcols, fill=legcols,
            cex = 0.7, bty = "n",  title = paste0(get.clade.out$clade, " ",
                                                  get.clade.out$rank))
 
@@ -136,7 +153,7 @@ plot_clade<- function(get.clade.out, ppcr.col="#4a8a21",
 #'
 #' expanded.cats <- rand_tip(input=cats.input,
 #'  tree=cats, rand.type = "polytomy",
-#'  forceultrametric = T)
+#'  forceultrametric = TRUE)
 #'
 #' #Set the colours for original tips and bound PUTs
 #' cats.tip.cols <- put_tip_col(newtree = expanded.cats,

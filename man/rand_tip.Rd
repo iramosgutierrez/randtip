@@ -112,7 +112,7 @@ cats.input <- info2input(info=cats.info, tree=cats)
 
 expanded.cats <- rand_tip(input=cats.input,
  tree=cats, rand.type = "random",
-  forceultrametric = F)
+  forceultrametric = FALSE)
 
 }
 \author{

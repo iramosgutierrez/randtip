@@ -38,7 +38,7 @@ cats.input <- info2input(info=cats.info, tree=cats)
 
 expanded.cats <- rand_tip(input=cats.input,
  tree=cats, rand.type = "polytomy",
- forceultrametric = T)
+ forceultrametric = TRUE)
 
 #Set the colours for original tips and bound PUTs
 cats.tip.cols <- put_tip_col(newtree = expanded.cats,

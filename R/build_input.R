@@ -431,6 +431,7 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T,
 #' @param info An 'info' data frame, including all the customized binding
 #'             parameters.
 #' @param tree Backbone tree.
+#' @param verbose Logical. Should or not progress be printed.
 #'
 #' @return An 'input' data frame which can be fed to \code{rand_tip} function
 #'         alongside with a backbone tree to expand a tree.
@@ -493,11 +494,11 @@ search_taxize <- function(info, genera, interactive, db, verbose=T){
                 search <- suppressMessages(taxize::classification(as.character(genera[i]),
                                                                   db = db))[[1]]
             }else if (db!="itis"){
-                out<-capture.output(suppressMessages(
+                out<-utils::capture.output(suppressMessages(
                   search <- taxize::classification(as.character(genera[i]),
                                                    db = db, rows=Inf)[[1]]))
             }else{
-              out<-capture.output(suppressMessages(
+              out<-utils::capture.output(suppressMessages(
                 search <- taxize::classification(as.character(genera[i]),
                                                  db = db)[[1]]))
             }
