@@ -285,8 +285,8 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T,
   if(parallelize & verbose){
 
     if (ncores > (parallel::detectCores(logical = TRUE) - 1)){
-      cat("\nSpecified ncores argument is not available.",
-          "Using all but one of system cores.\n\n")
+      cat("\nNumber of cores not availble.",
+          "Using all system cores but one.\n\n")
 
       ncores <- parallel::detectCores(logical = TRUE) - 1
 
