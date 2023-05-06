@@ -386,7 +386,7 @@ rand_tip <- function(input, tree,rand.type = "random",
             if(length( new.tree$node.label[new.tree$node.label=="NA"])>1){stop("Several NA node labels")}
             newnodelabel <- paste0("AN_",addnodelabel)
             new.tree$node.label[new.tree$node.label=="NA"] <- newnodelabel
-            specification.list[[2]][spec.id] <- paste0(specification.list[[2]][spec.id],",", newnodelabel)
+            specification.list[[2]][spec.id] <- paste0(specification.list[[2]][spec.id],",", newnodelabel,",",PUT)
             }
         if(rand.type=="polytomy"){
 
@@ -413,7 +413,7 @@ rand_tip <- function(input, tree,rand.type = "random",
             if(length( new.tree$node.label[new.tree$node.label=="NA"])>1){stop("Several NA node labels")}
             newnodelabel <- paste0("AN_",addnodelabel)
             new.tree$node.label[new.tree$node.label=="NA"] <- newnodelabel
-            specification.list[[2]][spec.id] <- paste0(specification.list[[2]][spec.id], ",",newnodelabel)
+            specification.list[[2]][spec.id] <- paste0(specification.list[[2]][spec.id], ",",newnodelabel,",",PUT)
             }
     }
 
