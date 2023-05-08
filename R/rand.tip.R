@@ -152,7 +152,9 @@ rand_tip <- function(input, tree,rand.type = "random",
             using.rank<- as.character(notNA(unique(spp.df$MDCC.rank)))
 
             if(!(using.rank%in%names(input))){
-                mdcc.genera<-first_word(spp.df[,c("taxon1","taxon2")])
+                mdcc.genera1<-first_word(spp.df[,c("taxon1")])
+                mdcc.genera2<-first_word(spp.df[,c("taxon2")])
+                mdcc.genera <- c(mdcc.genera1,mdcc.genera2)
             }else{
                 mdcc.genera<-first_word(input$taxon[input[,using.rank]==using.mdcc])
             }
