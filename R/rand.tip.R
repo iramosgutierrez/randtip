@@ -163,6 +163,7 @@ rand_tip <- function(input, tree,rand.type = "random",
     addnodelabel<-0
 
     for(i in seq_along(rand.PUTs)){
+        sp.time <- Sys.time()
         PUT <- rand.PUTs[i]
 
         MDCC  <- inputfinder(input.bind,PUT, "MDCC")
@@ -200,7 +201,7 @@ rand_tip <- function(input, tree,rand.type = "random",
         if(verbose){
             cat(paste0(i, "/", length(rand.PUTs),
                        " (",round(i/length(rand.PUTs)*100, 2), "%). ",
-                       "Binding ", PUT, " to ", MDCC ,"\n"))
+                       "Binding ", PUT, " to ", MDCC))
         }
 
 
@@ -415,7 +416,12 @@ rand_tip <- function(input, tree,rand.type = "random",
             new.tree$node.label[new.tree$node.label=="NA"] <- newnodelabel
             specification.list[[2]][spec.id] <- paste0(specification.list[[2]][spec.id], ",",newnodelabel)
             }
-    }
+
+        if(verbose){
+          sp.time.end <- Sys.time()
+          sp.time.comp<- round(as.numeric(difftime(sp.time.end, sp.time, units = "secs")),digits=0)
+          cat(paste0(" (",sp.time.comp," secs)\n"))}
+        }
 
     complete.taxa.list <- originalinput$taxon[originalinput$keep.tip=="1"]
     complete.taxa.list.in.tree <- complete.taxa.list[complete.taxa.list %in% new.tree$tip.label]
