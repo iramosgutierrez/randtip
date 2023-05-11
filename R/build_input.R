@@ -272,26 +272,18 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T,
     #  info <- read.table(info)
     #  }
 
-  if(Sys.info()[['sysname']]=="Windows" & parallelize){
-    message("Windows OS does not support parallelizing. Switching to parallelize = FALSE\n")
-    parallelize = FALSE
-  }
-  if(parallelize & is.null(ncores) & verbose){
-        cat("\nncores argument was not provided.",
-            "Using all but one of system cores.\n\n")
-        ncores <- parallel::detectCores(logical = TRUE) - 1
+    if(parallelize){
+        if(is.null(cores)){
+            cat("\nncores argument was not provided.",
+                "Using all but one of system cores.\n\n")
+            ncores <- parallel::detectCores(logical = TRUE) - 1
+        }else if(ncores > (parallel::detectCores(logical = TRUE) - 1)){
+            cat("\nNumber of cores not availble.",
+                "Using all system cores but one.\n\n")
+            ncores <- parallel::detectCores(logical = TRUE) - 1
+        }
     }
 
-  if(parallelize & verbose){
-
-    if (ncores > (parallel::detectCores(logical = TRUE) - 1)){
-      cat("\nNumber of cores not availble.",
-          "Using all system cores but one.\n\n")
-
-      ncores <- parallel::detectCores(logical = TRUE) - 1
-
-    }
-  }
 
 
     if(is.null(info)){stop("Data frame 'info' is missing.")}
@@ -320,50 +312,57 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T,
 
     # Look for name similarities
     if(search.typos){
-    if(verbose){
-      cat(paste0("Searching for possible misspellings\n"))
-      putlength <- length(which(DF$PUT.status == "PUT"))
-      }
-    for(i in which(DF$PUT.status == "PUT")){
-        tax<-DF$taxon[i]
-        sim.search<-tree.taxa[stringdist::stringsim(tree.taxa,tax)>sim]
-        if(length(sim.search)>0){
-            DF$Typo[i]<- TRUE
-            sim.search<-paste0(sim.search, collapse = " / ")
-            DF$Typo.names[i]<- sim.search
-         }
         if(verbose){
-          if (i == which(DF$PUT.status == "PUT")[1]) {
-            cat(paste0("0%       25%       50%       75%       100%",
-                       "\n", "|---------|---------|---------|---------|",
-                       "\n"))
-            }
-            v <- seq(from = 0, to = 40, by = 40/putlength)
-            v <- diff(ceiling(v))
-            pos <- which(which(DF$PUT.status == "PUT")==i)
-            cat(paste0(strrep("*", times = v[pos])))
-            if (i == which(DF$PUT.status == "PUT")[putlength]) {
-              cat("*\n")
-
-            }
-
+          cat(paste0("Searching for possible misspellings\n"))
+          putlength <- length(which(DF$PUT.status == "PUT"))
           }
+        for(i in which(DF$PUT.status == "PUT")){
+            tax<-DF$taxon[i]
+            sim.search<-tree.taxa[stringdist::stringsim(tree.taxa,tax)>sim]
+            if(length(sim.search)>0){
+                DF$Typo[i]<- TRUE
+                sim.search<-paste0(sim.search, collapse = " / ")
+                DF$Typo.names[i]<- sim.search
+             }
+            if(verbose){
+              if (i == which(DF$PUT.status == "PUT")[1]) {
+                cat(paste0("0%       25%       50%       75%       100%",
+                           "\n", "|---------|---------|---------|---------|",
+                           "\n"))
+                }
+                v <- seq(from = 0, to = 40, by = 40/putlength)
+                v <- diff(ceiling(v))
+                pos <- which(which(DF$PUT.status == "PUT")==i)
+                cat(paste0(strrep("*", times = v[pos])))
+                if (i == which(DF$PUT.status == "PUT")[putlength]) {
+                  cat("*\n")
+
+                }
+
+              }
 
 
+        }
     }
-  }
 
     # Taxonomy lookup:
     ranks<-randtip_ranks()
     if(parallelize){
         cat("Checking phyletic status in parallel.\n")
-        DF_out <- parallel::mclapply(1:length(ranks),
-                                     function(rank_i){
+        cl <- parallel::makeCluster(ncores)
+        parallel::clusterExport(cl, c("check_phyletic", "notNA", 
+                                      "MDCC_phyleticity", "phyleticity",
+                                      "first_word"))
+        DF_out <- parallel::parLapply(cl, 1:length(ranks),
+                                     function(rank_i, ranks, DF, info, tree, 
+                                              find.phyleticity, verbose){
                                          check_phyletic(ranks, rank_i,
                                                         DF, info, tree,
                                                         find.phyleticity,
-                                                        verbose=F)
-                                     }, mc.cores = ncores)
+                                                        verbose)
+                                     }, ranks, DF, info, tree, find.phyleticity, 
+                                     verbose)
+        parallel::stopCluster(cl)
 
         for(rank_i in seq_along(ranks)){
             DF_col <- paste0(ranks[rank_i], "_phyletic.status")
