@@ -259,7 +259,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75)
 #'
 #' @export
-check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T,
+check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =TRUE,
                       verbose=TRUE, parallelize = TRUE, ncores = NULL){
 
     #if(file.exists(info)){
@@ -273,7 +273,7 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T,
     #  }
 
     if(parallelize){
-        if(is.null(cores)){
+        if(is.null(ncores)){
             cat("\nncores argument was not provided.",
                 "Using all but one of system cores.\n\n")
             ncores <- parallel::detectCores(logical = TRUE) - 1
@@ -312,47 +312,40 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T,
 
     # Look for name similarities
     if(search.typos){
-        if(verbose){
-          cat(paste0("Searching for possible misspellings\n"))
-          putlength <- length(which(DF$PUT.status == "PUT"))
-          }
-        for(i in which(DF$PUT.status == "PUT")){
-            tax<-DF$taxon[i]
-            sim.search<-tree.taxa[stringdist::stringsim(tree.taxa,tax)>sim]
-            if(length(sim.search)>0){
-                DF$Typo[i]<- TRUE
-                sim.search<-paste0(sim.search, collapse = " / ")
-                DF$Typo.names[i]<- sim.search
-             }
-            if(verbose){
-              if (i == which(DF$PUT.status == "PUT")[1]) {
-                cat(paste0("0%       25%       50%       75%       100%",
-                           "\n", "|---------|---------|---------|---------|",
-                           "\n"))
-                }
-                v <- seq(from = 0, to = 40, by = 40/putlength)
-                v <- diff(ceiling(v))
-                pos <- which(which(DF$PUT.status == "PUT")==i)
-                cat(paste0(strrep("*", times = v[pos])))
-                if (i == which(DF$PUT.status == "PUT")[putlength]) {
-                  cat("*\n")
+        PUTs <- which(DF$PUT.status == "PUT")
 
-                }
+        cat(paste0("Searching for possible misspellings\n"))
+        putlength <- length(which(DF$PUT.status == "PUT"))
 
-              }
+        if(parallelize){
+            # Create cluster needed for both search_typos and check_phyletic function
+            cl <- parallel::makeCluster(ncores)
+            parallel::clusterExport(cl, c("check_phyletic", "notNA",
+                                          "MDCC_phyleticity", "phyleticity",
+                                          "first_word", "search_typos"))
+            parallel::clusterEvalQ(cl, library(stringdist))
+            DF_out <- parallel::parLapply(cl, PUTs,
+                                          function(PUT_i, PUTs, putlength, DF, tree.taxa,
+                                                   sim, verbose){
+                                              search_typos(PUT_i, PUTs, putlength, DF, tree.taxa,
+                                                           sim, verbose)
+                                          }, PUTs, putlength, DF, tree.taxa, sim, verbose)
+            for(i in seq_along(PUTs)){
+                DF[PUTs[i], ] <- DF_out[[i]]
+            }
 
-
+        }else{
+            for(PUT_i in PUTs){
+                DF[PUT_i, ] <- search_typos(PUT_i, PUTs, putlength, DF, tree.taxa, sim, verbose)
+            }
         }
+
     }
 
     # Taxonomy lookup:
     ranks<-randtip_ranks()
     if(parallelize){
         cat("Checking phyletic status in parallel.\n")
-        cl <- parallel::makeCluster(ncores)
-        parallel::clusterExport(cl, c("check_phyletic", "notNA", 
-                                      "MDCC_phyleticity", "phyleticity",
-                                      "first_word"))
         DF_out <- parallel::parLapply(cl, 1:length(ranks),
                                      function(rank_i, ranks, DF, info, tree, 
                                               find.phyleticity, verbose){
@@ -643,3 +636,30 @@ check_phyletic <- function(ranks, rank_i, DF, info, tree, find.phyleticity,
     return(phyletic_status)
 }
 
+search_typos <- function(PUT_i, PUTs, putlength, DF, tree.taxa, sim, verbose){
+
+    tax<-DF$taxon[PUT_i]
+    sim.search<-tree.taxa[stringdist::stringsim(tree.taxa,tax)>sim]
+    if(length(sim.search)>0){
+        DF$Typo[PUT_i]<- TRUE
+        sim.search<-paste0(sim.search, collapse = " / ")
+        DF$Typo.names[PUT_i]<- sim.search
+    }
+    if(verbose){
+        if (PUT_i == PUTs[1]) {
+            cat(paste0("0%       25%       50%       75%       100%",
+                        "\n", "|---------|---------|---------|---------|",
+                        "\n"))
+        }
+        v <- seq(from = 0, to = 40, by = 40/putlength)
+        v <- diff(ceiling(v))
+        pos <- which(PUTs==PUT_i)
+        cat(paste0(strrep("*", times = v[pos])))
+        if (PUT_i == PUTs[putlength]) {
+            cat("*\n")
+        }
+    }
+
+    return(DF[PUT_i, ])
+
+}
