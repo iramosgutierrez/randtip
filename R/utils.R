@@ -383,12 +383,12 @@ get_position <- function(tree, node){
     return(position)
 }
 
-binding_position<- function(tree, node,  insertion,  prob){
+binding_position<- function(tree, node,  insertion,  prob, ultrametric = FALSE){
     position<-list("length"=NA, "where"=NA, "position"=NA)
     df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
                      "length"= tree$edge.length, "id"=1:length(tree$edge[,1]))
 
-    if(ape::is.ultrametric(tree)){
+    if(ultrametric){
         position$length<-NULL
     }else{
         position$length<-abs(runif(1, 0, max(tree$edge.length)))
@@ -914,8 +914,11 @@ add_to_singleton <- function(tree, singleton, new.tips, use.singleton=F){
 
     if(length(nodes)>1){nodes<-sample(adding.DF$node, 1, prob = adding.DF$length)}
 
+    ultrametric <- ape::is.ultrametric(tree)
 
-      pos<- binding_position(new.tree, node = nodes, insertion = "random",prob = T)
+
+      pos<- binding_position(new.tree, node = nodes, insertion = "random",
+                             prob = T, ultrametric = ultrametric)
       new.tree <- phytools::bind.tip(new.tree,
                                      new.tips,
                                      edge.length = pos$length,

@@ -130,6 +130,8 @@ rand_tip <- function(input, tree,rand.type = "random",
         new.tree <- ape::keep.tip(new.tree, trimming.species)
     }
 
+    ultrametric <- ape::is.ultrametric(tree)
+
     input[is.na(input$rand.type), "rand.type"]<-rand.type
     input[is.na(input$polyphyly.scheme), "polyphyly.scheme"]<-polyphyly.scheme
     input[is.na(input$use.paraphyletic) , "use.paraphyletic"] <- use.paraphyletic
@@ -378,7 +380,8 @@ rand_tip <- function(input, tree,rand.type = "random",
             if(nrow(adding.DF) >1 & prob) {node<-sample(adding.DF$node, 1, prob = adding.DF$length)}
             if(nrow(adding.DF) >1 & !prob){node<-sample(adding.DF$node, 1)}
 
-            bind.pos<- binding_position(new.tree, node,  insertion = "random",  prob)
+            bind.pos<- binding_position(new.tree, node,  insertion = "random",
+                                        prob, ultrametric = ultrametric)
 
             new.tree <- phytools::bind.tip(new.tree, PUT, edge.length = bind.pos$length,
                                             where = bind.pos$where , position = bind.pos$position )
@@ -405,7 +408,8 @@ rand_tip <- function(input, tree,rand.type = "random",
 
 
 
-            bind.pos<- binding_position(new.tree, node,  insertion = "polytomy",  prob)
+            bind.pos<- binding_position(new.tree, node,  insertion = "polytomy",
+                                        prob, ultrametric = ultrametric)
 
             new.tree <- phytools::bind.tip(new.tree, PUT, edge.length = bind.pos$length,
                                            where = bind.pos$where , position = bind.pos$position )
