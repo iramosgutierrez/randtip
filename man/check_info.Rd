@@ -12,12 +12,16 @@ my.check <- check_info(my.info, tree)
 \item{tree}{The original backbone tree.}
 
 \item{sim}{Name similarity threshold to detect possible misspellings
-on tip labels. Default value is 0.8. Similarity is obtained
+on tip labels. Default value is 0.85. Similarity is obtained
 with \code{stringsim} function from \code{stringdist} package.
 See \link[stringdist]{stringsim} for details.}
 
 \item{find.phyleticity}{Logical. Should or not the phyletic nature o the
 taxonomic ranks be evaluated.}
+
+\item{search.typos}{Logical. Should or not the function search for possible
+misspelling on tip labels. This match lookup will be performed for
+all PUTs using all tree tips.}
 
 \item{verbose}{Logical. Should or not progress be printed.}
 }

@@ -242,6 +242,21 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
+#' catspecies <- c("Lynx_lynx",
+#' "Panthera_uncia",
+#' "Panthera_onca",
+#' "Felis_catus",
+#' "Puma_concolor",
+#' "Lynx_canadensis",
+#' "Panthera_tigris",
+#' "Panthera_leo",
+#' "Felis_silvestris")
+#'
+#' #Create the 'info' file
+#' cats.info <- build_info(species=catspecies, tree= cats,
+#'      find.ranks=TRUE, db="ncbi", mode="backbone")
+#'
+#'  #Check the 'info' file
 #' cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75)
 #'
 #' @export

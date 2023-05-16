@@ -60,6 +60,38 @@ is_tip <-function(tree, node){
     }
 }
 
+name_tree_nodes <- function(tree){
+  if(is.null(tree$node.label)){tree$node.label <- rep("", times=tree$Nnode)}
+  if(length(tree$node.label)==0){tree$node.label <- rep("", times=tree$Nnode)}
+  tree$node.label[is.na(tree$node.label)]<-""
+  tree$node.label[which(tree$node.label=="")] <- paste0("ON_",which(tree$node.label==""))
+  if(any(duplicated(tree$node.label))){
+    tree$node.label[duplicated(tree$node.label)] <- paste0(
+      tree$node.label[duplicated(tree$node.label)], "_",
+           1:sum(duplicated(tree$node.label)))
+    }
+  return(tree)
+}
+
+listnodes2realnodes <- function(listnodes, tree){
+  realnodes <- c(which(tree$tip.label %in% listnodes),
+                 (which(tree$node.label %in% listnodes)+length(tree$tip.label)))
+  if(is.null(listnodes)){realnodes<-NULL}
+  return(realnodes)
+}
+
+realnodes2listnodes <- function(realnodes, tree){
+
+tips <- notNA(tree$tip.label[realnodes])
+nodes <- realnodes[realnodes>length(tree$tip.label)]
+nodes <- nodes-length(tree$tip.label)
+nodes <- tree$node.label[nodes]
+listnodes <- c(tips,nodes)
+return(listnodes)
+
+}
+
+
 
 #### Specific functions  ####
 
@@ -351,12 +383,12 @@ get_position <- function(tree, node){
     return(position)
 }
 
-binding_position<- function(tree, node,  insertion,  prob){
+binding_position<- function(tree, node,  insertion,  prob, ultrametric = FALSE){
     position<-list("length"=NA, "where"=NA, "position"=NA)
     df <- data.frame("parent"=tree$edge[,1], "node"=tree$edge[,2],
                      "length"= tree$edge.length, "id"=1:length(tree$edge[,1]))
 
-    if(ape::is.ultrametric(tree)){
+    if(ultrametric){
         position$length<-NULL
     }else{
         position$length<-abs(runif(1, 0, max(tree$edge.length)))
@@ -880,10 +912,13 @@ add_to_singleton <- function(tree, singleton, new.tips, use.singleton=F){
     adding.DF<- adding.DF[adding.DF$node %in% nodes,]
     adding.DF$id<- 1:nrow(adding.DF)
 
-    node<-sample(adding.DF$node, 1, prob = adding.DF$length)
+    if(length(nodes)>1){nodes<-sample(adding.DF$node, 1, prob = adding.DF$length)}
+
+    ultrametric <- ape::is.ultrametric(tree)
 
 
-      pos<- binding_position(new.tree, node = nodes, insertion = "random",prob = T)
+      pos<- binding_position(new.tree, node = nodes, insertion = "random",
+                             prob = T, ultrametric = ultrametric)
       new.tree <- phytools::bind.tip(new.tree,
                                      new.tips,
                                      edge.length = pos$length,
