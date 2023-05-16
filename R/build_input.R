@@ -234,6 +234,12 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' @param find.phyleticity Logical. Should or not the phyletic nature o the
 #'            taxonomic ranks be evaluated.
 #' @param verbose Logical. Should or not progress be printed.
+#' @param parallelize Logical. If TRUE it allows the function to look for
+#'                             phyletic status using multiple processing
+#'                             cores.
+#' @param ncores Number of cores to use in parallelization. If no number
+#'                is provided it defaults to all but one of system logical
+#'                cores.
 #'
 #' @return A data frame containing possible typographic errors,
 #'         taxonomic ranks extracted from 'info' and the phyletic
@@ -242,25 +248,21 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
-#' catspecies <- c("Lynx_lynx",
-#' "Panthera_uncia",
-#' "Panthera_onca",
-#' "Felis_catus",
-#' "Puma_concolor",
-#' "Lynx_canadensis",
-#' "Panthera_tigris",
-#' "Panthera_leo",
+#' catspecies <- c("Lynx_lynx", "Panthera_uncia",
+#' "Panthera_onca", "Felis_catus", "Puma_concolor",
+#' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
 #' "Felis_silvestris")
 #'
-#' #Create the 'info' file
 #' cats.info <- build_info(species=catspecies, tree= cats,
 #'      find.ranks=TRUE, db="ncbi", mode="backbone")
-#'
+#' 
 #'  #Check the 'info' file
+#' 
 #' cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75)
 #'
 #' @export
-check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, verbose=T){
+check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =TRUE,
+                      verbose=TRUE, parallelize = TRUE, ncores = NULL){
 
     #if(file.exists(info)){
 
@@ -271,6 +273,20 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, 
     #  cat(paste0("Reading info file from\n", filedir))
     #  info <- read.table(info)
     #  }
+
+    if(parallelize){
+        if(is.null(ncores)){
+            cat("\nncores argument was not provided.",
+                "Using all but one of system cores.\n\n")
+            ncores <- parallel::detectCores(logical = TRUE) - 1
+        }else if(ncores > (parallel::detectCores(logical = TRUE) - 1)){
+            cat("\nNumber of cores not availble.",
+                "Using all system cores but one.\n\n")
+            ncores <- parallel::detectCores(logical = TRUE) - 1
+        }
+    }
+
+
 
     if(is.null(info)){stop("Data frame 'info' is missing.")}
     if(is.null(tree)){stop("Backbone tree is missing.")}
@@ -298,74 +314,64 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, 
 
     # Look for name similarities
     if(search.typos){
-    if(verbose){
-      cat(paste0("Searching for possible misspellings\n"))
-      putlength <- length(which(DF$PUT.status == "PUT"))
-      }
-    for(i in which(DF$PUT.status == "PUT")){
-        tax<-DF$taxon[i]
-        sim.search<-tree.taxa[stringdist::stringsim(tree.taxa,tax)>sim]
-        if(length(sim.search)>0){
-            DF$Typo[i]<- TRUE
-            sim.search<-paste0(sim.search, collapse = " / ")
-            DF$Typo.names[i]<- sim.search
-         }
-        if(verbose){
-          if (i == which(DF$PUT.status == "PUT")[1]) {
-            cat(paste0("0%       25%       50%       75%       100%",
-                       "\n", "|---------|---------|---------|---------|",
-                       "\n"))
-            }
-            v <- seq(from = 0, to = 40, by = 40/putlength)
-            v <- diff(ceiling(v))
-            pos <- which(which(DF$PUT.status == "PUT")==i)
-            cat(paste0(strrep("*", times = v[pos])))
-            if (i == which(DF$PUT.status == "PUT")[putlength]) {
-              cat("*\n")
+        PUTs <- which(DF$PUT.status == "PUT")
 
+        cat(paste0("Searching for possible misspellings\n"))
+        putlength <- length(which(DF$PUT.status == "PUT"))
+
+        if(parallelize){
+            # Create cluster needed for both search_typos and check_phyletic function
+            cl <- parallel::makeCluster(ncores)
+            parallel::clusterExport(cl, c("check_phyletic", "notNA",
+                                          "MDCC_phyleticity", "phyleticity",
+                                          "first_word", "search_typos"))
+            parallel::clusterEvalQ(cl, library(stringdist))
+            DF_out <- parallel::parLapply(cl, PUTs,
+                                          function(PUT_i, PUTs, putlength, DF, tree.taxa,
+                                                   sim, verbose){
+                                              search_typos(PUT_i, PUTs, putlength, DF, tree.taxa,
+                                                           sim, verbose)
+                                          }, PUTs, putlength, DF, tree.taxa, sim, verbose)
+            for(i in seq_along(PUTs)){
+                DF[PUTs[i], ] <- DF_out[[i]]
             }
 
-          }
-
+        }else{
+            for(PUT_i in PUTs){
+                DF[PUT_i, ] <- search_typos(PUT_i, PUTs, putlength, DF, tree.taxa, sim, verbose)
+            }
+        }
 
     }
-  }
 
     # Taxonomy lookup:
-    DF$genus_phyletic.status<-NA
-    DF$subtribe_phyletic.status<-NA
-    DF$tribe_phyletic.status<-NA
-    DF$subfamily_phyletic.status<-NA
-    DF$family_phyletic.status<-NA
-    DF$superfamily_phyletic.status<-NA
-    DF$order_phyletic.status<-NA
-    DF$class_phyletic.status<-NA
-
     ranks<-randtip_ranks()
-    for(rank in ranks){
-        groups<- notNA(unique(DF[,rank]))
+    if(parallelize){
+        cat("Checking phyletic status in parallel.\n")
+        DF_out <- parallel::parLapply(cl, 1:length(ranks),
+                                     function(rank_i, ranks, DF, info, tree, 
+                                              find.phyleticity, verbose){
+                                         check_phyletic(ranks, rank_i,
+                                                        DF, info, tree,
+                                                        find.phyleticity,
+                                                        verbose)
+                                     }, ranks, DF, info, tree, find.phyleticity, 
+                                     verbose)
+        parallel::stopCluster(cl)
 
-        if(verbose & length(groups)&isTRUE(find.phyleticity)>0){
-            cat(paste0("Checking phyletic status at ", rank, " level...\n"))
-
-            cat(paste0("0%       25%       50%       75%       100%", "\n",
-                       "|---------|---------|---------|---------|", "\n"))
-        }
-        for(group in groups){
-          if(isTRUE(find.phyleticity)){phyle.type<- MDCC_phyleticity(info, tree,
-                                          MDCC.info = list("rank"= rank,
-                                                           "MDCC"= group))}else{phyle.type <- "unknown"}
-            DF[which(DF[,rank]==group),
-               paste0(rank,"_phyletic.status")]<-phyle.type
-
-            if(verbose & find.phyleticity){
-              v<- seq(from=0, to=40, by=40/length(groups))
-            v<- diff(ceiling(v))
-            cat(strrep("*", times=v[which(groups==group)]))
-
-            if(group == groups[length(groups)]){cat("*\n")}}
+        for(rank_i in seq_along(ranks)){
+            DF_col <- paste0(ranks[rank_i], "_phyletic.status")
+            DF[[DF_col]] <- DF_out[[rank_i]]
         }
 
+    }else{
+        for(rank_i in seq_along(ranks)){
+            DF_col <- paste0(ranks[rank_i], "_phyletic.status")
+            DF[[DF_col]] <- check_phyletic(ranks, rank_i,
+                                           DF, info, tree,
+                                           find.phyleticity,
+                                           verbose)
+        }
     }
 
     if(length(DF$Typo[DF$Typo==TRUE])>0){
@@ -419,6 +425,7 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, 
 #' @param info An 'info' data frame, including all the customized binding
 #'             parameters.
 #' @param tree Backbone tree.
+#' @param verbose Logical. Should or not progress be printed.
 #'
 #' @return An 'input' data frame which can be fed to \code{rand_tip} function
 #'         alongside with a backbone tree to expand a tree.
@@ -426,6 +433,13 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=T,search.typos =T, 
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
+#' catspecies <- c("Lynx_lynx", "Panthera_uncia",
+#' "Panthera_onca", "Felis_catus", "Puma_concolor",
+#' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
+#' "Felis_silvestris")
+#'
+#' cats.info <- build_info(species=catspecies, tree= cats,
+#'      find.ranks=TRUE, db="ncbi", mode="backbone")
 #'
 #' cats.input <- info2input(info=cats.info, tree=cats)
 #'
@@ -474,11 +488,11 @@ search_taxize <- function(info, genera, interactive, db, verbose=T){
                 search <- suppressMessages(taxize::classification(as.character(genera[i]),
                                                                   db = db))[[1]]
             }else if (db!="itis"){
-                out<-capture.output(suppressMessages(
+                out<-utils::capture.output(suppressMessages(
                   search <- taxize::classification(as.character(genera[i]),
                                                    db = db, rows=Inf)[[1]]))
             }else{
-              out<-capture.output(suppressMessages(
+              out<-utils::capture.output(suppressMessages(
                 search <- taxize::classification(as.character(genera[i]),
                                                  db = db)[[1]]))
             }
@@ -582,4 +596,72 @@ input_to_MDCCfinder <- function(info, tree){
     input$MDCC.rank[taxon.in.tree] <- "Tip"
 
     return(list(input = input, tree = tree, taxon.in.tree = taxon.in.tree))
+}
+
+
+# Check phyletic status
+check_phyletic <- function(ranks, rank_i, DF, info, tree, find.phyleticity,
+                           verbose){
+
+    rank <- ranks[rank_i]
+
+    phyletic_status <- rep(NA, times = nrow(DF))
+
+    groups<- notNA(unique(DF[,rank]))
+
+    if(verbose & length(groups) & isTRUE(find.phyleticity)>0){
+        cat(paste0("Checking phyletic status at ", rank, " level...\n"))
+
+        cat(paste0("0%       25%       50%       75%       100%", "\n",
+                   "|---------|---------|---------|---------|", "\n"))
+    }
+    for(group in groups){
+        if(isTRUE(find.phyleticity)){
+            phyle.type<- MDCC_phyleticity(info, tree,
+                                        MDCC.info = list("rank"= rank,
+                                                         "MDCC"= group))
+        }else{
+            phyle.type <- "unknown"
+        }
+
+        phyletic_status[which(DF[,rank]==group)] <-phyle.type
+
+        if(verbose & find.phyleticity){
+          v<- seq(from=0, to=40, by=40/length(groups))
+          v<- diff(ceiling(v))
+          cat(strrep("*", times=v[which(groups==group)]))
+
+          if(group == groups[length(groups)]){cat("*\n")}
+        }
+    }
+
+    return(phyletic_status)
+}
+
+search_typos <- function(PUT_i, PUTs, putlength, DF, tree.taxa, sim, verbose){
+
+    tax<-DF$taxon[PUT_i]
+    sim.search<-tree.taxa[stringdist::stringsim(tree.taxa,tax)>sim]
+    if(length(sim.search)>0){
+        DF$Typo[PUT_i]<- TRUE
+        sim.search<-paste0(sim.search, collapse = " / ")
+        DF$Typo.names[PUT_i]<- sim.search
+    }
+    if(verbose){
+        if (PUT_i == PUTs[1]) {
+            cat(paste0("0%       25%       50%       75%       100%",
+                        "\n", "|---------|---------|---------|---------|",
+                        "\n"))
+        }
+        v <- seq(from = 0, to = 40, by = 40/putlength)
+        v <- diff(ceiling(v))
+        pos <- which(PUTs==PUT_i)
+        cat(paste0(strrep("*", times = v[pos])))
+        if (PUT_i == PUTs[putlength]) {
+            cat("*\n")
+        }
+    }
+
+    return(DF[PUT_i, ])
+
 }

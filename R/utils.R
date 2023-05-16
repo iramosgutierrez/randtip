@@ -391,7 +391,7 @@ binding_position<- function(tree, node,  insertion,  prob, ultrametric = FALSE){
     if(ultrametric){
         position$length<-NULL
     }else{
-        position$length<-abs(runif(1, 0, max(tree$edge.length)))
+        position$length<-abs(stats::runif(1, 0, max(tree$edge.length)))
     }
 
     df<- df[df$node==node,]

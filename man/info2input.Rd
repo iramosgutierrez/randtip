@@ -11,6 +11,8 @@ info2input(info, tree, verbose = T)
 parameters.}
 
 \item{tree}{Backbone tree.}
+
+\item{verbose}{Logical. Should or not progress be printed.}
 }
 \value{
 An 'input' data frame which can be fed to \code{rand_tip} function
@@ -20,6 +22,13 @@ alongside with a backbone tree to expand a tree.
 Convert an 'info' object into an 'input' one.
 }
 \examples{
+catspecies <- c("Lynx_lynx", "Panthera_uncia",
+"Panthera_onca", "Felis_catus", "Puma_concolor",
+"Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
+"Felis_silvestris")
+
+cats.info <- build_info(species=catspecies, tree= cats,
+     find.ranks=TRUE, db="ncbi", mode="backbone")
 
 cats.input <- info2input(info=cats.info, tree=cats)
 

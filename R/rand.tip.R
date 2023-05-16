@@ -30,19 +30,54 @@
 #' @param forceultrametric Whether or not the backbone tree will be forced to be ultrametric, only in case it is
 #'                         not. Default value is FALSE.
 #' @param verbose Whether or not to print information about the flow of the function. Default value is TRUE.
-
+#'
+#' @details The optimum binding procedure might be different in each case,
+#'          given the phyletic nature of the MDCC to which the PUT should be bound to,
+#'          and different reasons might drive the user to choose one or another.
+#' \itemize{
+#' \item{polyphyly.scheme} {The resulting outputs may be very different depending on the
+#'                  selected parameter. If 'complete' procedure is selected, the binding
+#'                  will be performed as a monophyletic group using the MRCA of
+#'                  all the known PPCR species. The 'largest' procedure, otherwise,
+#'                  will use as binding group the largest monophyletic group formed
+#'                  by PPCR species. Ultimately, the 'frequentist' option will
+#'                  split the group in monophyletic and singleton chunks and
+#'                  for every PUT to be bound to the MDCC, one of the chunks will
+#'                  be selected weighting the probability by the number of original tips.}
+#'
+#'
+#' \item{use.paraphyletic}{ This parameter should be used as TRUE in case we are certain of
+#'                  the paraphyletic nature of one group, but disregarded if the
+#'                  "intruder" group within the otherwise monophyletic group is possibly
+#'                  due to an incorrect placement in the creation of the phylogeny.}
+#'
+#' \item{forceultrametric} {It is important to note that forcing phylogenies to be ultrametric
+#'                  in this way should not be taken as a formal statistical approach for inferring an
+#'                  ultrametric tree but a method to be deployed whenever a genuinely ultrametric
+#'                  phylogeny read from file fails due to issues related to numerical precision
+#'                  (Revell, 2012). Thus, we strongly recommend the user to visually explore
+#'                  phylogenetic trees that fail the ultrametricity test of check.info before
+#'                   assuming the failure is due to numerical precision of computer machinery.}
+#'}
 #' @return An expanded phylogeny.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
-#' expanded.cats <- rand_tip(input=cats.input,
-#'  tree=cats, rand.type = "polytomy",
-#'  forceultrametric = T)
+#'
+#'  catspecies <- c("Lynx_lynx", "Panthera_uncia",
+#' "Panthera_onca", "Felis_catus", "Puma_concolor",
+#' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
+#' "Felis_silvestris")
+#'
+#' cats.info <- build_info(species=catspecies, tree= cats,
+#'      find.ranks=TRUE, db="ncbi", mode="backbone")
+#'
+#' cats.input <- info2input(info=cats.info, tree=cats)
 #'
 #' expanded.cats <- rand_tip(input=cats.input,
 #'  tree=cats, rand.type = "random",
-#'   forceultrametric = F)
+#'   forceultrametric = FALSE)
 #'
 #' @export
 rand_tip <- function(input, tree,rand.type = "random",
@@ -117,7 +152,9 @@ rand_tip <- function(input, tree,rand.type = "random",
             using.rank<- as.character(notNA(unique(spp.df$MDCC.rank)))
 
             if(!(using.rank%in%names(input))){
-                mdcc.genera<-first_word(spp.df[,c("taxon1","taxon2")])
+                mdcc.genera1<-first_word(spp.df[,c("taxon1")])
+                mdcc.genera2<-first_word(spp.df[,c("taxon2")])
+                mdcc.genera <- c(mdcc.genera1,mdcc.genera2)
             }else{
                 mdcc.genera<-first_word(input$taxon[input[,using.rank]==using.mdcc])
             }

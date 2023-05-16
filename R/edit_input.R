@@ -17,10 +17,18 @@
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
+#'  catspecies <- c("Lynx_lynx", "Panthera_uncia",
+#' "Panthera_onca", "Felis_catus", "Puma_concolor",
+#' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
+#' "Felis_silvestris")
+#'
+#' cats.info <- build_info(species=catspecies, tree= cats,
+#'      find.ranks=TRUE, db="ncbi", mode="backbone")
+#'
 #' cats.info <- edit_info(cats.info, taxa= "Puma_concolor",
 #' column = "subfamily", edit = "Felinae")
 #'
-#' @export 
+#' @export
 edit_info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE){
 
     #if(file.exists(info)){

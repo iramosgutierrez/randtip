@@ -27,6 +27,14 @@ Note that the tree splitting will be performed at the MRCA node of all the taxa 
 clade in the 'info' object.
 }
 \examples{
+catspecies <- c("Lynx_lynx", "Panthera_uncia",
+"Panthera_onca", "Felis_catus", "Puma_concolor",
+"Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
+"Felis_silvestris")
+
+cats.info <- build_info(species=catspecies, tree= cats,
+     find.ranks=TRUE, db="ncbi", mode="backbone")
+
 felinae.clade <- get_clade(info=cats.info,
 tree=cats, clade="Felinae")
 
