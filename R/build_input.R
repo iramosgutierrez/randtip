@@ -255,9 +255,8 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #'
 #' cats.info <- build_info(species=catspecies, tree= cats,
 #'      find.ranks=TRUE, db="ncbi", mode="backbone")
-#' 
-#'  #Check the 'info' file
-#' 
+#'
+#'
 #' cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75)
 #'
 #' @export
@@ -349,13 +348,13 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
     if(parallelize){
         cat("Checking phyletic status in parallel.\n")
         DF_out <- parallel::parLapply(cl, 1:length(ranks),
-                                     function(rank_i, ranks, DF, info, tree, 
+                                     function(rank_i, ranks, DF, info, tree,
                                               find.phyleticity, verbose){
                                          check_phyletic(ranks, rank_i,
                                                         DF, info, tree,
                                                         find.phyleticity,
                                                         verbose)
-                                     }, ranks, DF, info, tree, find.phyleticity, 
+                                     }, ranks, DF, info, tree, find.phyleticity,
                                      verbose)
         parallel::stopCluster(cl)
 

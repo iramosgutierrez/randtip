@@ -52,6 +52,7 @@ catspecies <- c("Lynx_lynx", "Panthera_uncia",
 cats.info <- build_info(species=catspecies, tree= cats,
      find.ranks=TRUE, db="ncbi", mode="backbone")
 
+
 cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75)
 
 }
