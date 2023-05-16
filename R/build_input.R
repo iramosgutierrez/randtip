@@ -3,7 +3,9 @@
 #'
 #' Function to create an 'info' object given a list of species.
 #'
-#' @usage my.info <- build_info(species.list, tree, db="gbif", mode="list")
+#' @usage my.info <- build_info(species.list, tree, db="gbif", mode="list",
+#'                    find.ranks = TRUE, interactive =FALSE,
+#'                    genus = FALSE, prior.info = NULL, verbose = TRUE)
 #'
 #' @param species A character vector or a single-column data frame including
 #'                the species of interest. Word breakers must be blanks (" ")
@@ -220,7 +222,9 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' spelling errors, putative MDCCs and the phyletic nature of
 #' groups of PPCR species.
 #'
-#' @usage my.check <- check_info(my.info, tree)
+#' @usage my.check <- check_info(my.info, tree, sim = 0.85,
+#'                    search.typos = TRUE, find.phyleticity = TRUE,
+#'                    verbose = TRUE, parallelize = TRUE, ncores = 2 )
 #'
 #' @param info An 'info' object.
 #' @param tree The original backbone tree.
@@ -256,8 +260,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' cats.info <- build_info(species=catspecies, tree= cats,
 #'      find.ranks=TRUE, db="ncbi", mode="backbone")
 #'
-#'
-#' cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75)
+#' cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75, parallelize = FALSE)
 #'
 #' @export
 check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =TRUE,
