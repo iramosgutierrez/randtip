@@ -255,7 +255,9 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #'
 #' cats.info <- build_info(species=catspecies, tree= cats,
 #'      find.ranks=TRUE, db="ncbi", mode="backbone")
-#'
+#' 
+#'  #Check the 'info' file
+#' 
 #' cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75)
 #'
 #' @export
