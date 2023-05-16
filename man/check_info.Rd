@@ -4,7 +4,7 @@
 \alias{check_info}
 \title{Function to check randtip's files.}
 \usage{
-my.check <- check_info(my.info, tree, sim = 0.85,
+my.check <- check_info(info = my.info, tree = tree, sim = 0.85,
                    search.typos = TRUE, find.phyleticity = TRUE,
                    verbose = TRUE, parallelize = TRUE, ncores = 2 )
 }

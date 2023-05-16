@@ -3,8 +3,8 @@
 #'
 #' Function to create an 'info' object given a list of species.
 #'
-#' @usage my.info <- build_info(species.list, tree, db="gbif", mode="list",
-#'                    find.ranks = TRUE, interactive =FALSE,
+#' @usage my.info <- build_info(species = species.list, tree = tree, db="gbif",
+#'                    mode="list", find.ranks = TRUE, interactive =FALSE,
 #'                    genus = FALSE, prior.info = NULL, verbose = TRUE)
 #'
 #' @param species A character vector or a single-column data frame including
@@ -222,7 +222,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #' spelling errors, putative MDCCs and the phyletic nature of
 #' groups of PPCR species.
 #'
-#' @usage my.check <- check_info(my.info, tree, sim = 0.85,
+#' @usage my.check <- check_info(info = my.info, tree = tree, sim = 0.85,
 #'                    search.typos = TRUE, find.phyleticity = TRUE,
 #'                    verbose = TRUE, parallelize = TRUE, ncores = 2 )
 #'
