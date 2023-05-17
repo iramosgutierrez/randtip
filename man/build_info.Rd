@@ -4,7 +4,9 @@
 \alias{build_info}
 \title{Create a 'info' data frame.}
 \usage{
-my.info <- build_info(species.list, tree, db="gbif", mode="list")
+my.info <- build_info(species = species.list, tree = tree, db="gbif",
+                   mode="list", find.ranks = TRUE, interactive =FALSE,
+                   genus = FALSE, prior.info = NULL, verbose = TRUE)
 }
 \arguments{
 \item{species}{A character vector or a single-column data frame including
