@@ -267,12 +267,20 @@ rand_tip <- function(input, tree,rand.type = "random",
         }
 
         if(rank=="species"){
-            new.tree<-add_to_singleton(new.tree, clump$taxa, PUT, use.singleton=T)
+          continue <- FALSE
+          while(contiue == FALSE){
+            new.tree.tmp<-add_to_singleton(new.tree, clump$taxa, PUT, use.singleton=T)
+            if(ultrametric & (ape::is.ultrametric(new.tree.tmp))){
+              continue <- TRUE
+              new.tree <- new.tree.tmp
+            }
+          }
 
             addnodelabel<-addnodelabel+1
             if(length(new.tree$node.label[new.tree$node.label=="NA"])>1){stop("Several NA node labels")}
             newnodelabel <- paste0("AN_",addnodelabel)
             new.tree$node.label[new.tree$node.label=="NA"] <- newnodelabel
+
 
             next
         }
@@ -372,6 +380,8 @@ rand_tip <- function(input, tree,rand.type = "random",
         perm.nodes <- listnodes2realnodes(listnodes, new.tree)
 
 
+        continue <- FALSE
+        while(continue==FALSE){
 
         if(rand.type=="random"){
             if(is.null(perm.nodes)){
@@ -456,7 +466,16 @@ rand_tip <- function(input, tree,rand.type = "random",
             newnodelabel <- paste0("AN_",addnodelabel)
             new.tree$node.label[new.tree$node.label=="NA"] <- newnodelabel
             specification.list[[2]][spec.id] <- paste0(specification.list[[2]][spec.id], ",",newnodelabel,",",PUT)
-            }
+        }
+
+        if(ultrametric & !(ape::is.ultrametric(new.tree))){
+          continue <- FALSE
+          new.tree <- ape::drop.tip(new.tree, PUT)
+          oldnodes <- strsplit(specification.list[[2]][spec.id], split=",")[[1]]
+          oldnodes <- oldnodes[!oldnodes %in% c(newnodelabel,PUT)]
+          specification.list[[2]][spec.id] <- paste0(oldnodes, collapse = ",")
+          }else{continue <- TRUE}
+          }
 
         if(verbose){
           sp.time.end <- Sys.time()
