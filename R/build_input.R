@@ -355,7 +355,7 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
                                           "MDCC_phyleticity", "phyleticity",
                                           "first_word"))
         }
-        cat("Checking phyletic status in parallel.\n")
+        if(verbose & find.phyleticity){cat("Checking phyletic status in parallel.\n")}
         DF_out <- parallel::parLapply(cl, 1:length(ranks),
                                      function(rank_i, ranks, DF, info, tree,
                                               find.phyleticity, verbose){
