@@ -349,6 +349,7 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
     # Taxonomy lookup:
     ranks<-randtip_ranks()
     if(parallelize){
+      cl <- parallel::makeCluster(ncores)
         cat("Checking phyletic status in parallel.\n")
         DF_out <- parallel::parLapply(cl, 1:length(ranks),
                                      function(rank_i, ranks, DF, info, tree,
