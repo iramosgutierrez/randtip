@@ -268,7 +268,7 @@ rand_tip <- function(input, tree,rand.type = "random",
 
         if(rank=="species"){
           continue <- FALSE
-          while(contiue == FALSE){
+          while(continue == FALSE){
             new.tree.tmp<-add_to_singleton(new.tree, clump$taxa, PUT, use.singleton=T)
             if(ultrametric & (ape::is.ultrametric(new.tree.tmp))){
               continue <- TRUE
