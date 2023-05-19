@@ -383,7 +383,7 @@ rand_tip <- function(input, tree,rand.type = "random",
         continue <- FALSE
         while(continue==FALSE){
 
-        if(rand.type=="random"){
+        if(rand.type=="random")  {
             if(is.null(perm.nodes)){
                 perm.nodes<- get_permitted_nodes(new.tree, input,
                                                  MDCC, rank, MDCC.type,
@@ -430,14 +430,10 @@ rand_tip <- function(input, tree,rand.type = "random",
             bind.pos<- binding_position(new.tree, node,  insertion = "random",
                                         prob, ultrametric = ultrametric)
 
-            new.tree <- phytools::bind.tip(new.tree, PUT, edge.length = bind.pos$length,
+            new.tree.tmp <- phytools::bind.tip(new.tree, PUT, edge.length = bind.pos$length,
                                             where = bind.pos$where , position = bind.pos$position )
 
-            addnodelabel<-addnodelabel+1
-            if(length( new.tree$node.label[new.tree$node.label=="NA"])>1){stop("Several NA node labels")}
-            newnodelabel <- paste0("AN_",addnodelabel)
-            new.tree$node.label[new.tree$node.label=="NA"] <- newnodelabel
-            specification.list[[2]][spec.id] <- paste0(specification.list[[2]][spec.id],",", newnodelabel,",",PUT)
+
             }
         if(rand.type=="polytomy"){
 
@@ -458,24 +454,36 @@ rand_tip <- function(input, tree,rand.type = "random",
             bind.pos<- binding_position(new.tree, node,  insertion = "polytomy",
                                         prob, ultrametric = ultrametric)
 
-            new.tree <- phytools::bind.tip(new.tree, PUT, edge.length = bind.pos$length,
+            new.tree.tmp <- phytools::bind.tip(new.tree, PUT, edge.length = bind.pos$length,
                                            where = bind.pos$where , position = bind.pos$position )
 
-            addnodelabel<-addnodelabel+1
-            if(length( new.tree$node.label[new.tree$node.label=="NA"])>1){stop("Several NA node labels")}
-            newnodelabel <- paste0("AN_",addnodelabel)
-            new.tree$node.label[new.tree$node.label=="NA"] <- newnodelabel
-            specification.list[[2]][spec.id] <- paste0(specification.list[[2]][spec.id], ",",newnodelabel,",",PUT)
+            # addnodelabel<-addnodelabel+1
+            # if(length( new.tree$node.label[new.tree$node.label=="NA"])>1){stop("Several NA node labels")}
+            # newnodelabel <- paste0("AN_",addnodelabel)
+            # new.tree$node.label[new.tree$node.label=="NA"] <- newnodelabel
+            # specification.list[[2]][spec.id] <- paste0(specification.list[[2]][spec.id], ",",newnodelabel,",",PUT)
         }
 
-        if(ultrametric & !(ape::is.ultrametric(new.tree))){
+          continue <- TRUE
+        if(ultrametric==TRUE & !ape::is.ultrametric(new.tree.tmp)){
           continue <- FALSE
-          new.tree <- ape::drop.tip(new.tree, PUT)
-          oldnodes <- strsplit(specification.list[[2]][spec.id], split=",")[[1]]
-          oldnodes <- oldnodes[!oldnodes %in% c(newnodelabel,PUT)]
-          specification.list[[2]][spec.id] <- paste0(oldnodes, collapse = ",")
-          }else{continue <- TRUE}
-          }
+          print("ultrametricity broken, trying again")
+         }
+
+        }
+
+         new.tree <-new.tree.tmp
+
+          addnodelabel<-addnodelabel+1
+          if(length( new.tree$node.label[new.tree$node.label=="NA"])>1){stop("Several NA node labels")}
+          newnodelabel <- paste0("AN_",addnodelabel)
+          new.tree$node.label[new.tree$node.label=="NA"] <- newnodelabel
+          specification.list[[2]][spec.id] <- paste0(specification.list[[2]][spec.id],",", newnodelabel,",",PUT)
+
+
+
+
+
 
         if(verbose){
           sp.time.end <- Sys.time()
