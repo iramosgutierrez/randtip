@@ -1,43 +1,44 @@
 
 #' Create a 'info' data frame.
 #'
-#' Function to create an 'info' object given a list of species.
+#' This function creates an 'info' object for a given list of species.
 #'
 #' @usage my.info <- build_info(species = species.list, tree = tree, db="gbif",
 #'                    mode="list", find.ranks = TRUE, interactive =FALSE,
 #'                    genus = FALSE, prior.info = NULL, verbose = TRUE)
 #'
-#' @param species A character vector or a single-column data frame including
+#' @param species Character vector or a single-column data frame including
 #'                the species of interest. Word breakers must be blanks (" ")
 #'                or underscores ("_").
-#' @param tree A 'phylo' object backbone tree. It can be set to NULL if
-#'             \code{mode} is set to "list".
-#' @param find.ranks Logical. If TRUE, taxonomic information will be retrieved to
-#'                   identify supra-generic MDCCs for the PUTs.
-#' @param db Taxonomic data base to search into if \code{find.ranks} is
-#'           set to TRUE. Accepted values are 'ncbi' (default),
-#'           'itis', 'gbif' and 'bold'.
-#' @param mode If mode is set to "list", the info file will be created
-#'             using only the species given in the \code{species} argument.
-#'             If "backbone" mode is specified, 'info' will also include all
-#'             the tips included in the backbone tree.
+#' @param tree A 'phylo' object with the backbone tree (set to NULL if
+#'             \code{mode} is "list").
+#' @param find.ranks Logical. If TRUE, taxonomic information will be retrieved 
+#'                   from the specified taxonomic repository to identify
+#'                   supra-generic MDCCs for the PUTs.
+#' @param db Taxonomic repository to query if \code{find.ranks} is
+#'           set to TRUE. One of 'ncbi' (default), 'itis', 'gbif'
+#'           or 'bold'.
+#' @param mode If mode is "list", the info data frame will be filled with 
+#'             the species provided in the \code{species} argument. If mode
+#'             is "backbone", the info data frame will also include all the
+#'             tips in the backbone tree.
 #' @param interactive Logical. Whether or not ambiguous species names will
-#'                    be resolved manually by the user or filled in
-#'                    automatically with 'NA' when retrieving taxonomic
-#'                    information.
-#' @param genus Logical. Whether or not a genus-level backbone tree is to
-#'              be expanded. If set to TRUE, all tips in the backbone tree
-#'              and taxa in the species vector must represent genera.
-#' @param prior.info A previously created 'info' file used to fill blanks
-#'                  previously to the taxonomic database search.
-#' @param verbose Logical. Should or not progress be printed.
+#'                    be resolved manually as they appear when retrieving 
+#'                    taxonomic information. If FALSE, NAs will be returned 
+#'                    in the corresponding row of info.          
+#' @param genus Logical. Whether or not the backbone tree is resolved to the
+#'              genus level. If TRUE, all the taxa in the tips of the phylogeny  
+#'              and the species vector must represent genera.
+#' @param prior.info A previously created info data frame that is recycled to
+#'                   build the new info.
+#' @param verbose Logical. Whether or not to print the progress.
 #'
-#' @return A randtip 'info' data frame
+#' @return An 'info' data frame
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
-#' # Create a list of species to include in the resulting tree
+#' # Create a list of species to include in the phylogeny
 #'  catspecies <- c("Lynx_lynx",
 #' "Panthera_uncia",
 #' "Panthera_onca",
@@ -48,7 +49,7 @@
 #' "Panthera_leo",
 #' "Felis_silvestris")
 #'
-#' #Create the 'info' file
+#' #Create the 'info' data frame
 #' cats.info <- build_info(species=catspecies, tree= cats,
 #'      find.ranks=TRUE, db="ncbi", mode="backbone")
 #' @export
@@ -428,15 +429,13 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
 
 #' Convert 'info' to 'input'.
 #'
-#' Convert an 'info' object into an 'input' one.
+#' Convert an 'info' data frame into an 'input' object.
 #'
-#' @param info An 'info' data frame, including all the customized binding
-#'             parameters.
+#' @param info A definitive info data frame.
 #' @param tree Backbone tree.
-#' @param verbose Logical. Should or not progress be printed.
+#' @param verbose Logical. Whether or not to print the progress.
 #'
-#' @return An 'input' data frame which can be fed to \code{rand_tip} function
-#'         alongside with a backbone tree to expand a tree.
+#' @return An input data frame to feed the \code{rand_tip} function.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
@@ -539,8 +538,8 @@ search_taxize <- function(info, genera, interactive, db, verbose=T){
 
 }
 
-# Provides the input to MDCC finder and facilitates unit testing of
-# usingMDCCfinder function in utils source file.
+# Creates an input for MDCC finder and facilitates unit testing of the
+# usingMDCCfinder function (utils.R source file)
 input_to_MDCCfinder <- function(info, tree){
 
     input<-info
