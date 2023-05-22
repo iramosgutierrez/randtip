@@ -128,24 +128,24 @@
 
 #' fish.info
 #'
-#' randtip 'info' file created after fish phylogeny
+#' Info data frame with taxonomic information retrieved for the species in the fish phylogeny (Rabosky et al. 2018)
 #'
-#' @format a 'info' data frame
+#' @format An info data frame
 #' \describe{
-#' Data frame with taxonomic information on the 31521 species of vascular fish
-#'  included in 'fish' object. This object was created after The Fish Tree of Life taxonomy.
+#' Data frame with taxonomic information on the 31521 species of fishes
+#' included in 'fish' object. Taxonomic information was retrieved from The Fish Tree of Life website.
 #'
 #' }
 "fish.info"
 
 #' mammals.info
 #'
-#' randtip 'info' file created after mammals phylogeny
+#' Info data frame with taxonomic information retrieved for the species in the mammal phylogeny (Upham et al. 2019)
 #'
-#' @format a 'info' data frame
+#' @format An info data frame
 #' \describe{
-#' Data frame with taxonomic information on the 5911 species of vascular mammals
-#'  included in 'mammals' object. This object was mainly created after 'ncbi' database taxonomy.
+#' Data frame with taxonomic information on the 5911 species of mammals
+#' included in 'mammals' object. Taxonomic information was retrieved from 'ncbi' database taxonomy.
 #'
 #' }
 "mammals.info"
@@ -153,12 +153,12 @@
 
 #' squamates.info
 #'
-#' randtip 'info' file created after squamates phylogeny
+#' Info data frame with taxonomic information retrieved for the species in the squamate phylogeny (Pyron et al. 2013)
 #'
-#' @format a 'info' data frame
+#' @format An info data frame
 #' \describe{
 #' Data frame with taxonomic information on the 4161 species of squamates
-#'  included in 'squamates' object. This object was created after 'ncbi' database taxonomy.
+#' included in 'squamates' object. Taxonomic information was retrieved from 'ncbi' database taxonomy.
 #'
 #' }
 "squamates.info"
@@ -166,12 +166,12 @@
 
 #' amphibians.info
 #'
-#' randtip 'info' file created after amphibians phylogeny
+#' Info data frame with taxonomic information retrieved for the species in the amphibian phylogeny (Pyron et al. 2013)
 #'
-#' @format a 'info' data frame
+#' @format An info data frame
 #' \describe{
 #' Data frame with taxonomic information on the 7238 species of amphibians
-#'  included in 'amphibians' object. This object was created after 'ncbi' database taxonomy.
+#' included in 'amphibians' object. Taxonomic information was retrieved from 'ncbi' database taxonomy.
 #'
 #' }
 "amphibians.info"
