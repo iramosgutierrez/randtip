@@ -1,18 +1,18 @@
 
-#' Edit an 'info' file using a simple function.
+#' Function to edit info data frames.
 #'
-#' Function to edit randtip's 'info' file.
+#' Auxiliar function for smoothly editing the info data frame
 #'
-#' @param info An 'info' object.
+#' @param info An info data frame.
 #' @param taxa Character vector with the taxa to be edited or removed.
-#' @param column The column name to be edited for the specified taxa.
-#'               NULL value is only accepted if \code{remove.rows} is set to TRUE.
-#' @param edit Any allowed value for the column of info that is to be edited.
-#'             NULL value is only accepted if \code{remove.rows} is set to TRUE.
-#' @param remove.rows If TRUE, the specified taxa will be eliminated from the
-#'                    'info' object. Default is FALSE.
+#' @param column The name of the column to be edited for the specified taxa.
+#'               NULL is only accepted if \code{remove.rows} is TRUE.
+#' @param edit Any allowed value for the column to be edited. NULL is only
+#'             accepted if \code{remove.rows} is TRUE.
+#' @param remove.rows If TRUE, the specified taxa will be removed from the
+#'                    info data frame (default is FALSE).
 #'
-#' @return An 'info' object including the editions or deletions asked.
+#' @return An edited info data frame
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
@@ -31,14 +31,14 @@
 #' @export
 edit_info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE){
 
-    #if(file.exists(info)){
-    #  if(grep(getwd(), info)==1){filedir <-  info}else{
-    #    filedir <- paste0(getwd(), "/", info)
-    #  }
+    #if(file.exists(info)){                                             # WE SHOULD EITHER REMOVE OR KEEP THESE LINES 
+    #  if(grep(getwd(), info)==1){filedir <-  info}else{                # WE SHOULD EITHER REMOVE OR KEEP THESE LINES 
+    #    filedir <- paste0(getwd(), "/", info)                          # WE SHOULD EITHER REMOVE OR KEEP THESE LINES     
+    #  }                                                                # WE SHOULD EITHER REMOVE OR KEEP THESE LINES 
 
-    #  cat(paste0("Reading info file from\n", filedir))
-    #  info <- read.table(info)
-    #}
+    #  cat(paste0("Reading info file from\n", filedir))                 # WE SHOULD EITHER REMOVE OR KEEP THESE LINES 
+    #  info <- read.table(info)                                         # WE SHOULD EITHER REMOVE OR KEEP THESE LINES 
+    #}                                                                  # WE SHOULD EITHER REMOVE OR KEEP THESE LINES 
 
     info <- correct_DF(info)
 
@@ -48,14 +48,14 @@ edit_info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE)
     if(length(taxa[!(taxa %in% info$taxon)])>=1){
         stop("taxa ",
             paste0("\"",taxa[!(taxa %in% info$taxon)], "\"", collapse = ", "),
-            " are not included in the column taxon of info dataframe")
+            " are not included in the info data frame")
     }
     if(remove.rows){return(info[!(info$taxon%in%taxa),])}
     if(is.null(column)|is.null(edit)){
         stop("Both \'column\' and \'edit\' arguments must be specified")
     }
     if(!(column %in% names(info))){
-        stop("Specified \'column\' value is not a correct info column name.")
+        stop("Specified \'column\' value is an invalid column name.")
     }
 
     rand.types <- c("random", "polytomy", NA)
@@ -83,19 +83,19 @@ edit_info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE)
 }
 
 
-#' Edit backbone tree using a simple function.
+#' Function to edit phylogenetic tip labels
 #'
-#' Function to edit a backbone tree.
+#' Auxiliar function for smoothly editing the tip labels of the backbone tree
 #'
 #' @param tree A backbone tree.
 #' @param tips Character vector with the phylogenetic tips to be edited or removed.
-#' @param edit A vector of the same length as \code{tips}, including the
-#'             new labels for the specified phylogenetic tips. NULL value is
-#'             only accepted if \code{remove.tips} is set to TRUE.
+#' @param edit A vector of the same length as \code{tips} with the new labels for
+#'             the specified tips. NULL is only accepted if \code{remove.tips} is
+#'             TRUE.
 #' @param remove.tips If TRUE, the specified tips will be pruned
-#'                    from the backbone tree. Default is FALSE.
+#'                    from the backbone tree (default is FALSE).
 #'
-#' @return A backbone tree including the requested tip editions or deletions.
+#' @return An edited backbone tree.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
@@ -106,14 +106,14 @@ edit_info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE)
 #' @export
 edit_tree <- function(tree, tips, edit=NULL, remove.tips=FALSE) {
 
-   #if(file.exists(tree)){
-   #  if(grep(getwd(), tree)==1){filedir <-  tree}else{
-   #    filedir <- paste0(getwd(), "/", tree)
-   #  }
-   #
-   #  cat(paste0("Reading tree file from\n", filedir))
-   #  tree <- ape::read.tree(tree)
-   #}
+   #if(file.exists(tree)){                                        # SAME AS COMMENTED ABOVE
+   #  if(grep(getwd(), tree)==1){filedir <-  tree}else{           # SAME AS COMMENTED ABOVE
+   #    filedir <- paste0(getwd(), "/", tree)                     # SAME AS COMMENTED ABOVE
+   #  }                                                           # SAME AS COMMENTED ABOVE
+   #                                                              # SAME AS COMMENTED ABOVE  
+   #  cat(paste0("Reading tree file from\n", filedir))            # SAME AS COMMENTED ABOVE  
+   #  tree <- ape::read.tree(tree)                                # SAME AS COMMENTED ABOVE  
+   #}                                                             # SAME AS COMMENTED ABOVE  
 
     tips<- gsub(" ", "_", tips)
     edit<- gsub(" ", "_", edit)
@@ -134,10 +134,10 @@ edit_tree <- function(tree, tips, edit=NULL, remove.tips=FALSE) {
         stop("'edit' argument can only be NULL, if 'remove.tips' is TRUE.")
     }
     if(any(duplicated(edit))){
-        stop("Edited tree tips cannot be duplicated.")
+        stop("Duplicates detected in the list of tips to be edited.")
     }
     if(length(edit)!=length(tips)){
-        stop("Arguments \'edit\' and \'tips\' must have the same length")
+        stop("Arguments \'edit\' and \'tips\' must have the same length.")
     }
 
     for(tip in tips){
