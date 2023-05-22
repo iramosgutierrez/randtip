@@ -60,12 +60,12 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
     if(is.data.frame(species)){
         if(ncol(species)!=1){
             stop("Species must be provided as a character vector ",
-                 "or single-column dataframe.")
+                 "or single-column data frame.")
         }else{species <- species[,1]}
     }
     if(!(is.vector(species))){
         stop("Species must be provided as a character vector ",
-             "or single-column dataframe.")
+             "or single-column data frame.")
     }
     species <- remove_spaces(species)
     duplicated_sp <-  species[duplicated(species)]
@@ -85,7 +85,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
         stop("Parameter 'mode' must be 'list' or 'backbone' ")
     }
     if(!(db %in% c("ncbi", "itis", "gbif", "bold"))){
-        stop(paste0(db, " is not one of the allowed databases."))
+        stop(paste0(db, " is not a supported taxonomic repository."))
     }
 
     tree$tip.label <- gsub("_x_|_X_", "_x-", tree$tip.label)
@@ -116,7 +116,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
     only.genus<- !grepl("_", species)
     if(isTRUE(genus)){
         if(!all(only.genus)){
-            stop("Taxa and tree tips must specify only genera for \"genus\" mode")
+            stop("Taxa and phylogenetic tips must represent genera only for \"genus\" mode")
         }
     }
     # Put suffix _sp in taxa with only the genus
@@ -132,10 +132,10 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 
     if(!is.null(prior.info)){
       if(!all(names(info)==names(prior.info))){
-        stop("Column names of prior.info object do not match an 'info' file
-             column names. Please correct this issue.")
+        stop("Invalid column names for prior.info. They should match column names of an
+        info data frame.")
+             
         }else{
-
 
           spp.in.prior <- species[species%in%prior.info$taxon]
 
@@ -159,7 +159,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
             info <- info[c(ord1,ord2),]
 
             }
-            #fill in taxonomic information with that included in prior.info
+            #fill in taxonomic information with that included in prior.info  #  REMOVE THIS
 
           if(length(genera.in.prior)>0){for(gen in genera.in.prior){
             gen.sp <- spp.gen.in.prior[first_word(spp.gen.in.prior)==gen]
@@ -170,21 +170,21 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
             }
 
 
-          }} #fill information of included genera species, only if information is always equal
+          }} #fill information of included genera species, only if information is always equal  #  REMOVE THIS
 
 
 
 
         }
 
-    }#include information from prior.info
+    }#include information from prior.info  #  REMOVE THIS
 
     info$genus<- first_word(info$taxon)
     genera <- unique(info$genus)
     if(!is.null(prior.info)){
       unmatched <- info[which(rowSums(is.na(info[,3:9]))==7),]
       genera <- unique(first_word(unmatched$taxon))
-    }#search only for unmatched genera
+    }#search only for unmatched genera  #  REMOVE THIS
 
     cols.select <- c("taxon1", "taxon2","rand.type", "polyphyly.scheme",
                     "use.paraphyletic", "use.singleton",
@@ -280,11 +280,11 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
     if(parallelize){
         if(is.null(ncores)){
             cat("\nncores argument was not provided.",
-                "Using all but one of system cores.\n\n")
+                "Using all system cores minus one.\n\n")
             ncores <- parallel::detectCores(logical = TRUE) - 1
         }else if(ncores > (parallel::detectCores(logical = TRUE) - 1)){
             cat("\nNumber of cores not availble.",
-                "Using all system cores but one.\n\n")
+                "Using all system cores minus one.\n\n")
             ncores <- parallel::detectCores(logical = TRUE) - 1
         }
     }
@@ -298,7 +298,7 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
     info$keep.tip[is.na(info$keep.tip)] <- "1"
     if(all(info$keep.tip != "1")){
         stop("No species in info with keep.tip equal to '1'.",
-             " Please set keep.tip equal to '1' for every species to ",
+             " Please set keep.tip to '1' for every species to ", #
             "keep in the final tree.")
     }
 
