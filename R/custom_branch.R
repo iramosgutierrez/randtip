@@ -1,30 +1,30 @@
 #'
-#' Bind PUTs at completely customized tree branches
+#' Bind PUTs to customized sets of phylogenetic edges
 #'
-#' @param tree "phylo" object used as backbone tree.
-#' @param edges matrix with 5 character vector columns.
-#'     Column 1 secifies the PUT to which the candidate branches in the
-#'     row refer to.
-#'     Columns 2 and 3 must represent two species whose MRCA represents the
-#'     stem node of candidate branches and
-#'     columns 4 and 5 two species whose MRCA define the crown node.
-#'     Note that a pair of nodes may not necessarily define one single branch
-#'     but a set of them.
-#'     Two identical species will define a tree tip rather than an internal node.
-#'     If the pairs of species in columns 2&3 and 4&5 are the same, the set of
-#'     branches to select will be defined as the complete clade below ther MRCA.
-#' @param rand.type "random" or "polytomy". Default value is "random".
-#' @param forceultrametric Whether or not the backbone tree will be forced to be ultrametric,
-#'                         only in case it is not. Default value is FALSE.
-#' @param prob Whether or not branch selection probability must be proportional
-#'             to branch length or equiprobable. Default value is TRUE.
+#' @param tree backbone tree of class phylo.
+#' @param edges matrix with five columns (character vectors). Each row defines 
+#'              a set of consecutive edges between two nodes, and multiple rows
+#'              can be used for the same PUT.
+#'     Column 1 includes the PUTs.
+#'     Columns 2 and 3 include a pair of species whose MRCA defines the older node, 
+#'     whereas the MRCA of the species in columns 4 and 5 defines the younger node.
+#'     Using the same species in columns 4 and 5 will define a terminal node as the
+#'     younger node. If columns 2-3 are filled with a species and columns 4-5 are
+#'     filled with another species, then all edges below the MRCA of the two species
+#'     will be set as candidates. If the four columns are filled with the same
+#'     species, the PUT will be bound as sister to this species.
+#' @param rand.type "random" or "polytomy". Default is "random".
+#' @param forceultrametric Whether or not to force the backbone tree to be ultrametric
+#'                         (in case it is detected as non-ultrametric). Default is FALSE.
+#' @param prob Whether or not the probability for selecting edges must be proportional
+#'             to their length. If FALSE (default is TRUE), all edges have equal probability.
 #'
 #' @return An expanded phylogeny.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #' 
 #' @examples 
-#' #Create a 'edges' dataframe
+#' #Create an 'edges' dataframe  # Note for Ignacio: I think this example does not illustrate on the potential of the custom_branch function. I will customize a different set of branches instead of Felis_silvestris as sister species (e.g. all edges between an internal older node and the terminal node "Felis_silvestris")     
 #' cats.edges <- data.frame(
 #'  "PUT"= "Felis_catus", 
 #'  "parent1"= "Felis_silvestris", 
@@ -32,7 +32,7 @@
 #'  "child1"= "Felis_silvestris", 
 #'  "child2"= "Felis_silvestris")
 #' 
-#' #Bind the PUT to one of the selected branches
+#' #Bind the PUT to any of the candidate edges as defined in cats.edges 
 #' cats.expanded <- custom_branch(tree=cats, 
 #'  edges=cats.edges, forceultrametric=TRUE)
 #' @export
@@ -99,37 +99,30 @@ custom_branch <- function(tree, edges, rand.type="random",
 
 #' plot.custom.branch
 #'
-#' Function to help users visualize the candidate branches for tip insertion with \code{\link{custom_branch}} function
+#' Auxiliar function to visualize candidate edges for PUT binding with \code{\link{custom_branch}}
 #'
-#' @param tree "phylo" object used as backbone tree.
-#' @param edges matrix with 5 character vector columns.
-#'        Column 1 secifies the PUT to which the candidate branches in
-#'        the row refer to.
-#'        Columns 2 and 3 must represent two species whose MRCA represents the
-#'        stem node of candidate branches and
-#'        columns 4 and 5 two species whose MRCA define the crown node.
-#'        Note that a pair of nodes may not necessarily define one single branch
-#'        but a set of them.
-#'        Two identical species will define a tree tip rather than an internal
-#'        node.
-#'        If the pairs of species in columns 2&3 and 4&5 are the same, the
-#'        set of branches to select will be defined as the complete clade
-#'        below their MRCA.
-#' @param PUT If the \code{edges} data frame refers to more than one PUT,
-#'            which one's set of branches must be plotted.
-#' @param candidate.col Color to represent branches defined by the \code{edges}
-#'                      data frame as candidates. Default value is red.
-#' @param forbidden.col Color to represent branches not defined by the
-#'                      \code{edges} data frame as candidates. Default value is
-#'                      black.
-#' @param candidate.lwd Line width to represent branches defined by the
-#'                      \code{edges} data frame as candidates. Default value 2.
-#' @param forbidden.lwd Line width to represent branches not defined by the
-#'                      \code{edges} data frame as candidates. Default value 1.
-#' @param ... Arguments to pass through \code{\link[ape]{plot.phylo}} function.
+#' @param tree backbone tree of class phylo.
+#' @param edges matrix with five columns (character vectors). Each row defines 
+#'              a set of consecutive edges between two nodes, and multiple rows
+#'              can be used for the same PUT.
+#'     Column 1 includes the PUTs.
+#'     Columns 2 and 3 include a pair of species whose MRCA defines the older node, 
+#'     whereas the MRCA of the species in columns 4 and 5 defines the younger node.
+#'     Using the same species in columns 4 and 5 will define a terminal node as the
+#'     younger node. If columns 2-3 are filled with a species and columns 4-5 are
+#'     filled with another species, then all edges below the MRCA of the two species
+#'     will be set as candidates. If the four columns are filled with the same
+#'     species, the PUT will be bound as sister to this species.
+#' @param PUT If the \code{edges} data frame includes binding information for multiple
+#'            PUTs, specifies the PUT whose candidate edges are to be depicted.         
+#' @param candidate.col Color for candidate edges (default is "red").
+#' @param forbidden.col Color for non-candidate edges (default is "black").
+#' @param candidate.lwd Line width for candidate edges (default is 2).
+#' @param forbidden.lwd Line width for non-candidate edges (default is 1).
+#' @param ... further arguments to be passed to \code{\link[ape]{plot.phylo}}.
 #' 
 #' @examples 
-#' #Create a 'edges' dataframe
+#' #Create an 'edges' dataframe # SAME COMMENT AS ABOVE, THIS EXAMPLE IS BORING...
 #' cats.edges <- data.frame(
 #'  "PUT"= "Felis_catus", 
 #'  "parent1"= "Felis_silvestris", 
@@ -137,7 +130,7 @@ custom_branch <- function(tree, edges, rand.type="random",
 #'  "child1"= "Felis_silvestris", 
 #'  "child2"= "Felis_silvestris")
 #' 
-#' #Plot the tree highlighting candidate branches
+#' #Depict candidate edges on the phylogeny
 #' plot_custom_branch(tree=cats, edges=cats.edges)
 #'
 #' @export
