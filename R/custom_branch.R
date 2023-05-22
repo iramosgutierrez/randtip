@@ -144,13 +144,13 @@ plot_custom_branch<- function(tree, edges, PUT=NULL,
     if(length(unique(edges[,1]))==1 & is.null(PUT)){PUT<- unique(edges[,1])}
     if(!is.null(PUT)){
         if(!(PUT %in% edges[,1])){
-            stop("The specified PUT is not contained in the 'edges' data frame.")
+            stop("The specified PUT is included in the 'edges' data frame.")
         }
         edges<- edges[edges[,1]==PUT]
     }
     if(length(unique(edges[,1]))>1){
         stop("Your 'edges' data frame contains more than one PUT. ",
-            "Please specify only one PUT to plot its candidate branches.")
+            "Please specify only one PUT to plot candidate edges.")
     }
 
     root<- findRoot(tree)
@@ -179,7 +179,7 @@ get_permitted_nodes_custom <- function(tree, df, edges, root){
     for(i in 1:nrow(edges)){
         if(!all(c(edges[i,2],edges[i,3],edges[i,4],edges[i,5])%in%tree$tip.label)){
             message("Row ", i, " has species not included in the tree ",
-                    "and will not be used.")
+                    "and will not be used.")              ###  ¿Y SI NO SE PUEDE DEFINIR UNO DE LOS NODOS?
             next
         }
 
@@ -207,7 +207,7 @@ get_permitted_nodes_custom <- function(tree, df, edges, root){
         }
 
         if(parnode==basenode & isFALSE(equal) ){
-            message("Row ", i, " of 'edges' is not defining a phylogenetic branch.")
+            message("Row ", i, " of 'edges' is not defining a set of phylogenetic edges.")  ### CORRECT? Un único edge definido por una row es un caso particular, no la norma
             next
         }
         if(parnode==basenode & isTRUE(equal) ){
@@ -222,8 +222,8 @@ get_permitted_nodes_custom <- function(tree, df, edges, root){
         p<- parnode
         while(n!=p){
             if(n==root){
-                message("Row ", i, " does not reflect a set of branches, ",
-                        "so it will not be used.")
+                message("Row ", i, " does not define a set of edges, ",
+                        "and it will not be used.")     ### ¿Y SI ES EL ÚNICO RAW QUÉ PASA?
                 perm.nodes.i<- NULL
                 break
             }
@@ -233,7 +233,7 @@ get_permitted_nodes_custom <- function(tree, df, edges, root){
         permittednodes<- c(permittednodes, perm.nodes.i)
     }
 
-    if(length(permittednodes)==0){stop("No branches could be selected")}
+    if(length(permittednodes)==0){stop("No candidate edges could be defined")}   # CHECK THAT THIS IS CORRECT
     permittednodes<- unique(permittednodes)
 
     return(permittednodes)
