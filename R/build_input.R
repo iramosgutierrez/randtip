@@ -132,8 +132,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 
     if(!is.null(prior.info)){
       if(!all(names(info)==names(prior.info))){
-        stop("Invalid column names for prior.info. They should match column names of an
-        info data frame.")
+        stop("Invalid column names for prior.info. They should match column names of an info data frame.")
              
         }else{
 
@@ -297,7 +296,7 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
     info <- correct_DF(info)
     info$keep.tip[is.na(info$keep.tip)] <- "1"
     if(all(info$keep.tip != "1")){
-        stop("No species in info with keep.tip equal to '1'.",
+        stop("No species in info with keep.tip equal to '1'.",            # THIS IS WEIRD. THE USER SHOULD NOT EDIT THAT COLUMN. I WOULD SIMPLY SAY SOMETHING LIKE "Cannot drop all species from the tree. At least some of them must have keep.tip = 1 status"
              " Please set keep.tip to '1' for every species to ", #
             "keep in the final tree.")
     }
@@ -384,7 +383,7 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
     }
 
     if(length(DF$Typo[DF$Typo==TRUE])>0){
-        message("There may be misspelling errors in ",
+        message("There might be misspelling errors in ",
                 "the species list or the phylogenetic tips. ",
                 "Please, check the TYPO column in the outputted data frame.\n")
     }
