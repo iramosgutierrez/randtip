@@ -91,7 +91,28 @@ return(listnodes)
 
 }
 
-
+extend2ultrametric <- function(phy){
+  if (is.null(phy$edge.length)){stop("the tree has no branch lengths")}
+  n <- ape::Ntip(phy)
+  e1 <- phy$edge[, 1]
+  e2 <- phy$edge[, 2]
+  EL <- phy$edge.length
+  ## xx: distance from a node or a tip to the root
+  xx <- numeric(n + phy$Nnode)
+  ## the following must start at the root and follow the
+  ## edges contiguously; so the tree must be either in cladewise
+  ## order (or in pruningwise but the for loop must start from
+  ## the bottom of the edge matrix)
+  for (i in seq_len(length(e1))){
+    xx[e2[i]] <- xx[e1[i]] + EL[i]
+  }
+  xx.tip <- xx[1:n]
+  xx.max <- max(xx.tip)
+  xx.dif <- xx.max - xx.tip
+  tip.pos <- which(phy$edge[,2] %in% 1:n)
+  phy$edge.length[tip.pos] <- phy$edge.length[tip.pos] + xx.dif
+  return(phy)
+}
 
 #### Specific functions  ####
 
@@ -126,7 +147,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
     MDCC.lev.vect<- vector(mode="character", length = length(taxon))
 
 
-    if(!silent){cat(paste0("Searching MDCCs...\n"))}
+    if(!silent){cat(paste0("Searching MDCCs\n"))}
 
     #manual MDCC search
     taxa <- input[!(input$taxon %in% tree$tip.label),]
