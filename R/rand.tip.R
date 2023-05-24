@@ -467,7 +467,7 @@ rand_tip <- function(input, tree,rand.type = "random",
           continue <- TRUE
         if(ultrametric==TRUE & !ape::is.ultrametric(new.tree.tmp)){
           continue <- FALSE
-          print("ultrametricity broken, trying again")
+          # print("ultrametricity broken, trying again")
          }
 
         }
