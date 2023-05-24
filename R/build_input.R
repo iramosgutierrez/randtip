@@ -36,7 +36,7 @@
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
-#' @examples
+#' @examplesIf interactive()
 #' # Create a list of species to include in the resulting tree
 #'  catspecies <- c("Lynx_lynx",
 #' "Panthera_uncia",
@@ -251,7 +251,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
-#' @examples
+#' @examplesIf interactive()
 #' catspecies <- c("Lynx_lynx", "Panthera_uncia",
 #' "Panthera_onca", "Felis_catus", "Puma_concolor",
 #' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
@@ -433,6 +433,12 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
 #' @param info An 'info' data frame, including all the customized binding
 #'             parameters.
 #' @param tree Backbone tree.
+#' @param parallelize Logical. If TRUE it allows the function to look for
+#'                             phyletic status using multiple processing
+#'                             cores.
+#' @param ncores Number of cores to use in parallelization. If no number
+#'                is provided it defaults to all but one of system logical
+#'                cores.
 #' @param verbose Logical. Should or not progress be printed.
 #'
 #' @return An 'input' data frame which can be fed to \code{rand_tip} function
@@ -440,7 +446,7 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
-#' @examples
+#' @examplesIf interactive()
 #' catspecies <- c("Lynx_lynx", "Panthera_uncia",
 #' "Panthera_onca", "Felis_catus", "Puma_concolor",
 #' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",

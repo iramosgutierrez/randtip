@@ -63,7 +63,7 @@
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
-#' @examples
+#' @examplesIf interactive()
 #'
 #'  catspecies <- c("Lynx_lynx", "Panthera_uncia",
 #' "Panthera_onca", "Felis_catus", "Puma_concolor",
