@@ -391,8 +391,9 @@ binding_position<- function(tree, node,  insertion,  prob, ultrametric = FALSE){
     if(ultrametric){
         position$length<-NULL
     }else{
-        position$length<-abs(stats::runif(1, 0, max(tree$edge.length)))
-    }
+      tiplength <- tree$edge.length[which(tree$edge[,2] %in% 1:length(tree$tip.label))] #we use tip lengths
+      position$length<-abs(stats::rexp (n = 1, rate = 1 / mean (tiplength))) #negative binomial value
+      }
 
     df<- df[df$node==node,]
     position$where<- node
