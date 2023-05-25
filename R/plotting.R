@@ -1,19 +1,19 @@
-#' Function to extract a subtree representing a specified clade.
+#' Function to extract a subtree representing a specified group.
 #'
-#' Obtain a phylogenetic tree representing a specified clade split from an
+#' Obtain a phylogenetic tree representing a specified group split from an
 #' original backbone tree.
 #' Note that the tree splitting will be performed at the MRCA node of all the taxa included in the
-#' clade in the 'info' object.
+#' group in the 'info' object.
 #'
 #' @param info An 'info' (or 'input') object.
 #' @param tree The original backbone tree to be split.
-#' @param clade Clade to be extracted
+#' @param group group to be extracted
 #'
 #' @return A list of four objects which will be used for automatic plotting
 #'         using \code{\link{plot_clade}} function.
 #'  'Tree' will contain the splitted tree; 'info' will contain the handed info
-#'         file; 'rank' will contain the taxonomic rank of the specified clade,
-#'         and 'clade' will contain the clade name.
+#'         file; 'rank' will contain the taxonomic rank of the specified group,
+#'         and 'group' will contain the group name.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
@@ -27,63 +27,63 @@
 #'      find.ranks=TRUE, db="ncbi", mode="backbone")
 #'
 #' felinae.clade <- get_clade(info=cats.info,
-#' tree=cats, clade="Felinae")
+#' tree=cats, group="Felinae")
 #'
 #' @export
-get_clade<- function(info, tree, clade){
+get_clade<- function(info, tree, group){
 
     rankDF<-info[,c("taxon", randtip_ranks())]
-    rankDF.withclade<-as.data.frame(rankDF[,]==clade)
-    rankDF.withclade<- as.vector(colSums(rankDF.withclade, na.rm = T))
-    ranks<- which(rankDF.withclade>0)
+    rankDF.withgroup<-as.data.frame(rankDF[,]==group)
+    rankDF.withgroup<- as.vector(colSums(rankDF.withgroup, na.rm = T))
+    ranks<- which(rankDF.withgroup>0)
     if(length(ranks)==0){
-        stop("Specified clade is not reflected in the 'info' data frame")}
+        stop("Specified group is not reflected in the 'info' data frame")}
     if(length(ranks)> 1){
-        stop("Specified clade reflect several ranks. ",
+        stop("Specified group reflect several ranks. ",
             "Please correct your 'info' data frame!")
     }
     rank<-names(rankDF)[ranks]
 
-    spss<- info[which(info[,rank]==clade),]
+    spss<- info[which(info[,rank]==group),]
     genera<- unique(spss$genus)
 
     cut.list<- tree$tip.label[first_word(tree$tip.label)%in% genera]
-    if(length(cut.list)==0){stop("Specified clade is not reflected in the tree!")}
-    if(length(cut.list)==1){stop("Specified clade is represented by a single tip in the phylogeny!")}
+    if(length(cut.list)==0){stop("Specified group is not reflected in the tree!")}
+    if(length(cut.list)==1){stop("Specified group is represented by a single tip in the phylogeny!")}
     cut.node<- ape::getMRCA(tree, tip = cut.list )
     if(cut.node==findRoot(tree)){
-        return(list("Tree"=tree, "info"=info, "rank"=rank, "clade"=clade))
+        return(list("Tree"=tree, "info"=info, "rank"=rank, "group"=group))
     }
 
     subtree<-  ape::extract.clade(tree, node = cut.node, root.edge = 0 )
 
-    return(list("Tree"=subtree, "info"=info, "rank"=rank, "clade"=clade))
+    return(list("Tree"=subtree, "info"=info, "rank"=rank, "group"=group))
 }
 
 
-#' Function to plot a subtree representing a specified clade.
+#' Function to plot a subtree representing a specified group.
 #'
 #' Plot a phylogenetic tree splitted from the backbone tree
 #' using \code{get_clade} function.
 #'
 #' @param get.clade.out Output from \code{\link{get_clade}} function.
-#' @param ppcr.col Color to represent tips included in the specified clade.
+#' @param ppcr.col Color to represent tips included in the specified group.
 #'                 Default value is green.
-#' @param nonppcr.col Color to represent tips included in a different clade
+#' @param nonppcr.col Color to represent tips included in a different group
 #'                    from the specified one (at the same taxonomic rank).
 #'                    Default value is blue.
 #' @param unknown.col Color to represent tips without taxonomic information
-#'                    at the specifed clade's taxonomic rank.
+#'                    at the specifed group's taxonomic rank.
 #'                    Default value is grey
 #' @param ... Arguments to pass through \code{\link{plot.phylo}} function.
 #'
-#' @return A plot representing the clade specified in \code{\link{get_clade}}
+#' @return A plot representing the group specified in \code{\link{get_clade}}
 #'         function using the selected colors.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
-#' #First the clade information must be obtained
+#' #First the group information must be obtained
 #'
 #' catspecies <- c("Lynx_lynx", "Panthera_uncia",
 #' "Panthera_onca", "Felis_catus", "Puma_concolor",
@@ -94,7 +94,7 @@ get_clade<- function(info, tree, clade){
 #'      find.ranks=TRUE, db="ncbi", mode="backbone")
 #'
 #' felinae.clade <- get_clade(info=cats.info,
-#' tree=cats, clade="Felinae")
+#' tree=cats, group="Felinae")
 #'
 #' #Then it can be plotted
 #' plot_clade(felinae.clade, ppcr.col="green",
@@ -104,8 +104,8 @@ get_clade<- function(info, tree, clade){
 plot_clade<- function(get.clade.out, ppcr.col="#4a8a21",
                       nonppcr.col="#48bce0",unknown.col="#adadad", ...){
 
-    get.clade.names <- c("Tree", "info", "rank", "clade")
-    if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.clade.names))){
+    get.group.names <- c("Tree", "info", "rank", "group")
+    if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.group.names))){
         stop("Please feed this function with the returned object from ",
             "get_clade function")
     }
@@ -118,7 +118,7 @@ plot_clade<- function(get.clade.out, ppcr.col="#4a8a21",
 
     ape::plot.phylo(get.clade.out$Tree, tip.color = tipcol, ...)
     graphics::legend("topright", legend = legnames, border = legcols, fill=legcols,
-           cex = 0.7, bty = "n",  title = paste0(get.clade.out$clade, " ",
+           cex = 0.7, bty = "n",  title = paste0(get.clade.out$group, " ",
                                                  get.clade.out$rank))
 
 
@@ -173,27 +173,27 @@ put_tip_col<- function(newtree, oldtree, placed.col="#adadad", put.col="#C23B23"
 clade_col <- function(get.clade.out, ppcr.col="#4a8a21",
                       nonppcr.col="#48bce0",unknown.col="#adadad"){
 
-    get.clade.names <- c("Tree", "info", "rank", "clade")
-    if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.clade.names))){
+    get.group.names <- c("Tree", "info", "rank", "group")
+    if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.group.names))){
         stop("Please feed this function with the returned object from ",
             "get_clade function")
     }
 
-    clade.tree<-get.clade.out$Tree
+    group.tree<-get.clade.out$Tree
     rank <- get.clade.out$rank
-    clade <- get.clade.out$clade
+    group <- get.clade.out$group
     info   <- get.clade.out$info
 
-    spss<- info[which(info[,rank]==clade),]
+    spss<- info[which(info[,rank]==group),]
     genera<- unique(spss$genus)
 
-    intruders<- info[which(info[,rank]!=clade),]
+    intruders<- info[which(info[,rank]!=group),]
     intrudergenera<- unique(intruders$genus)
 
-    colours<- vector("character", length(clade.tree$tip.label))
+    colours<- vector("character", length(group.tree$tip.label))
     colours[]<- unknown.col
-    colours[first_word(clade.tree$tip.label)%in%intrudergenera]<- nonppcr.col
-    colours[first_word(clade.tree$tip.label)%in%genera]<- ppcr.col
+    colours[first_word(group.tree$tip.label)%in%intrudergenera]<- nonppcr.col
+    colours[first_word(group.tree$tip.label)%in%genera]<- ppcr.col
 
     return(colours)
 
