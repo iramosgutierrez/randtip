@@ -36,7 +36,7 @@
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
-#' @examples
+#' @examplesIf interactive()
 #' # Create a list of species to include in the resulting tree
 #'  catspecies <- c("Lynx_lynx",
 #' "Panthera_uncia",
@@ -251,7 +251,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
-#' @examples
+#' @examplesIf interactive()
 #' catspecies <- c("Lynx_lynx", "Panthera_uncia",
 #' "Panthera_onca", "Felis_catus", "Puma_concolor",
 #' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
@@ -433,6 +433,12 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
 #' @param info An 'info' data frame, including all the customized binding
 #'             parameters.
 #' @param tree Backbone tree.
+#' @param parallelize Logical. If TRUE it allows the function to look for
+#'                             phyletic status using multiple processing
+#'                             cores.
+#' @param ncores Number of cores to use in parallelization. If no number
+#'                is provided it defaults to all but one of system logical
+#'                cores.
 #' @param verbose Logical. Should or not progress be printed.
 #'
 #' @return An 'input' data frame which can be fed to \code{rand_tip} function
@@ -440,7 +446,7 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
-#' @examples
+#' @examplesIf interactive()
 #' catspecies <- c("Lynx_lynx", "Panthera_uncia",
 #' "Panthera_onca", "Felis_catus", "Puma_concolor",
 #' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
@@ -452,29 +458,60 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
 #' cats.input <- info2input(info=cats.info, tree=cats)
 #'
 #' @export
-info2input<- function(info, tree, verbose=T){
+info2input<- function(info, tree, parallelize = T, ncores = NULL, verbose=T){
 
-    #if(file.exists(info)){
-    #  if(grep(getwd(), info)==1){filedir <-  info}else{
-    #    filedir <- paste0(getwd(), "/", info)
-    #  }
-    #
-    #  cat(paste0("Reading info file from\n", filedir))
-    #  info <- read.table(info)
-    #}
+    if(parallelize){
+        if(is.null(ncores)){
+            cat("\nncores argument was not provided.",
+                "Using all but one of system cores.\n\n")
+            ncores <- parallel::detectCores(logical = TRUE) - 1
+        }else if(ncores > (parallel::detectCores(logical = TRUE) - 1)){
+            cat("\nNumber of cores not availble.",
+                "Using all system cores but one.\n\n")
+            ncores <- parallel::detectCores(logical = TRUE) - 1
+        }
+    }
 
     input.to.mdcc <- input_to_MDCCfinder(info, tree)
     input <- input.to.mdcc$input
     tree <- input.to.mdcc$tree
     taxon.in.tree <- input.to.mdcc$taxon.in.tree
 
-    input_search<- usingMDCCfinder(input = input,
-                                  taxon = input$taxon[!(taxon.in.tree)],
-                                  tree = tree,
-                                  silent = !verbose)
+    if(parallelize){
+        if(verbose){cat("Searching MDCCs in parallel\n")}
 
-    input$MDCC[!(taxon.in.tree)] <- input_search[[1]]
-    input$MDCC.rank[!(taxon.in.tree)] <- input_search[[2]]
+        taxon = input$taxon[!(taxon.in.tree)]
+        silent=T
+
+        cl <- parallel::makeCluster(ncores)
+        parallel::clusterExport(cl, c("usingMDCCfinder", "correct_DF",
+                                    "randtip_ranks", "first_word", 
+                                    "sp_genus_in_tree"))
+
+        input_out <- parallel::parLapply(cl, taxon,
+                                         function(taxon_i, input,tree, silent){
+                                             usingMDCCfinder(input = input,
+                                                             taxon = taxon_i,
+                                                             tree = tree,
+                                                             silent = T)
+                                       }, input, tree, silent)
+        parallel::stopCluster(cl)
+
+        for(i in seq_along(taxon)){
+            pos <- which(input$taxon==taxon[i])
+            input[pos,"MDCC" ] <- input_out[[i]][[1]]
+            input[pos,"MDCC.rank" ] <- input_out[[i]][[2]]
+        }
+
+    }else{
+        input_search<- usingMDCCfinder(input = input,
+                                       taxon = input$taxon[!(taxon.in.tree)],
+                                       tree = tree,
+                                       silent = !verbose)
+
+        input$MDCC[!(taxon.in.tree)] <- input_search[[1]]
+        input$MDCC.rank[!(taxon.in.tree)] <- input_search[[2]]
+    }
 
     # Taxa with no MDCC
     not.included <- input[is.na(input$MDCC),]
@@ -486,6 +523,7 @@ info2input<- function(info, tree, verbose=T){
 
     return(input)
 }
+
 
 search_taxize <- function(info, genera, interactive, db, verbose=T){
     searching.categories<- randtip_ranks()[-1]
@@ -673,3 +711,4 @@ search_typos <- function(PUT_i, PUTs, putlength, DF, tree.taxa, sim, verbose){
     return(DF[PUT_i, ])
 
 }
+

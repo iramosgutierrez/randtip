@@ -63,7 +63,7 @@
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
-#' @examples
+#' @examplesIf interactive()
 #'
 #'  catspecies <- c("Lynx_lynx", "Panthera_uncia",
 #' "Panthera_onca", "Felis_catus", "Puma_concolor",
@@ -131,7 +131,7 @@ rand_tip <- function(input, tree,rand.type = "random",
     new.tree <- tree
     if(is.null(tree$edge.length)){new.tree$edge.length<-rep(1, nrow(new.tree$edge))}
 
-    if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- phytools::force.ultrametric(new.tree, method = "extend")}
+    if(forceultrametric & !ape::is.ultrametric(new.tree)){new.tree<- extend2ultrametric(new.tree)}
     if(isFALSE(forceultrametric) & !ape::is.ultrametric(new.tree)){
         message("The backbone tree is not ultrametric.",
                 "\nPlease, set the argument 'forceultrametric' to TRUE if the tree is genuinely ultrametric.")
