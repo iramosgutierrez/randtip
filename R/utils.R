@@ -216,62 +216,63 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
     ranks<- randtip_ranks()
     taxa<- input[!(!is.na(input$taxon1)|!is.na(input$taxon2)),]
 
-    if(nrow(taxa)>0){
-        vect<- which(taxon%in%taxa$taxon)
-        for(v in vect){
+    if(nrow(taxa) == 0){
+        return(list(MDCC=MDCC.vect,MDCC.ranks=MDCC.lev.vect) )
+    }
+    vect<- which(taxon%in%taxa$taxon)
+    for(v in vect){
 
-            if(!silent){
+        if(!silent){
 
-                if(v==vect[1]){
-                    cat(paste0("0%       25%       50%       75%       100%", "\n",
-                               "|---------|---------|---------|---------|",   "\n"))
-                }
-
-                vec<- seq(from=0, to=40, by=40/length(vect))
-                vec<-ceiling(vec)
-                vec<- diff(vec)
-                cat(strrep("*", times=vec[which(vect==v)]))
-
-                if(v ==vect[length(vect)]){cat("*\n")}
-
+            if(v==vect[1]){
+                cat(paste0("0%       25%       50%       75%       100%", "\n",
+                           "|---------|---------|---------|---------|",   "\n"))
             }
 
-            if(any(tree$tip.label == taxon[v])){
-                MDCC.vect[v]<- "Tip"
-                MDCC.lev.vect[v]<-"Tip"
-                next
+            vec<- seq(from=0, to=40, by=40/length(vect))
+            vec<-ceiling(vec)
+            vec<- diff(vec)
+            cat(strrep("*", times=vec[which(vect==v)]))
+
+            if(v ==vect[length(vect)]){cat("*\n")}
+
+        }
+
+        if(any(tree$tip.label == taxon[v])){
+            MDCC.vect[v]<- "Tip"
+            MDCC.lev.vect[v]<-"Tip"
+            next
+        }
+
+        i<- which(input$taxon==taxon[v])
+        if((MDCC.vect[v])==""){
+
+            MDCC<-as.character(NA)
+            MDCC.ranks<-as.character(NA)
+
+            for(rank in ranks){
+                if(is.na(MDCC)){
+                    MDCC<-as.character(input[i, rank])
+                    if(!is.na(MDCC)){
+                        #  phyleticity<-MDCC_phyleticity(input, tree = tree,
+                        #          MDCC.info = list(rank=rank, MDCC= MDCC))
+                        # if(phyleticity=="Missing"){MDCC<-NA}
+                        #supressed for optimization
+
+                        treegenera <- unique(first_word(tree$tip.label))
+                        tree.input <- input[first_word(input$taxon)%in%treegenera,]
+                        tree.input <- tree.input[!is.na(tree.input[,rank]),]
+                        {if(sum(tree.input[, rank]==MDCC)==0){MDCC<-NA}}
+
+                    }
+
+                    lev<-rank
+                }else{next}
             }
+            MDCC.vect[v]<-as.character(MDCC)
+            MDCC.lev.vect[v]<-as.character(lev)
+            if(is.na(MDCC)){MDCC.lev.vect[v]<-NA}
 
-            i<- which(input$taxon==taxon[v])
-            if((MDCC.vect[v])==""){
-
-                MDCC<-as.character(NA)
-                MDCC.ranks<-as.character(NA)
-
-                for(rank in ranks){
-                    if(is.na(MDCC)){
-                        MDCC<-as.character(input[i, rank])
-                        if(!is.na(MDCC)){
-                            #  phyleticity<-MDCC_phyleticity(input, tree = tree,
-                            #          MDCC.info = list(rank=rank, MDCC= MDCC))
-                            # if(phyleticity=="Missing"){MDCC<-NA}
-                            #supressed for optimization
-
-                            treegenera <- unique(first_word(tree$tip.label))
-                            tree.input <- input[first_word(input$taxon)%in%treegenera,]
-                            tree.input <- tree.input[!is.na(tree.input[,rank]),]
-                            {if(sum(tree.input[, rank]==MDCC)==0){MDCC<-NA}}
-
-                        }
-
-                        lev<-rank
-                    }else{next}
-                }
-                MDCC.vect[v]<-as.character(MDCC)
-                MDCC.lev.vect[v]<-as.character(lev)
-                if(is.na(MDCC)){MDCC.lev.vect[v]<-NA}
-
-            }
         }
     }
 

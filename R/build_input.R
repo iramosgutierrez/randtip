@@ -460,17 +460,17 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
 #' @export
 info2input<- function(info, tree, parallelize = T, ncores = NULL, verbose=T){
 
-  if(parallelize){
-    if(is.null(ncores)){
-      cat("\nncores argument was not provided.",
-          "Using all but one of system cores.\n\n")
-      ncores <- parallel::detectCores(logical = TRUE) - 1
-    }else if(ncores > (parallel::detectCores(logical = TRUE) - 1)){
-      cat("\nNumber of cores not availble.",
-          "Using all system cores but one.\n\n")
-      ncores <- parallel::detectCores(logical = TRUE) - 1
+    if(parallelize){
+        if(is.null(ncores)){
+            cat("\nncores argument was not provided.",
+                "Using all but one of system cores.\n\n")
+            ncores <- parallel::detectCores(logical = TRUE) - 1
+        }else if(ncores > (parallel::detectCores(logical = TRUE) - 1)){
+            cat("\nNumber of cores not availble.",
+                "Using all system cores but one.\n\n")
+            ncores <- parallel::detectCores(logical = TRUE) - 1
+        }
     }
-  }
 
     input.to.mdcc <- input_to_MDCCfinder(info, tree)
     input <- input.to.mdcc$input
@@ -478,39 +478,39 @@ info2input<- function(info, tree, parallelize = T, ncores = NULL, verbose=T){
     taxon.in.tree <- input.to.mdcc$taxon.in.tree
 
     if(parallelize){
-      if(verbose){cat("Searching MDCCs in parallel\n")}
+        if(verbose){cat("Searching MDCCs in parallel\n")}
 
-      taxon = input$taxon[!(taxon.in.tree)]
-      silent=T
+        taxon = input$taxon[!(taxon.in.tree)]
+        silent=T
 
-      cl <- parallel::makeCluster(ncores)
-      parallel::clusterExport(cl, c("usingMDCCfinder"))
+        cl <- parallel::makeCluster(ncores)
+        parallel::clusterExport(cl, c("usingMDCCfinder", "correct_DF",
+                                    "randtip_ranks", "first_word", 
+                                    "sp_genus_in_tree"))
 
-      input_out <- parallel::parLapply(cl, taxon,
-                                       function( taxon, input,tree, silent){
-                                         input_search<- usingMDCCfinder(input = input,
-                                                                        taxon = taxon,
-                                                                        tree = tree,
-                                                                        silent = T)
+        input_out <- parallel::parLapply(cl, taxon,
+                                         function(taxon_i, input,tree, silent){
+                                             usingMDCCfinder(input = input,
+                                                             taxon = taxon_i,
+                                                             tree = tree,
+                                                             silent = T)
                                        }, input, tree, silent)
-      parallel::stopCluster(cl)
+        parallel::stopCluster(cl)
 
-
-
-      for(i in seq_along(taxon)){
-        pos <- which(input$taxon==taxon[i])
-        input[pos,"MDCC" ] <- input_out[[i]][[1]]
-        input[pos,"MDCC.rank" ] <- input_out[[i]][[2]]
+        for(i in seq_along(taxon)){
+            pos <- which(input$taxon==taxon[i])
+            input[pos,"MDCC" ] <- input_out[[i]][[1]]
+            input[pos,"MDCC.rank" ] <- input_out[[i]][[2]]
         }
 
     }else{
-    input_search<- usingMDCCfinder(input = input,
-                                  taxon = input$taxon[!(taxon.in.tree)],
-                                  tree = tree,
-                                  silent = !verbose)
+        input_search<- usingMDCCfinder(input = input,
+                                       taxon = input$taxon[!(taxon.in.tree)],
+                                       tree = tree,
+                                       silent = !verbose)
 
-    input$MDCC[!(taxon.in.tree)] <- input_search[[1]]
-    input$MDCC.rank[!(taxon.in.tree)] <- input_search[[2]]
+        input$MDCC[!(taxon.in.tree)] <- input_search[[1]]
+        input$MDCC.rank[!(taxon.in.tree)] <- input_search[[2]]
     }
 
     # Taxa with no MDCC
@@ -711,3 +711,4 @@ search_typos <- function(PUT_i, PUTs, putlength, DF, tree.taxa, sim, verbose){
     return(DF[PUT_i, ])
 
 }
+
