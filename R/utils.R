@@ -1,5 +1,5 @@
 first_word <- function(string){
-  gsub("([A-Za-z]+).*", "\\1", string)
+  gsub("([A-Za-z\\-]+).*", "\\1", string)
 }
 
 second_word <- function(string){
