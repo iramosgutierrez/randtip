@@ -54,15 +54,16 @@ black.}
 Function to help users visualize the candidate branches for tip insertion with \code{\link{custom_branch}} function
 }
 \examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 #Create a 'edges' dataframe
 cats.edges <- data.frame(
- "PUT"= "Felis_catus", 
- "parent1"= "Felis_silvestris", 
- "parent2"= "Felis_silvestris", 
- "child1"= "Felis_silvestris", 
+ "PUT"= "Felis_catus",
+ "parent1"= "Felis_silvestris",
+ "parent2"= "Felis_silvestris",
+ "child1"= "Felis_silvestris",
  "child2"= "Felis_silvestris")
 
 #Plot the tree highlighting candidate branches
 plot_custom_branch(tree=cats, edges=cats.edges)
-
+\dontshow{\}) # examplesIf}
 }

@@ -86,7 +86,28 @@ return(listnodes)
 
 }
 
-
+extend2ultrametric <- function(phy){
+  if (is.null(phy$edge.length)){stop("the tree has no branch lengths")}
+  n <- ape::Ntip(phy)
+  e1 <- phy$edge[, 1]
+  e2 <- phy$edge[, 2]
+  EL <- phy$edge.length
+  ## xx: distance from a node or a tip to the root
+  xx <- numeric(n + phy$Nnode)
+  ## the following must start at the root and follow the
+  ## edges contiguously; so the tree must be either in cladewise
+  ## order (or in pruningwise but the for loop must start from
+  ## the bottom of the edge matrix)
+  for (i in seq_len(length(e1))){
+    xx[e2[i]] <- xx[e1[i]] + EL[i]
+  }
+  xx.tip <- xx[1:n]
+  xx.max <- max(xx.tip)
+  xx.dif <- xx.max - xx.tip
+  tip.pos <- which(phy$edge[,2] %in% 1:n)
+  phy$edge.length[tip.pos] <- phy$edge.length[tip.pos] + xx.dif
+  return(phy)
+}
 
 #### Specific functions  ####
 
@@ -120,7 +141,7 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
     MDCC.lev.vect<- vector(mode="character", length = length(taxon))
 
 
-    if(!silent){cat(paste0("Searching MDCCs...\n"))}
+    if(!silent){cat(paste0("Searching MDCCs\n"))}
 
     #manual MDCC search
     taxa <- input[!(input$taxon %in% tree$tip.label),]
@@ -189,62 +210,63 @@ usingMDCCfinder<- function(input, taxon=NULL, tree, silent = FALSE){
     ranks<- randtip_ranks()
     taxa<- input[!(!is.na(input$taxon1)|!is.na(input$taxon2)),]
 
-    if(nrow(taxa)>0){
-        vect<- which(taxon%in%taxa$taxon)
-        for(v in vect){
+    if(nrow(taxa) == 0){
+        return(list(MDCC=MDCC.vect,MDCC.ranks=MDCC.lev.vect) )
+    }
+    vect<- which(taxon%in%taxa$taxon)
+    for(v in vect){
 
-            if(!silent){
+        if(!silent){
 
-                if(v==vect[1]){
-                    cat(paste0("0%       25%       50%       75%       100%", "\n",
-                               "|---------|---------|---------|---------|",   "\n"))
-                }
-
-                vec<- seq(from=0, to=40, by=40/length(vect))
-                vec<-ceiling(vec)
-                vec<- diff(vec)
-                cat(strrep("*", times=vec[which(vect==v)]))
-
-                if(v ==vect[length(vect)]){cat("*\n")}
-
+            if(v==vect[1]){
+                cat(paste0("0%       25%       50%       75%       100%", "\n",
+                           "|---------|---------|---------|---------|",   "\n"))
             }
 
-            if(any(tree$tip.label == taxon[v])){
-                MDCC.vect[v]<- "Tip"
-                MDCC.lev.vect[v]<-"Tip"
-                next
+            vec<- seq(from=0, to=40, by=40/length(vect))
+            vec<-ceiling(vec)
+            vec<- diff(vec)
+            cat(strrep("*", times=vec[which(vect==v)]))
+
+            if(v ==vect[length(vect)]){cat("*\n")}
+
+        }
+
+        if(any(tree$tip.label == taxon[v])){
+            MDCC.vect[v]<- "Tip"
+            MDCC.lev.vect[v]<-"Tip"
+            next
+        }
+
+        i<- which(input$taxon==taxon[v])
+        if((MDCC.vect[v])==""){
+
+            MDCC<-as.character(NA)
+            MDCC.ranks<-as.character(NA)
+
+            for(rank in ranks){
+                if(is.na(MDCC)){
+                    MDCC<-as.character(input[i, rank])
+                    if(!is.na(MDCC)){
+                        #  phyleticity<-MDCC_phyleticity(input, tree = tree,
+                        #          MDCC.info = list(rank=rank, MDCC= MDCC))
+                        # if(phyleticity=="Missing"){MDCC<-NA}
+                        #supressed for optimization
+
+                        treegenera <- unique(first_word(tree$tip.label))
+                        tree.input <- input[first_word(input$taxon)%in%treegenera,]
+                        tree.input <- tree.input[!is.na(tree.input[,rank]),]
+                        {if(sum(tree.input[, rank]==MDCC)==0){MDCC<-NA}}
+
+                    }
+
+                    lev<-rank
+                }else{next}
             }
+            MDCC.vect[v]<-as.character(MDCC)
+            MDCC.lev.vect[v]<-as.character(lev)
+            if(is.na(MDCC)){MDCC.lev.vect[v]<-NA}
 
-            i<- which(input$taxon==taxon[v])
-            if((MDCC.vect[v])==""){
-
-                MDCC<-as.character(NA)
-                MDCC.ranks<-as.character(NA)
-
-                for(rank in ranks){
-                    if(is.na(MDCC)){
-                        MDCC<-as.character(input[i, rank])
-                        if(!is.na(MDCC)){
-                            #  phyleticity<-MDCC_phyleticity(input, tree = tree,
-                            #          MDCC.info = list(rank=rank, MDCC= MDCC))
-                            # if(phyleticity=="Missing"){MDCC<-NA}
-                            #supressed for optimization
-
-                            treegenera <- unique(first_word(tree$tip.label))
-                            tree.input <- input[first_word(input$taxon)%in%treegenera,]
-                            tree.input <- tree.input[!is.na(tree.input[,rank]),]
-                            {if(sum(tree.input[, rank]==MDCC)==0){MDCC<-NA}}
-
-                        }
-
-                        lev<-rank
-                    }else{next}
-                }
-                MDCC.vect[v]<-as.character(MDCC)
-                MDCC.lev.vect[v]<-as.character(lev)
-                if(is.na(MDCC)){MDCC.lev.vect[v]<-NA}
-
-            }
         }
     }
 
@@ -385,8 +407,9 @@ binding_position<- function(tree, node,  insertion,  prob, ultrametric = FALSE){
     if(ultrametric){
         position$length<-NULL
     }else{
-        position$length<-abs(stats::runif(1, 0, max(tree$edge.length)))
-    }
+      tiplength <- tree$edge.length[which(tree$edge[,2] %in% 1:length(tree$tip.label))] #we use tip lengths
+      position$length<-abs(stats::rexp (n = 1, rate = 1 / mean (tiplength))) #negative binomial value
+      }
 
     df<- df[df$node==node,]
     position$where<- node

@@ -63,7 +63,7 @@
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
-#' @examples
+#' @examplesIf interactive()
 #'
 #'  catspecies <- c("Lynx_lynx", "Panthera_uncia",
 #' "Panthera_onca", "Felis_catus", "Puma_concolor",
@@ -267,13 +267,21 @@ rand_tip <- function(input, tree,rand.type = "random",
 
     }
 
-    if (rank == "species") {
-      new.tree <- add_to_singleton(new.tree, clump$taxa, PUT, use.singleton=T)
+    if(rank=="species"){
+      continue <- FALSE
+      while(continue == FALSE){
+        new.tree.tmp<-add_to_singleton(new.tree, clump$taxa, PUT, use.singleton=T)
+        if(ultrametric & (ape::is.ultrametric(new.tree.tmp))){
+          continue <- TRUE
+          new.tree <- new.tree.tmp
+        }
+      }
 
       addnodelabel<-addnodelabel+1
       if(length(new.tree$node.label[new.tree$node.label=="NA"])>1){stop("Several NA node labels")}
       newnodelabel <- paste0("AN_",addnodelabel)
       new.tree$node.label[new.tree$node.label=="NA"] <- newnodelabel
+
 
       next
     }
@@ -373,91 +381,110 @@ rand_tip <- function(input, tree,rand.type = "random",
     perm.nodes <- listnodes2realnodes(listnodes, new.tree)
 
 
+    continue <- FALSE
+    while(continue==FALSE){
 
-    if(rand.type=="random"){
-      if(is.null(perm.nodes)){
-        perm.nodes<- get_permitted_nodes(new.tree, input,
-                                         MDCC, rank, MDCC.type,
-                                         polyphyly.scheme, use.paraphyletic,
-                                         use.singleton, use.stem=TRUE)
+      if(rand.type=="random")  {
+        if(is.null(perm.nodes)){
+          perm.nodes<- get_permitted_nodes(new.tree, input,
+                                           MDCC, rank, MDCC.type,
+                                           polyphyly.scheme, use.paraphyletic,
+                                           use.singleton, use.stem=TRUE)
 
-        forbidden.nodes<- get_forbidden_nodes(new.tree,input, MDCC, rank,
-                                              perm.nodes, respect.mono,
-                                              respect.para)
+          forbidden.nodes<- get_forbidden_nodes(new.tree,input, MDCC, rank,
+                                                perm.nodes, respect.mono,
+                                                respect.para)
 
-        if(all(perm.nodes[-1]%in%forbidden.nodes)){
-          perm.nodes <- perm.nodes[1]
-        }else{
-          if(!use.stem){
-            perm.nodes<- perm.nodes[-1]
-            perm.nodes<-perm.nodes[!(perm.nodes%in%forbidden.nodes)]
+          if(all(perm.nodes[-1]%in%forbidden.nodes)){
+            perm.nodes <- perm.nodes[1]
+          }else{
+            if(!use.stem){
+              perm.nodes<- perm.nodes[-1]
+              perm.nodes<-perm.nodes[!(perm.nodes%in%forbidden.nodes)]
+            }
+            if(use.stem){
+              perm.nodes<-perm.nodes[!(perm.nodes%in%forbidden.nodes)]
+            }
           }
-          if(use.stem){
-            perm.nodes<-perm.nodes[!(perm.nodes%in%forbidden.nodes)]
+          if(is.null(perm.nodes)){
+            perm.nodes<- get_permitted_nodes(new.tree, input, MDCC, rank, MDCC.type,
+                                             polyphyly.scheme, use.paraphyletic,
+                                             use.singleton, use.stem)
           }
+
+
+          listnodes <- realnodes2listnodes(perm.nodes, new.tree)
+          listnodes <- paste0(listnodes, collapse = ",")
+          specification.list[[2]][spec.id] <- listnodes
         }
+
+
+        adding.DF<- data.frame("parent"=new.tree$edge[,1], "node"=new.tree$edge[,2],
+                               "length"= new.tree$edge.length )
+        adding.DF<- adding.DF[adding.DF$node %in% perm.nodes,]
+        adding.DF$id<- 1:nrow(adding.DF)
+
+        if(nrow(adding.DF)==1){node <- adding.DF$node}
+        if(nrow(adding.DF) >1 & prob) {node<-sample(adding.DF$node, 1, prob = adding.DF$length)}
+        if(nrow(adding.DF) >1 & !prob){node<-sample(adding.DF$node, 1)}
+
+        bind.pos<- binding_position(new.tree, node,  insertion = "random",
+                                    prob, ultrametric = ultrametric)
+
+        new.tree.tmp <- bind.tip2(new.tree, PUT, edge.length = bind.pos$length,
+                                           where = bind.pos$where , position = bind.pos$position )
+
+
+      }
+      if(rand.type=="polytomy"){
+
         if(is.null(perm.nodes)){
           perm.nodes<- get_permitted_nodes(new.tree, input, MDCC, rank, MDCC.type,
                                            polyphyly.scheme, use.paraphyletic,
                                            use.singleton, use.stem)
+          listnodes <- realnodes2listnodes(perm.nodes, new.tree)
+          listnodes <- paste0(listnodes, collapse = ",")
+          specification.list[[2]][spec.id] <- listnodes
         }
 
+        if(length(perm.nodes)==1){node <- get_parent_siblings(new.tree, perm.nodes)[[1]]}
+        if(length(perm.nodes) >1){node <- ape::getMRCA(new.tree, perm.nodes)}
 
-        listnodes <- realnodes2listnodes(perm.nodes, new.tree)
-        listnodes <- paste0(listnodes, collapse = ",")
-        specification.list[[2]][spec.id] <- listnodes
+
+
+        bind.pos<- binding_position(new.tree, node,  insertion = "polytomy",
+                                    prob, ultrametric = ultrametric)
+
+        new.tree.tmp <- bind.tip2(new.tree, PUT, edge.length = bind.pos$length,
+                                           where = bind.pos$where , position = bind.pos$position )
+
+        # addnodelabel<-addnodelabel+1
+        # if(length( new.tree$node.label[new.tree$node.label=="NA"])>1){stop("Several NA node labels")}
+        # newnodelabel <- paste0("AN_",addnodelabel)
+        # new.tree$node.label[new.tree$node.label=="NA"] <- newnodelabel
+        # specification.list[[2]][spec.id] <- paste0(specification.list[[2]][spec.id], ",",newnodelabel,",",PUT)
       }
 
-
-      adding.DF<- data.frame("parent"=new.tree$edge[,1], "node"=new.tree$edge[,2],
-                             "length"= new.tree$edge.length )
-      adding.DF<- adding.DF[adding.DF$node %in% perm.nodes,]
-      adding.DF$id<- 1:nrow(adding.DF)
-
-      if(nrow(adding.DF)==1){node <- adding.DF$node}
-      if(nrow(adding.DF) >1 & prob) {node<-sample(adding.DF$node, 1, prob = adding.DF$length)}
-      if(nrow(adding.DF) >1 & !prob){node<-sample(adding.DF$node, 1)}
-
-      bind.pos<- binding_position(new.tree, node,  insertion = "random",
-                                  prob, ultrametric = ultrametric)
-
-      new.tree <- bind.tip2(new.tree, PUT, edge.length = bind.pos$length,
-                            where = bind.pos$where , position = bind.pos$position )
-
-      addnodelabel<-addnodelabel+1
-      if(length( new.tree$node.label[new.tree$node.label=="NA"])>1){stop("Several NA node labels")}
-      newnodelabel <- paste0("AN_",addnodelabel)
-      new.tree$node.label[new.tree$node.label=="NA"] <- newnodelabel
-      specification.list[[2]][spec.id] <- paste0(specification.list[[2]][spec.id],",", newnodelabel,",",PUT)
-    }
-    if(rand.type=="polytomy"){
-
-      if(is.null(perm.nodes)){
-        perm.nodes<- get_permitted_nodes(new.tree, input, MDCC, rank, MDCC.type,
-                                         polyphyly.scheme, use.paraphyletic,
-                                         use.singleton, use.stem)
-        listnodes <- realnodes2listnodes(perm.nodes, new.tree)
-        listnodes <- paste0(listnodes, collapse = ",")
-        specification.list[[2]][spec.id] <- listnodes
+      continue <- TRUE
+      if(ultrametric==TRUE & !ape::is.ultrametric(new.tree.tmp)){
+        continue <- FALSE
+        # print("ultrametricity broken, trying again")
       }
 
-      if(length(perm.nodes)==1){node <- get_parent_siblings(new.tree, perm.nodes)[[1]]}
-      if(length(perm.nodes) >1){node <- ape::getMRCA(new.tree, perm.nodes)}
-
-
-
-      bind.pos<- binding_position(new.tree, node,  insertion = "polytomy",
-                                  prob, ultrametric = ultrametric)
-
-      new.tree <- bind.tip2(new.tree, PUT, edge.length = bind.pos$length,
-                            where = bind.pos$where , position = bind.pos$position )
-
-      addnodelabel<-addnodelabel+1
-      if(length( new.tree$node.label[new.tree$node.label=="NA"])>1){stop("Several NA node labels")}
-      newnodelabel <- paste0("AN_",addnodelabel)
-      new.tree$node.label[new.tree$node.label=="NA"] <- newnodelabel
-      specification.list[[2]][spec.id] <- paste0(specification.list[[2]][spec.id], ",",newnodelabel,",",PUT)
     }
+
+    new.tree <-new.tree.tmp
+
+    addnodelabel<-addnodelabel+1
+    if(length( new.tree$node.label[new.tree$node.label=="NA"])>1){stop("Several NA node labels")}
+    newnodelabel <- paste0("AN_",addnodelabel)
+    new.tree$node.label[new.tree$node.label=="NA"] <- newnodelabel
+    specification.list[[2]][spec.id] <- paste0(specification.list[[2]][spec.id],",", newnodelabel,",",PUT)
+
+
+
+
+
 
     if(verbose){
       sp.time.end <- Sys.time()
@@ -485,5 +512,3 @@ rand_tip <- function(input, tree,rand.type = "random",
 
   return(new.tree)
 }
-
-

@@ -16,7 +16,7 @@
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
-#' @examples
+#' @examplesIf interactive()
 #'  catspecies <- c("Lynx_lynx", "Panthera_uncia",
 #' "Panthera_onca", "Felis_catus", "Puma_concolor",
 #' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
@@ -99,7 +99,7 @@ edit_info <- function (info, taxa, column =NULL, edit = NULL, remove.rows=FALSE)
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
-#' @examples
+#' @examplesIf interactive()
 #' cats <- edit_tree(cats, tips="Felis_silvestris",
 #' edit= "Felis_silvestris_ssp._silvestris")
 #'

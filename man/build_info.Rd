@@ -4,7 +4,9 @@
 \alias{build_info}
 \title{Create a 'info' data frame.}
 \usage{
-my.info <- build_info(species.list, tree, db="gbif", mode="list")
+my.info <- build_info(species = species.list, tree = tree, db="gbif",
+                   mode="list", find.ranks = TRUE, interactive =FALSE,
+                   genus = FALSE, prior.info = NULL, verbose = TRUE)
 }
 \arguments{
 \item{species}{A character vector or a single-column data frame including
@@ -47,6 +49,7 @@ A randtip 'info' data frame
 Function to create an 'info' object given a list of species.
 }
 \examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Create a list of species to include in the resulting tree
  catspecies <- c("Lynx_lynx",
 "Panthera_uncia",
@@ -61,6 +64,7 @@ Function to create an 'info' object given a list of species.
 #Create the 'info' file
 cats.info <- build_info(species=catspecies, tree= cats,
      find.ranks=TRUE, db="ncbi", mode="backbone")
+\dontshow{\}) # examplesIf}
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

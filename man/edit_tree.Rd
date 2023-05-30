@@ -25,9 +25,10 @@ A backbone tree including the requested tip editions or deletions.
 Function to edit a backbone tree.
 }
 \examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 cats <- edit_tree(cats, tips="Felis_silvestris",
 edit= "Felis_silvestris_ssp._silvestris")
-
+\dontshow{\}) # examplesIf}
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
