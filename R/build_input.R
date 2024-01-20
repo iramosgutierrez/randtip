@@ -92,10 +92,15 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
     spp.in.tree<- tree$tip.label
 
     only.genus<- !grepl("_", species)
+    only.tree.genus<- !grepl("_", spp.in.tree)
     if(isTRUE(genus)){
       if(!all(only.genus)){
-        stop("Taxa and phylogenetic tips must represent genera only for \"genus\" mode")
+        stop("Taxa must represent genera only for \"genus\" mode")
       }
+      if(!all(only.tree.genus)){
+        stop("Phylogenetic tips must represent genera only for \"genus\" mode")
+      }
+
     }else{
     # Put suffix _sp in taxa with only the genus
     for(t in which(only.genus)){
