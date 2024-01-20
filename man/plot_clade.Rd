@@ -30,6 +30,7 @@ Less inclusive clade that includes all the species in the specified taxonomic gr
 Function to plot clades extracted from the backbone phylogeny.
 }
 \examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 catspecies <- c("Lynx_lynx", "Panthera_uncia",
 "Panthera_onca", "Felis_catus", "Puma_concolor",
 "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
@@ -43,7 +44,7 @@ tree=cats, group="Felinae")
 
 plot_clade(felinae.clade, ppcr.col="green",
 nonppcr.col="red",unknown.col="grey" )
-
+\dontshow{\}) # examplesIf}
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

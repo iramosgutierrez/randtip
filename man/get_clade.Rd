@@ -11,7 +11,7 @@ get_clade(info, tree, group)
 
 \item{tree}{The backbone tree to be subsetted.}
 
-\item{clade}{Taxonomic group of species that defines the clade to extract ## CREO QUE ES MÁS CORRECTO QUE EL ARGUMENTO SEA "GROUP", NO "CLADE", YA QUE LO QUE SE DEFINE ES UN GRUPO, QUE A SU VEZ DEFINE UN CLADO.}
+\item{group}{Taxonomic group of species that defines the clade to extract.}
 }
 \value{
 A list with four objects that will be used for automatic plotting

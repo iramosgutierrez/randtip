@@ -23,6 +23,7 @@ Set a color pattern to distinguish between phylogenetically placed taxa and PUTs
 with the \code{plot.phylo} function of ‘ape’ R package
 }
 \examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
 catspecies <- c("Lynx_lynx", "Panthera_uncia",
 "Panthera_onca", "Felis_catus", "Puma_concolor",
@@ -43,7 +44,7 @@ cats.tip.cols <- put_tip_col(newtree = expanded.cats,
  oldtree = cats, placed.col="black", put.col="red")
 
 plot.phylo(expanded.cats, tip.color = cats.tip.cols)
-
+\dontshow{\}) # examplesIf}
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

@@ -4,7 +4,7 @@
 \alias{build_info}
 \title{Create a 'info' data frame.}
 \usage{
-my.info <- build_info(species = species.list, tree = tree, db="gbif",
+my.info <- build_info(species = species.list, tree = tree, db="ncbi",
                    mode="list", find.ranks = TRUE, interactive =FALSE,
                    genus = FALSE, prior.info = NULL, verbose = TRUE)
 }
