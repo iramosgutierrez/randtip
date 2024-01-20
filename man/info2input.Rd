@@ -7,8 +7,7 @@
 info2input(info, tree, parallelize = T, ncores = NULL, verbose = T)
 }
 \arguments{
-\item{info}{An 'info' data frame, including all the customized binding
-parameters.}
+\item{info}{A definitive info data frame.}
 
 \item{tree}{Backbone tree.}
 
@@ -20,14 +19,13 @@ cores.}
 is provided it defaults to all but one of system logical
 cores.}
 
-\item{verbose}{Logical. Should or not progress be printed.}
+\item{verbose}{Logical. Whether or not to print the progress.}
 }
 \value{
-An 'input' data frame which can be fed to \code{rand_tip} function
-alongside with a backbone tree to expand a tree.
+An input data frame to feed the \code{rand_tip} function.
 }
 \description{
-Convert an 'info' object into an 'input' one.
+Convert an 'info' data frame into an 'input' object.
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

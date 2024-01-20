@@ -5,7 +5,7 @@
 \alias{plants}
 \title{plants}
 \format{
-a Phylo object
+A phylo object
 \describe{
 Phylogenetic tree comprising 73011 species of vascular plants.
 Data obtained from https://github.com/megatrees/plant_20221214

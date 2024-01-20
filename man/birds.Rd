@@ -5,7 +5,7 @@
 \alias{birds}
 \title{birds}
 \format{
-a Phylo object
+A phylo object
 \describe{
 Phylogenetic tree comprising 9993 species of birds.
 Data obtained from https://github.com/megatrees/bird_20221117
@@ -15,6 +15,6 @@ Data obtained from https://github.com/megatrees/bird_20221117
 birds
 }
 \description{
-Phylogenetic tree based in Jetz et al. (2012).
+Phylogenetic tree based in Jetz et al. (2012). # ESTÁ BASADO en Jetz et al. 2012 o ES el mismo árbol?
 }
 \keyword{datasets}

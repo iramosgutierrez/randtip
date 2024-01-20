@@ -5,10 +5,10 @@
 \alias{squamates.info}
 \title{squamates.info}
 \format{
-a 'info' data frame
+An info data frame
 \describe{
 Data frame with taxonomic information on the 4161 species of squamates
-included in 'squamates' object. This object was created after 'ncbi' database taxonomy.
+included in 'squamates' object. Taxonomic information was retrieved from 'ncbi' database taxonomy.
 
 }
 }
@@ -16,6 +16,6 @@ included in 'squamates' object. This object was created after 'ncbi' database ta
 squamates.info
 }
 \description{
-randtip 'info' file created after squamates phylogeny
+Info data frame with taxonomic information retrieved for the species in the squamate phylogeny (Pyron et al. 2013)
 }
 \keyword{datasets}

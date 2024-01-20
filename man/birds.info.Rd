@@ -5,10 +5,10 @@
 \alias{birds.info}
 \title{birds.info}
 \format{
-a 'info' data frame
+An info data frame
 \describe{
 Data frame with taxonomic information on the 9993 species of birds included in
-'birds' object. This object was mainly created after 'ncbi' database taxonomy.
+'birds' object. Taxonomic information was retrieved from 'ncbi' database taxonomy.
 
 }
 }
@@ -16,6 +16,6 @@ Data frame with taxonomic information on the 9993 species of birds included in
 birds.info
 }
 \description{
-randtip 'info' file created after birds phylogeny
+Info data frame with taxonomic information retrieved for the species in the bird phylogeny (Jetz et al. 2012)
 }
 \keyword{datasets}

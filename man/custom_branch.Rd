@@ -2,7 +2,7 @@
 % Please edit documentation in R/custom_branch.R
 \name{custom_branch}
 \alias{custom_branch}
-\title{Bind PUTs at completely customized tree branches}
+\title{Bind PUTs to customized sets of phylogenetic edges}
 \usage{
 custom_branch(
   tree,
@@ -13,33 +13,33 @@ custom_branch(
 )
 }
 \arguments{
-\item{tree}{"phylo" object used as backbone tree.}
+\item{tree}{backbone tree of class phylo.}
 
-\item{edges}{matrix with 5 character vector columns.
-Column 1 secifies the PUT to which the candidate branches in the
-row refer to.
-Columns 2 and 3 must represent two species whose MRCA represents the
-stem node of candidate branches and
-columns 4 and 5 two species whose MRCA define the crown node.
-Note that a pair of nodes may not necessarily define one single branch
-but a set of them.
-Two identical species will define a tree tip rather than an internal node.
-If the pairs of species in columns 2&3 and 4&5 are the same, the set of
-branches to select will be defined as the complete clade below ther MRCA.}
+\item{edges}{matrix with five columns (character vectors). Each row defines
+a set of consecutive edges between two nodes, and multiple rows
+can be used for the same PUT.
+Column 1 includes the PUTs.
+Columns 2 and 3 include a pair of species whose MRCA defines the older node,
+whereas the MRCA of the species in columns 4 and 5 defines the younger node.
+Using the same species in columns 4 and 5 will define a terminal node as the
+younger node. If columns 2-3 are filled with a species and columns 4-5 are
+filled with another species, then all edges below the MRCA of the two species
+will be set as candidates. If the four columns are filled with the same
+species, the PUT will be bound as sister to this species.}
 
-\item{rand.type}{"random" or "polytomy". Default value is "random".}
+\item{rand.type}{"random" or "polytomy". Default is "random".}
 
-\item{forceultrametric}{Whether or not the backbone tree will be forced to be ultrametric,
-only in case it is not. Default value is FALSE.}
+\item{forceultrametric}{Whether or not to force the backbone tree to be ultrametric
+(in case it is detected as non-ultrametric). Default is FALSE.}
 
-\item{prob}{Whether or not branch selection probability must be proportional
-to branch length or equiprobable. Default value is TRUE.}
+\item{prob}{Whether or not the probability for selecting edges must be proportional
+to their length. If FALSE (default is TRUE), all edges have equal probability.}
 }
 \value{
 An expanded phylogeny.
 }
 \description{
-Bind PUTs at completely customized tree branches
+Bind PUTs to customized sets of phylogenetic edges
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -51,8 +51,8 @@ cats.edges <- data.frame(
  "child1"= "Felis_silvestris",
  "child2"= "Felis_silvestris")
 
-#Bind the PUT to one of the selected branches
-cats.expanded <- custom_branch(tree=cats,
+#Bind the PUT to any of the candidate edges as defined in cats.edges 
+cats.expanded <- custom_branch(tree=cats, 
  edges=cats.edges, forceultrametric=TRUE)
 \dontshow{\}) # examplesIf}
 }

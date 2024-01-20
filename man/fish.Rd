@@ -5,9 +5,9 @@
 \alias{fish}
 \title{fish}
 \format{
-a Phylo object
+A phylo object
 \describe{
-Phylogenetic tree comprising 31521 species of fish
+Phylogenetic tree comprising 31521 species of fishes
 Data obtained from https://github.com/megatrees/fish_20221117
 }
 }

@@ -2,29 +2,29 @@
 % Please edit documentation in R/edit_input.R
 \name{edit_info}
 \alias{edit_info}
-\title{Edit an 'info' file using a simple function.}
+\title{Function to edit info data frames.}
 \usage{
 edit_info(info, taxa, column = NULL, edit = NULL, remove.rows = FALSE)
 }
 \arguments{
-\item{info}{An 'info' object.}
+\item{info}{An info data frame.}
 
 \item{taxa}{Character vector with the taxa to be edited or removed.}
 
-\item{column}{The column name to be edited for the specified taxa.
-NULL value is only accepted if \code{remove.rows} is set to TRUE.}
+\item{column}{The name of the column to be edited for the specified taxa.
+NULL is only accepted if \code{remove.rows} is TRUE.}
 
-\item{edit}{Any allowed value for the column of info that is to be edited.
-NULL value is only accepted if \code{remove.rows} is set to TRUE.}
+\item{edit}{Any allowed value for the column to be edited. NULL is only
+accepted if \code{remove.rows} is TRUE.}
 
-\item{remove.rows}{If TRUE, the specified taxa will be eliminated from the
-'info' object. Default is FALSE.}
+\item{remove.rows}{If TRUE, the specified taxa will be removed from the
+info data frame (default is FALSE).}
 }
 \value{
-An 'info' object including the editions or deletions asked.
+An edited info data frame
 }
 \description{
-Function to edit randtip's 'info' file.
+Auxiliar function for smoothly editing the info data frame
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

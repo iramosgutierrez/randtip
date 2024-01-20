@@ -9,48 +9,49 @@ my.info <- build_info(species = species.list, tree = tree, db="gbif",
                    genus = FALSE, prior.info = NULL, verbose = TRUE)
 }
 \arguments{
-\item{species}{A character vector or a single-column data frame including
+\item{species}{Character vector or a single-column data frame including
 the species of interest. Word breakers must be blanks (" ")
 or underscores ("_").}
 
-\item{tree}{A 'phylo' object backbone tree. It can be set to NULL if
-\code{mode} is set to "list".}
+\item{tree}{A 'phylo' object with the backbone tree (set to NULL if
+\code{mode} is "list").}
 
-\item{find.ranks}{Logical. If TRUE, taxonomic information will be retrieved to
-identify supra-generic MDCCs for the PUTs.}
+\item{find.ranks}{Logical. If TRUE, taxonomic information will be retrieved
+from the specified taxonomic repository to identify
+supra-generic MDCCs for the PUTs.}
 
-\item{db}{Taxonomic data base to search into if \code{find.ranks} is
-set to TRUE. Accepted values are 'ncbi' (default),
-'itis', 'gbif' and 'bold'.}
+\item{db}{Taxonomic repository to query if \code{find.ranks} is
+set to TRUE. One of 'ncbi' (default), 'itis', 'gbif'
+or 'bold'.}
 
-\item{mode}{If mode is set to "list", the info file will be created
-using only the species given in the \code{species} argument.
-If "backbone" mode is specified, 'info' will also include all
-the tips included in the backbone tree.}
+\item{mode}{If mode is "list", the info data frame will be filled with
+the species provided in the \code{species} argument. If mode
+is "backbone", the info data frame will also include all the
+tips in the backbone tree.}
 
 \item{interactive}{Logical. Whether or not ambiguous species names will
-be resolved manually by the user or filled in
-automatically with 'NA' when retrieving taxonomic
-information.}
+be resolved manually as they appear when retrieving
+taxonomic information. If FALSE, NAs will be returned
+in the corresponding row of info.}
 
-\item{genus}{Logical. Whether or not a genus-level backbone tree is to
-be expanded. If set to TRUE, all tips in the backbone tree
-and taxa in the species vector must represent genera.}
+\item{genus}{Logical. Whether or not the backbone tree is resolved to the
+genus level. If TRUE, all the taxa in the tips of the phylogeny
+and the species vector must represent genera.}
 
-\item{prior.info}{A previously created 'info' file used to fill blanks
-previously to the taxonomic database search.}
+\item{prior.info}{A previously created info data frame that is recycled to
+build the new info.}
 
-\item{verbose}{Logical. Should or not progress be printed.}
+\item{verbose}{Logical. Whether or not to print the progress.}
 }
 \value{
-A randtip 'info' data frame
+An 'info' data frame
 }
 \description{
-Function to create an 'info' object given a list of species.
+This function creates an 'info' object for a given list of species.
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-# Create a list of species to include in the resulting tree
+# Create a list of species to include in the phylogeny
  catspecies <- c("Lynx_lynx",
 "Panthera_uncia",
 "Panthera_onca",
@@ -61,7 +62,7 @@ Function to create an 'info' object given a list of species.
 "Panthera_leo",
 "Felis_silvestris")
 
-#Create the 'info' file
+#Create the 'info' data frame
 cats.info <- build_info(species=catspecies, tree= cats,
      find.ranks=TRUE, db="ncbi", mode="backbone")
 \dontshow{\}) # examplesIf}

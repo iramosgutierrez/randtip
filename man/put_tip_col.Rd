@@ -9,23 +9,21 @@ put_tip_col(newtree, oldtree, placed.col = "#adadad", put.col = "#C23B23")
 \arguments{
 \item{newtree}{An expanded phylogenetic tree.}
 
-\item{oldtree}{The original backbone tree where the PUTs have been bound.}
+\item{oldtree}{The original backbone tree.}
 
-\item{placed.col}{Color to plot phylogenetic tips which were already placed in the original backbone tree.
-Default value is grey.}
+\item{placed.col}{Color for phylogenetic tips that were already placed in the backbone tree (default is grey).}
 
-\item{put.col}{Color to plot bound PUTs in \code{new tree}. Default value is red.}
+\item{put.col}{Color for phylogenetic tips representing PUTs in \code{new tree} (default is red).}
 }
 \value{
-A vector of length equal to the number of tips in newtree, to be used after \code{tip.color}
-in plot.phylo function.
+A vector of length equal to the number of tips in newtree that defines the argument \code{tip.color} in plot.phylo function.
 }
 \description{
-Set color pattern to distinguish between phylogenetically placed taxa and PUTs when plotting trees
-with the \code{plot.phylo} function of ‘ape’ R package using the \code{tip.color} argument
+Set a color pattern to distinguish between phylogenetically placed taxa and PUTs when plotting expanded trees
+with the \code{plot.phylo} function of ‘ape’ R package
 }
 \examples{
-#Perform a tree expansion
+
 catspecies <- c("Lynx_lynx", "Panthera_uncia",
 "Panthera_onca", "Felis_catus", "Puma_concolor",
 "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
@@ -40,11 +38,10 @@ expanded.cats <- rand_tip(input=cats.input,
  tree=cats, rand.type = "polytomy",
  forceultrametric = TRUE)
 
-#Set the colours for original tips and bound PUTs
+#Set color pattern for original tips and PUTs, respectively
 cats.tip.cols <- put_tip_col(newtree = expanded.cats,
  oldtree = cats, placed.col="black", put.col="red")
 
-#Plot the resulting tree visualizing original tips and PUTs
 plot.phylo(expanded.cats, tip.color = cats.tip.cols)
 
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/edit_input.R
 \name{edit_tree}
 \alias{edit_tree}
-\title{Edit backbone tree using a simple function.}
+\title{Function to edit phylogenetic tip labels}
 \usage{
 edit_tree(tree, tips, edit = NULL, remove.tips = FALSE)
 }
@@ -11,18 +11,18 @@ edit_tree(tree, tips, edit = NULL, remove.tips = FALSE)
 
 \item{tips}{Character vector with the phylogenetic tips to be edited or removed.}
 
-\item{edit}{A vector of the same length as \code{tips}, including the
-new labels for the specified phylogenetic tips. NULL value is
-only accepted if \code{remove.tips} is set to TRUE.}
+\item{edit}{A vector of the same length as \code{tips} with the new labels for
+the specified tips. NULL is only accepted if \code{remove.tips} is
+TRUE.}
 
 \item{remove.tips}{If TRUE, the specified tips will be pruned
-from the backbone tree. Default is FALSE.}
+from the backbone tree (default is FALSE).}
 }
 \value{
-A backbone tree including the requested tip editions or deletions.
+An edited backbone tree.
 }
 \description{
-Function to edit a backbone tree.
+Auxiliar function for smoothly editing the tip labels of the backbone tree
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

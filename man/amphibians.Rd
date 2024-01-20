@@ -5,7 +5,7 @@
 \alias{amphibians}
 \title{amphibians}
 \format{
-a Phylo object
+A phylo object
 \describe{
 Phylogenetic tree comprising 7238 species of amphibians
 Data obtained from https://github.com/megatrees/amphibian_20221117

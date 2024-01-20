@@ -8,11 +8,11 @@
 A list with 5 slots
 
 \describe{
-\item{back.tree}{Imaginary backbone tree where PUTs will be bound.}
-\item{sp.list}{List of species to include in the final expanded tree}
-\item{info.list}{'info' file resulting after running build_info using mode="list"}
-\item{info.backbone}{'info' file resulting after running build_info using mode="backbone"}
-\item{edges}{'edges' file used for manual selection of branches where to bind the PUT "Monoceros_x_alaricornus"}
+\item{back.tree}{Hypothetical backbone tree}
+\item{sp.list}{List of species to expanded the backbone tree}
+\item{info.list}{Hypothetical 'info' data frame for use under "list" mode}
+\item{info.backbone}{Hypothetical 'info' data frame for use under "backbone" mode}
+\item{edges}{'edges' data frame to bind the PUT "Monoceros_x_alaricornus" using a customized set of edges}
 }
 }
 \usage{

@@ -5,10 +5,10 @@
 \alias{plants.info}
 \title{plants.info}
 \format{
-a 'info' data frame
+An info data frame
 \describe{
 Data frame with taxonomic information on the 73013 species of vascular plants
-included in 'plants' object. This object was mainly created after 'ncbi' database taxonomy.
+included in 'plants' object. Taxonomic information was retrieved from 'ncbi' database taxonomy.
 
 }
 }
@@ -16,6 +16,6 @@ included in 'plants' object. This object was mainly created after 'ncbi' databas
 plants.info
 }
 \description{
-randtip 'info' file created after plants phylogeny
+Info data frame with taxonomic information retrieved for the species in the plant phylogeny (Jin & Quian 2022)
 }
 \keyword{datasets}

@@ -5,7 +5,7 @@
 \alias{squamates}
 \title{squamates}
 \format{
-a Phylo object
+A phylo object
 \describe{
 Phylogenetic tree comprising 4161 species of squamates.
 Data obtained from https://doi.org/10.1186/1471-2148-13-93
