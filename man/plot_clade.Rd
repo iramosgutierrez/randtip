@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotting.R
 \name{plot_clade}
 \alias{plot_clade}
-\title{Function to plot a subtree representing a specified clade.}
+\title{Function to plot a subtree representing a specified group.}
 \usage{
 plot_clade(
   get.clade.out,
@@ -15,21 +15,21 @@ plot_clade(
 \arguments{
 \item{get.clade.out}{Output from \code{\link{get_clade}} function.}
 
-\item{ppcr.col}{Color to represent tips included in the specified clade.
+\item{ppcr.col}{Color to represent tips included in the specified group.
 Default value is green.}
 
-\item{nonppcr.col}{Color to represent tips included in a different clade
+\item{nonppcr.col}{Color to represent tips included in a different group
 from the specified one (at the same taxonomic rank).
 Default value is blue.}
 
 \item{unknown.col}{Color to represent tips without taxonomic information
-at the specifed clade's taxonomic rank.
+at the specifed group's taxonomic rank.
 Default value is grey}
 
 \item{...}{Arguments to pass through \code{\link{plot.phylo}} function.}
 }
 \value{
-A plot representing the clade specified in \code{\link{get_clade}}
+A plot representing the group specified in \code{\link{get_clade}}
 function using the selected colors.
 }
 \description{
@@ -37,7 +37,7 @@ Plot a phylogenetic tree splitted from the backbone tree
 using \code{get_clade} function.
 }
 \examples{
-#First the clade information must be obtained
+#First the group information must be obtained
 
 catspecies <- c("Lynx_lynx", "Panthera_uncia",
 "Panthera_onca", "Felis_catus", "Puma_concolor",
@@ -48,7 +48,7 @@ cats.info <- build_info(species=catspecies, tree= cats,
      find.ranks=TRUE, db="ncbi", mode="backbone")
 
 felinae.clade <- get_clade(info=cats.info,
-tree=cats, clade="Felinae")
+tree=cats, group="Felinae")
 
 #Then it can be plotted
 plot_clade(felinae.clade, ppcr.col="green",

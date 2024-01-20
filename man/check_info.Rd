@@ -46,6 +46,7 @@ spelling errors, putative MDCCs and the phyletic nature of
 groups of PPCR species.
 }
 \examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 catspecies <- c("Lynx_lynx", "Panthera_uncia",
 "Panthera_onca", "Felis_catus", "Puma_concolor",
 "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
@@ -55,7 +56,7 @@ cats.info <- build_info(species=catspecies, tree= cats,
      find.ranks=TRUE, db="ncbi", mode="backbone")
 
 cats.checked <- check_info(info=cats.info, tree=cats, sim=0.75, parallelize = FALSE)
-
+\dontshow{\}) # examplesIf}
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

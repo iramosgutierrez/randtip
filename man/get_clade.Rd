@@ -2,29 +2,29 @@
 % Please edit documentation in R/plotting.R
 \name{get_clade}
 \alias{get_clade}
-\title{Function to extract a subtree representing a specified clade.}
+\title{Function to extract a subtree representing a specified group.}
 \usage{
-get_clade(info, tree, clade)
+get_clade(info, tree, group)
 }
 \arguments{
 \item{info}{An 'info' (or 'input') object.}
 
 \item{tree}{The original backbone tree to be split.}
 
-\item{clade}{Clade to be extracted}
+\item{group}{group to be extracted}
 }
 \value{
 A list of four objects which will be used for automatic plotting
 using \code{\link{plot_clade}} function.
 'Tree' will contain the splitted tree; 'info' will contain the handed info
-file; 'rank' will contain the taxonomic rank of the specified clade,
-and 'clade' will contain the clade name.
+file; 'rank' will contain the taxonomic rank of the specified group,
+and 'group' will contain the group name.
 }
 \description{
-Obtain a phylogenetic tree representing a specified clade split from an
+Obtain a phylogenetic tree representing a specified group split from an
 original backbone tree.
 Note that the tree splitting will be performed at the MRCA node of all the taxa included in the
-clade in the 'info' object.
+group in the 'info' object.
 }
 \examples{
 catspecies <- c("Lynx_lynx", "Panthera_uncia",
@@ -36,7 +36,7 @@ cats.info <- build_info(species=catspecies, tree= cats,
      find.ranks=TRUE, db="ncbi", mode="backbone")
 
 felinae.clade <- get_clade(info=cats.info,
-tree=cats, clade="Felinae")
+tree=cats, group="Felinae")
 
 }
 \author{

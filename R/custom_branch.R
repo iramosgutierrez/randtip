@@ -22,18 +22,19 @@
 #' @return An expanded phylogeny.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
-#' 
-#' @examples 
-#' #Create an 'edges' dataframe  # Note for Ignacio: I think this example does not illustrate on the potential of the custom_branch function. I will customize a different set of branches instead of Felis_silvestris as sister species (e.g. all edges between an internal older node and the terminal node "Felis_silvestris")     
+#'
+#' @examplesIf interactive()
+#' #Create a 'edges' dataframe
 #' cats.edges <- data.frame(
-#'  "PUT"= "Felis_catus", 
-#'  "parent1"= "Felis_silvestris", 
-#'  "parent2"= "Felis_silvestris", 
-#'  "child1"= "Felis_silvestris", 
+#'  "PUT"= "Felis_catus",
+#'  "parent1"= "Felis_silvestris",
+#'  "parent2"= "Felis_silvestris",
+#'  "child1"= "Felis_silvestris",
 #'  "child2"= "Felis_silvestris")
 #' 
 #' #Bind the PUT to any of the candidate edges as defined in cats.edges 
 #' cats.expanded <- custom_branch(tree=cats, 
+
 #'  edges=cats.edges, forceultrametric=TRUE)
 #' @export
 custom_branch <- function(tree, edges, rand.type="random",
@@ -88,7 +89,8 @@ custom_branch <- function(tree, edges, rand.type="random",
             if(nrow(df)>1 & !prob){nd<-sample(df$parent, 1)}
         }
 
-        bp<-binding_position(new.tree, node = nd, insertion = rand.type)
+        bp<-binding_position(new.tree, node = nd, insertion = rand.type,
+                             ultrametric = ape::is.ultrametric(new.tree))
         new.tree<- phytools::bind.tip(new.tree, PUT, bp$length,
                                       bp$where, bp$position)
     }
@@ -114,20 +116,19 @@ custom_branch <- function(tree, edges, rand.type="random",
 #'     will be set as candidates. If the four columns are filled with the same
 #'     species, the PUT will be bound as sister to this species.
 #' @param PUT If the \code{edges} data frame includes binding information for multiple
-#'            PUTs, specifies the PUT whose candidate edges are to be depicted.         
+#'            PUTs, specifies the PUT whose candidate edges are to be depicted.
 #' @param candidate.col Color for candidate edges (default is "red").
 #' @param forbidden.col Color for non-candidate edges (default is "black").
 #' @param candidate.lwd Line width for candidate edges (default is 2).
-#' @param forbidden.lwd Line width for non-candidate edges (default is 1).
+#' @param forbidden.lwd ine width for non-candidate edges (default is 1).
 #' @param ... further arguments to be passed to \code{\link[ape]{plot.phylo}}.
-#' 
-#' @examples 
-#' #Create an 'edges' dataframe # SAME COMMENT AS ABOVE, THIS EXAMPLE IS BORING...
+#'
+#' @examplesIf interactive()
 #' cats.edges <- data.frame(
-#'  "PUT"= "Felis_catus", 
-#'  "parent1"= "Felis_silvestris", 
-#'  "parent2"= "Felis_silvestris", 
-#'  "child1"= "Felis_silvestris", 
+#'  "PUT"= "Felis_catus",
+#'  "parent1"= "Felis_silvestris",
+#'  "parent2"= "Felis_silvestris",
+#'  "child1"= "Felis_silvestris",
 #'  "child2"= "Felis_silvestris")
 #' 
 #' #Depict candidate edges on the phylogeny

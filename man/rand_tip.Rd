@@ -99,6 +99,7 @@ assuming the failure is due to numerical precision of computer machinery.}
 }
 }
 \examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
  catspecies <- c("Lynx_lynx", "Panthera_uncia",
 "Panthera_onca", "Felis_catus", "Puma_concolor",
@@ -113,7 +114,7 @@ cats.input <- info2input(info=cats.info, tree=cats)
 expanded.cats <- rand_tip(input=cats.input,
  tree=cats, rand.type = "random",
   forceultrametric = FALSE)
-
+\dontshow{\}) # examplesIf}
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

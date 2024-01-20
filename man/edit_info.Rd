@@ -27,6 +27,7 @@ An 'info' object including the editions or deletions asked.
 Function to edit randtip's 'info' file.
 }
 \examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
  catspecies <- c("Lynx_lynx", "Panthera_uncia",
 "Panthera_onca", "Felis_catus", "Puma_concolor",
 "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
@@ -37,7 +38,7 @@ cats.info <- build_info(species=catspecies, tree= cats,
 
 cats.info <- edit_info(cats.info, taxa= "Puma_concolor",
 column = "subfamily", edit = "Felinae")
-
+\dontshow{\}) # examplesIf}
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
