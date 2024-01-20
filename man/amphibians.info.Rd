@@ -5,10 +5,10 @@
 \alias{amphibians.info}
 \title{amphibians.info}
 \format{
-a 'info' data frame
+An info data frame
 \describe{
 Data frame with taxonomic information on the 7238 species of amphibians
-included in 'amphibians' object. This object was created after 'ncbi' database taxonomy.
+included in 'amphibians' object. Taxonomic information was retrieved from 'ncbi' database taxonomy.
 
 }
 }
@@ -16,6 +16,6 @@ included in 'amphibians' object. This object was created after 'ncbi' database t
 amphibians.info
 }
 \description{
-randtip 'info' file created after amphibians phylogeny
+Info data frame with taxonomic information retrieved for the species in the amphibian phylogeny (Pyron et al. 2013)
 }
 \keyword{datasets}

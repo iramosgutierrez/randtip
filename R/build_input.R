@@ -3,7 +3,7 @@
 #'
 #' This function creates an 'info' object for a given list of species.
 #'
-#' @usage my.info <- build_info(species = species.list, tree = tree, db="gbif",
+#' @usage my.info <- build_info(species = species.list, tree = tree, db="ncbi",
 #'                    mode="list", find.ranks = TRUE, interactive =FALSE,
 #'                    genus = FALSE, prior.info = NULL, verbose = TRUE)
 #'
@@ -12,22 +12,22 @@
 #'                or underscores ("_").
 #' @param tree A 'phylo' object with the backbone tree (set to NULL if
 #'             \code{mode} is "list").
-#' @param find.ranks Logical. If TRUE, taxonomic information will be retrieved 
+#' @param find.ranks Logical. If TRUE, taxonomic information will be retrieved
 #'                   from the specified taxonomic repository to identify
 #'                   supra-generic MDCCs for the PUTs.
 #' @param db Taxonomic repository to query if \code{find.ranks} is
 #'           set to TRUE. One of 'ncbi' (default), 'itis', 'gbif'
 #'           or 'bold'.
-#' @param mode If mode is "list", the info data frame will be filled with 
+#' @param mode If mode is "list", the info data frame will be filled with
 #'             the species provided in the \code{species} argument. If mode
 #'             is "backbone", the info data frame will also include all the
 #'             tips in the backbone tree.
 #' @param interactive Logical. Whether or not ambiguous species names will
-#'                    be resolved manually as they appear when retrieving 
-#'                    taxonomic information. If FALSE, NAs will be returned 
-#'                    in the corresponding row of info.          
+#'                    be resolved manually as they appear when retrieving
+#'                    taxonomic information. If FALSE, NAs will be returned
+#'                    in the corresponding row of info.
 #' @param genus Logical. Whether or not the backbone tree is resolved to the
-#'              genus level. If TRUE, all the taxa in the tips of the phylogeny  
+#'              genus level. If TRUE, all the taxa in the tips of the phylogeny
 #'              and the species vector must represent genera.
 #' @param prior.info A previously created info data frame that is recycled to
 #'                   build the new info.
@@ -90,7 +90,31 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 
     tree$tip.label <- gsub("_x_|_X_", "_x-", tree$tip.label)
     spp.in.tree<- tree$tip.label
-    spp.original<- species
+
+    only.genus<- !grepl("_", species)
+    only.tree.genus<- !grepl("_", spp.in.tree)
+    if(isTRUE(genus)){
+      if(!all(only.genus)){
+        stop("Taxa must represent genera only for \"genus\" mode")
+      }
+      if(!all(only.tree.genus)){
+        stop("Phylogenetic tips must represent genera only for \"genus\" mode")
+      }
+
+    }else{
+    # Put suffix _sp in taxa with only the genus
+    for(t in which(only.genus)){
+      taxon.suffix.i <- "_sp."
+      i <- 2
+      while(paste0(species[t], taxon.suffix.i) %in% tree$tip.label){
+        taxon.suffix.i <- paste0("_sp", i, ".")
+        i <- i + 1
+      }
+      species[t]<-paste0(species[t], taxon.suffix.i)
+    }
+    }
+
+     spp.original<- species
 
     if(any(first_word(spp.in.tree)=="X")|any(first_word(spp.in.tree)=="x")){
         tree$tip.label[first_word(tree$tip.label)=="x"] <-
@@ -113,33 +137,17 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
                                 dimnames = list(NULL, names_df)))
     info$taxon <- species
 
-    only.genus<- !grepl("_", species)
-    if(isTRUE(genus)){
-        if(!all(only.genus)){
-            stop("Taxa and phylogenetic tips must represent genera only for \"genus\" mode")
-        }
-    }
-    # Put suffix _sp in taxa with only the genus
-    for(t in which(only.genus)){
-        taxon.suffix.i <- "_sp."
-        i <- 2
-        while(paste0(info$taxon[t], taxon.suffix.i) %in% tree$tip.label){
-            taxon.suffix.i <- paste0("_sp", i, ".")
-            i <- i + 1
-        }
-        info$taxon[t]<-paste0(info$taxon[t], taxon.suffix.i)
-    }
 
     if(!is.null(prior.info)){
       if(!all(names(info)==names(prior.info))){
         stop("Invalid column names for prior.info. They should match column names of an info data frame.")
-             
+
         }else{
 
-          spp.in.prior <- species[species%in%prior.info$taxon]
+          spp.in.prior <- info$taxon[info$taxon %in% prior.info$taxon]
 
-          spp.gen.in.prior <- species[!(species%in%prior.info$taxon) &
-                                        first_word(species)%in%first_word(prior.info$taxon)]
+          spp.gen.in.prior <- info$taxon[!(info$taxon%in%prior.info$taxon) &
+                                        first_word(info$taxon) %in% prior.info$genus]
           genera.in.prior <- unique(first_word(spp.gen.in.prior))
 
 
@@ -160,23 +168,23 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
             }
             #fill in taxonomic information with that included in prior.info  #  REMOVE THIS
 
-          if(length(genera.in.prior)>0){for(gen in genera.in.prior){
+          if(length(genera.in.prior)>0){
+            for(gen in genera.in.prior){
             gen.sp <- spp.gen.in.prior[first_word(spp.gen.in.prior)==gen]
             prior.info.cut <- prior.info[first_word(prior.info$taxon)==gen,1:9]
 
-            if(nrow(unique(prior.info.cut[,3:9]))==1){
-              info[info$taxon%in%gen.sp, 3:9] <- unique(prior.info.cut[,3:9])
+            if(nrow(unique(prior.info.cut[,2:9]))==1){
+              info[info$taxon%in%gen.sp, 2:9] <- unique(prior.info.cut[,2:9])
             }
 
 
-          }} #fill information of included genera species, only if information is always equal  #  REMOVE THIS
-
+          }}
 
 
 
         }
 
-    }#include information from prior.info  #  REMOVE THIS
+    }#include information from prior.info
 
     info$genus<- first_word(info$taxon)
     genera <- unique(info$genus)
@@ -191,7 +199,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
                     "clump.puts", "prob" )
 
 
-    if(find.ranks){
+    if(find.ranks & length(genera)>0){
         info <- search_taxize(info, genera, interactive, db, verbose=verbose)
     }
 
@@ -485,7 +493,7 @@ info2input<- function(info, tree, parallelize = T, ncores = NULL, verbose=T){
 
         cl <- parallel::makeCluster(ncores)
         parallel::clusterExport(cl, c("usingMDCCfinder", "correct_DF",
-                                    "randtip_ranks", "first_word", 
+                                    "randtip_ranks", "first_word",
                                     "sp_genus_in_tree"),
                                 envir = environment())
 

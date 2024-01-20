@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotting.R
 \name{plot_clade}
 \alias{plot_clade}
-\title{Function to plot a subtree representing a specified group.}
+\title{Function to plot clades extracted from the backbone phylogeny.}
 \usage{
 plot_clade(
   get.clade.out,
@@ -13,32 +13,24 @@ plot_clade(
 )
 }
 \arguments{
-\item{get.clade.out}{Output from \code{\link{get_clade}} function.}
+\item{get.clade.out}{Output of the \code{\link{get_clade}} function (a phylogenetic clade)}
 
-\item{ppcr.col}{Color to represent tips included in the specified group.
-Default value is green.}
+\item{ppcr.col}{Color for the tips representing species placed in the specified taxonomic group (default is green).}
 
-\item{nonppcr.col}{Color to represent tips included in a different group
-from the specified one (at the same taxonomic rank).
-Default value is blue.}
+\item{nonppcr.col}{Color for the tips representing other species but those placed in the specified taxonomic groupnt clade (default is blue).}
 
-\item{unknown.col}{Color to represent tips without taxonomic information
-at the specifed group's taxonomic rank.
-Default value is grey}
+\item{unknown.col}{Color for the tips representing species without taxonomic information (default is grey).}
 
-\item{...}{Arguments to pass through \code{\link{plot.phylo}} function.}
+\item{...}{Further arguments to pass through \code{\link{plot.phylo}} function.}
 }
 \value{
-A plot representing the group specified in \code{\link{get_clade}}
-function using the selected colors.
+Less inclusive clade that includes all the species in the specified taxonomic group.
 }
 \description{
-Plot a phylogenetic tree splitted from the backbone tree
-using \code{get_clade} function.
+Function to plot clades extracted from the backbone phylogeny.
 }
 \examples{
-#First the group information must be obtained
-
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 catspecies <- c("Lynx_lynx", "Panthera_uncia",
 "Panthera_onca", "Felis_catus", "Puma_concolor",
 "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
@@ -50,10 +42,9 @@ cats.info <- build_info(species=catspecies, tree= cats,
 felinae.clade <- get_clade(info=cats.info,
 tree=cats, group="Felinae")
 
-#Then it can be plotted
 plot_clade(felinae.clade, ppcr.col="green",
 nonppcr.col="red",unknown.col="grey" )
-
+\dontshow{\}) # examplesIf}
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

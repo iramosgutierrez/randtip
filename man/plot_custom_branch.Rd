@@ -16,46 +16,38 @@ plot_custom_branch(
 )
 }
 \arguments{
-\item{tree}{"phylo" object used as backbone tree.}
+\item{tree}{backbone tree of class phylo.}
 
-\item{edges}{matrix with 5 character vector columns.
-Column 1 secifies the PUT to which the candidate branches in
-the row refer to.
-Columns 2 and 3 must represent two species whose MRCA represents the
-stem node of candidate branches and
-columns 4 and 5 two species whose MRCA define the crown node.
-Note that a pair of nodes may not necessarily define one single branch
-but a set of them.
-Two identical species will define a tree tip rather than an internal
-node.
-If the pairs of species in columns 2&3 and 4&5 are the same, the
-set of branches to select will be defined as the complete clade
-below their MRCA.}
+\item{edges}{matrix with five columns (character vectors). Each row defines
+a set of consecutive edges between two nodes, and multiple rows
+can be used for the same PUT.
+Column 1 includes the PUTs.
+Columns 2 and 3 include a pair of species whose MRCA defines the older node,
+whereas the MRCA of the species in columns 4 and 5 defines the younger node.
+Using the same species in columns 4 and 5 will define a terminal node as the
+younger node. If columns 2-3 are filled with a species and columns 4-5 are
+filled with another species, then all edges below the MRCA of the two species
+will be set as candidates. If the four columns are filled with the same
+species, the PUT will be bound as sister to this species.}
 
-\item{PUT}{If the \code{edges} data frame refers to more than one PUT,
-which one's set of branches must be plotted.}
+\item{PUT}{If the \code{edges} data frame includes binding information for multiple
+PUTs, specifies the PUT whose candidate edges are to be depicted.}
 
-\item{candidate.col}{Color to represent branches defined by the \code{edges}
-data frame as candidates. Default value is red.}
+\item{candidate.col}{Color for candidate edges (default is "red").}
 
-\item{forbidden.col}{Color to represent branches not defined by the
-\code{edges} data frame as candidates. Default value is
-black.}
+\item{forbidden.col}{Color for non-candidate edges (default is "black").}
 
-\item{candidate.lwd}{Line width to represent branches defined by the
-\code{edges} data frame as candidates. Default value 2.}
+\item{candidate.lwd}{Line width for candidate edges (default is 2).}
 
-\item{forbidden.lwd}{Line width to represent branches not defined by the
-\code{edges} data frame as candidates. Default value 1.}
+\item{forbidden.lwd}{ine width for non-candidate edges (default is 1).}
 
-\item{...}{Arguments to pass through \code{\link[ape]{plot.phylo}} function.}
+\item{...}{further arguments to be passed to \code{\link[ape]{plot.phylo}}.}
 }
 \description{
-Function to help users visualize the candidate branches for tip insertion with \code{\link{custom_branch}} function
+Auxiliar function to visualize candidate edges for PUT binding with \code{\link{custom_branch}}
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-#Create a 'edges' dataframe
 cats.edges <- data.frame(
  "PUT"= "Felis_catus",
  "parent1"= "Felis_silvestris",
@@ -63,7 +55,7 @@ cats.edges <- data.frame(
  "child1"= "Felis_silvestris",
  "child2"= "Felis_silvestris")
 
-#Plot the tree highlighting candidate branches
+#Depict candidate edges on the phylogeny
 plot_custom_branch(tree=cats, edges=cats.edges)
 \dontshow{\}) # examplesIf}
 }

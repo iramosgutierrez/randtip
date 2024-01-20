@@ -5,10 +5,10 @@
 \alias{mammals.info}
 \title{mammals.info}
 \format{
-a 'info' data frame
+An info data frame
 \describe{
-Data frame with taxonomic information on the 5911 species of vascular mammals
-included in 'mammals' object. This object was mainly created after 'ncbi' database taxonomy.
+Data frame with taxonomic information on the 5911 species of mammals
+included in 'mammals' object. Taxonomic information was retrieved from 'ncbi' database taxonomy.
 
 }
 }
@@ -16,6 +16,6 @@ included in 'mammals' object. This object was mainly created after 'ncbi' databa
 mammals.info
 }
 \description{
-randtip 'info' file created after mammals phylogeny
+Info data frame with taxonomic information retrieved for the species in the mammal phylogeny (Upham et al. 2019)
 }
 \keyword{datasets}

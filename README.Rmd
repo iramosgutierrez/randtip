@@ -1,0 +1,301 @@
+---
+output: github_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+
+# Introduction
+
+This tutorial aims to provide a step-by-step user guide to expand incomplete molecular phylogenies using the randtip R package.
+
+Specifically, the tutorial shows how to expand a hypothetical species-level backbone phylogeny with 56 tips using a list of 54 species. Some of the species in the list are already placed in the backbone tree but others are missing, the latter representing phylogenetically uncertain taxa (PUTs).
+
+We focus on hypothetical rather than real world data to cover a wider array of PUT binding situations. All the data sets required to complete the tutorial are available as part of the randtip R package.
+
+# Package installation
+
+The randtip R package is available as an open-source software hosted on GitHub at [github.com/iramosgutierrez/randtip](https://github.com/iramosgutierrez/randtip). The package can be installed (along with its dependencies) using the `install_github` function in the 'devtools' package.
+
+```{r install, eval = FALSE}
+install.packages("devtools")
+library(devtools)
+
+devtools::install_github("iramosgutierrez/randtip")
+```
+
+Randtip will be delivered soon as a formal R package in CRAN, so that the user will be able to install the software using the utility function `install.packages` or the corresponding pathways of R interfaces (e.g. tab "packages" and then "install" if using *R Studio*).
+
+Once the installation is completed the package can be loaded (along with its dependencies).
+
+```{r load_randtip, eval = FALSE}
+library(randtip)
+```
+
+```{r load_randtip_tmp, include = FALSE}
+library(devtools)
+devtools::load_all("../randtip")
+```
+
+# Examples
+
+## Example 1 - The 'backbone' mode of randtip
+
+### 1. Data loading
+
+Randtip requires the user to provide a backbone phylogeny (R object of class *phylo*) and a list of taxa (typically species and/or subspecies) for which a phylogenetic hypothesis is to be obtained.
+
+The user must ensure that there are no duplicate taxa in the list, and that taxonomic criteria between the latter and the phylogenetic tips have been harmonized. Taxonomic harmonization can be conducted using several available resources that were conceived to speed up this task, including the R packages 'WorldFlora' for plants, and 'U.Taxonstand' for plants and animals.
+
+The phylogeny can be loaded into R using the function `read.tree` of *ape* R package, and the list of species can be loaded as a single column data frame or character vector.
+
+```{r load_data, eval = FALSE}
+sp.list <- read.table("/.../specieslist.txt") 
+back.tree <- ape::read.tree("/.../backbone.txt")
+```
+
+If randtip is already installed in the system, the hypothetical example files can be loaded into the working space.
+
+```{r load_data2}
+sp.list <- mythology$sp.list
+back.tree <- mythology$back.tree
+```
+
+### 2. Building the data frame *info*
+
+Once the backbone phylogeny and the list of species have been imported into the working space, the next step is to build the data frame *info*. The most direct and safest way to assemble *info* is using the `build_info` function.
+
+Here, we will follow the backbone mode of randtip (default) to bind the PUTs to the backbone tree (otherwise the argument 'mode' of `build_info` must be set to "list", see [Example 2](#example2) below). Therefore, *info* will include not only the 54 species in the list, but also the species that are represented in the backbone phylogeny. By default, `build_info` will try to retrieve taxonomic information from the web for all the species in the list and the backbone phylogeny (calling to the 'ncbi' repository as default option). However, this procedure makes no sense for our hypothetical example, and thus the 'find.ranks' argument of `build_info` must be set to FALSE (default is TRUE).
+
+Note that in case of unmatched or ambiguous queries (i.e. genera that may refer to different taxonomic groups) during taxonomic rank retrieval, NAs will be returned for the entire row (across all taxonomic ranks of the corresponding genus). Thus, we strongly recommend to visually explore the outputted data frame and to manually check if the empty rows (i.e. those filled with NAs in their entirety) correspond to either ambiguous or unmatched queries (browsing taxonomic repositories). Alternatively, the usercan choose to manually solve ambiguities as they are found during the querying process by setting the argument 'interactive' = TRUE. However, this option will halt the function each timean ambiguity is found, and therefore it may not be convenient for very large datasets that can take substantial time for completion. As a guideline, downloading taxonomic information for 10585 genera (\~75000 species in total, but note that timing depends on the number of genera rather than species) took \~5 hours in a standard PC. Nonetheless, the user may consider using the taxonomic information we provide for vascular plants, fish, mammals, squamata, amphibians and birds to assemble the info data frame (data retrieved mostly from the NCBI Taxonomy Browser in January 2023). If the argument 'prior.info' is fed with a data frame object (which must have the same structure as an *info* data frame), `build_info` will first retrieve taxonomic information from this data frame before starting to query the taxonomic repository for the genera in the backbone phylogeny and the list of taxa that may still be missing.
+
+```{r build_info, results="hide"}
+my.info.noranks <- build_info(sp.list, tree = back.tree,
+                              find.ranks = FALSE,
+                              mode = "backbone")
+my.info.noranks # print the data frame info on screen
+```
+
+Back to our hypothetical example, note that the only taxonomic information in the outputted data frame ('my.info.noranks') is genus-level (second column, which has been filled in automatically with the genus of the species in the list and the backbone phylogeny), meaning that in case the genus of a PUT is missing in the backbone phylogeny, the PUT will not be bound. Thus, we recommend providing at least one supra-generic rank (e.g. taxonomic family) for all the species in *info*, which will be used to define supra-generic MDCCs whenever the genus of a PUT is missing in the phylogeny.
+
+For the purpose of completing this tutorial, an alternative *info* data frame including supra-generic taxonomic information for all the species in the list and the backbone phylogeny can be loaded into the working space. This data frame ('my.info') was filled in with class, order and family in all cases, and subfamily in some cases, as they would have been retrieved from a taxonomic repository if the species in this example represented real taxa.
+
+```{r info_mythology, results="hide"}
+my.info <- mythology$info.backbone
+my.info # print the data frame info on screen
+```
+
+Note that the species that are represented in the backbone phylogeny but are missing in list show hyphens instead of 'NA' from columns 10^th^ to 20^th^. This is because these columns are intended to customize simulation parameters for the species in the user's list representing PUTs. Thus, while we still do not know which species in the list represent PUTs, we can be certain that the species depicted in 'my.info' that are missing in the list (i.e. those showing hyphens from columns 10^th^ to 20^th^) do not represent PUTs, for they are all included in the backbone phylogeny.
+
+### 3. Checking the data frame *info*
+
+Once the *info* data frame is created (and amended if necessary), it is very convenient to check for possible spelling errors. Otherwise, it may happen that species included both in the user's list and the backbone phylogeny, are misidentified as PUTs simply because they were misspelled in either object.
+
+Also, we strongly recommend the user to check the phyletic nature of the phylogenetically placed and co-ranked (PPCR) species that define putative most derived consensus clades (MDCCs) for the PUTs, so that informed decisions can be made in accordance with the particularities of each case ([see section 4](#example1sec4)).
+
+Finally, it is important to ensure that the backbone tree is ultrametric (in case the tree read from file is genuinely ultrametric) and does not include duplicate taxa. All these checks can be conducted using the function `check_info`, which will output a new data frame with all the information. This can be a time-consuming task for very large datasets
+and, by default, the function will make use of parallel processing to expedite the analysis
+using all available cores minus one. Here, we will check the info data frame using two cores.
+
+```{r check_info, eval = FALSE, results = "hide"}
+my.check <- check_info(my.info, back.tree, parallelize = T, ncores = 2)
+```
+
+
+First, the function warns about the possibility of misspelling errors. As such, the column "Typo.names" of the newly created data frame 'my.check' reveals that the species *Gorgona medusi* (represented in the backbone phylogeny) was erroneously typed in the user's list as *Gorgona medusii* (it may also happen the other way around, this is, that a species is misspelled in the phylogeny but correctly typed in the user's list). It is important that the user corrects misspelling errors in 'my.info', because otherwise the species will remain misidentified as PUTs (as shown in the second column of 'my.check'). This can be done directly in R using the auxiliary function `edit_info` or exporting *info* as a spreadsheet (e.g. csv or xlsx) and importing it back into R once the edits are completed.
+
+Here, we will use the function `edit_info` for this purpose. To do so, the user only needs to indicate the heading of the column that is to be edited, the corresponding species (as in the first column) and the new information.
+
+```{r edit_info}
+my.info <- edit_info(my.info, taxa = "Gorgona medusii",
+                     column = "taxon", edit = "Gorgona medusi")
+```
+
+Second, the function informs that two phylogenetic tips (*Yetis abominabilis* and *Yetis abominabilis abominabilis*) may represent the same taxon, and thus the user may consider picking one of them and disregard the other. Otherwise, randtip will choose randomly between the two tips for the purpose of binding PUTs in case the taxon *Yetis abominabilis* is defined as a MDCC. Phylogenetic tips can be easily pruned from the tree using the argument 'remove.tip' of the auxiliary function `edit_tree` (which also serves to edit tip labels, see Table S1 in supplementary material), and the corresponding row of *info* should be removed as well. The latter amend can be conducted using the argument 'remove.rows' of `edit_info`.
+
+```{r correct_synonyms}
+back.tree <- edit_tree(back.tree,
+                       tips="Yetis abominabilis abominabilis",
+                       remove.tips=TRUE)
+my.info <- edit_info(my.info,
+                     taxa="Yetis abominabilis abominabilis",
+                     remove.rows=TRUE)
+```
+
+Third, the function informs that the backbone tree is not ultrametric. However, we are certain that the tree read from file is genuinely ultrametric (it is simply detected as non-ultrametric due to numerical precision of computer machinery), and therefore we will force the tree to be ultrametric).
+
+Finally, `check_info` will by default evaluate the phyletic nature of the taxonomic ranks included in *info*. along with the search for possiblelling errors, is by default conducted in parallel specifying the 'parallelize' argument as TRUE. By default, the number of cores to be used will be all available ones minus one, although the user may manually set a specific number using the 'ncores' argument. If the argument 'find.phyleticity' is set to FALSE, this evaluation will be skipped, but we strongly recommend the user to work in the light of this information, because the phyletic nature of taxonomic ranks can be instrumental for the optimal expansion of phylogenies (see main text).
+
+### 4. Customizing simulation parameters {#example1sec4}
+
+By default, randtip will bind the PUTs to the backbone tree using the parameters that are specified in the arguments of `rand_tip` ([see section 5](#example1sec5)). However, using the same set of parameters to bind all the PUTs may lead to suboptimal solutions in many cases.
+
+For example, consider the PUTs *Draco borealis*, *Draco troglodytes* and *Draco wiverny*, whose genus was identified as a polyphyletic group by `check_info` (see data frame 'my.check'). We can take a closer look to the less inclusive clade that includes all the species in the genus *Draco* using the functions `get_clade` and `plot_clade` in tandem.
+
+```{r custom_put_bind, fig.show="hide"}
+my.clade <- get_clade(my.info, back.tree, group = "Draco")
+plot_clade(my.clade)
+```
+
+Because the congenerics of these PUTs form two monophyletic clusters that are very similar in size (four and six species, respectively), the default behaviour of `rand_tip` for binding *Draco borealis*, *Draco troglodytes* and *Draco wiverny* to this MDCC (largest monophyletic cluster) is risky, for the evidence that the largest cluster of *Draco* most likely include them is rather weak. Thus, a more conservative approach is desirable.
+
+For example, the user may use the "complete" scheme to bind these specific PUTs to a randomly selected branch below the crown node defining the most recent common ancestor (MRCA) of all the species in the genus instead (i.e. root node of the phylogeny displayed in Figure \ref{fig:draco}).Alternatively, the user may use the "frequentist" scheme to bind each of the PUTs to either of the two monophyletic clusters with a probability proportional to the size of the groups. Here, we will use the former scheme, and do so, we can fill in the corresponding slots of *info* (column 'polyphyly.scheme') to set the "complete" scheme for these PUTs.
+
+```{r edit_draco_info_complete}
+DracoPUTs <- c("Draco borealis", "Draco troglodytes",
+               "Draco wiverny")
+
+my.info <- edit_info(my.info,
+                     taxa = DracoPUTs,
+                     column = "polyphyly.scheme",
+                     edit = "complete")
+```
+
+It may happen that the user is certain that the MDCC of a PUT does not correspond to any of the taxonomic groups considered by randtip. For example, the MDCC of the PUT *Draco balerion* could be infra-generic (e.g. a taxonomic section within the genus *Draco* including *Draco valyriensis*, *Draco viserii* and *Draco daeneryi*). The user may know that the MRCA of all the species constituting the target taxonomic section in the phylogeny is defined by *Draco valyriensis* and *Draco daeneryi* (the minimum spanning path connecting both species in the tree traverses the MRCA of all the species in the section). Thus, we can fill in the slots "taxon1" and "taxon2" of the corresponding row of *info* with *Draco valyriensis* and *Draco daeneryi* to define an infra-generic MDCC for *Draco balerion*.
+
+```{r edit_draco_info_infra}
+my.info <- edit_info(my.info, 
+                     taxa = "Draco balerion",
+                     column = "taxon1",
+                     edit = "Draco valyriensis")
+my.info <- edit_info(my.info,
+                     taxa = "Draco balerion",
+                     column = "taxon2",
+                     edit = "Draco daeneryi") 
+
+```
+
+Now, consider the PUT *Lycanthropus albus*, whose genus also forms a polyphyletic group.
+
+```{r plot_lycan, fig.show="hide"}
+my.clade <- get_clade(my.info, back.tree, group = "Lycanthropus")
+plot_clade(my.clade)
+```
+
+In this case, the polyphyletic nature of the group is due to an outlying species (*Lycanthropus americanus*) that maps clearly away from the main cluster of *Lycanthropus* (Figure \ref{fig:lycan}). Therefore, the default scheme "largest" seems adequate (i.e. it is highly likely that the largest cluster of the genus in the phylogeny actually includes *Lycanthropus americanus*) whereas the "complete" scheme could be excessively conservative.
+
+### 5. Wrapping up {#example1sec5}
+
+Once we have edited the data in *info* as we see fit (see above), the function `info2input` can be used to create the input object for the `rand_tip` function. This final dataset ensures consistent structure for use in `rand_tip` and allows generating as many expanded phylogenies as desired without the need to search for putative MDCCs in *info* repeatedly, which is a computationally intense task (this is done by the `info2input` just once). By default, this function makes use of parallel processing using all available cores
+minus one.
+
+In case `info2input` fails to find a MDCC for a PUT (which will only happen if the genus of the PUT is missing in the backbone tree and no supra-generic taxonomic information is available), the function will return a \textbf{warning} message. Otherwise, `info2input` will select the less inclusive MDCCs of each PUT.
+
+
+
+```{r info2input_noranks, results="hide", message = TRUE}
+my.input.noranks <- info2input(my.info.noranks, back.tree)
+```
+
+
+
+```{r info2input_ranks, results="hide"}
+my.input <- info2input(my.info, back.tree)
+```
+
+Note that the outputted data frame *my.input* is identical to *my.info* except for the two newly added columns, namely 'MDCC' and 'MDCC.rank'.
+
+The column 'MDCC' shows the taxonomic groups defining the MDCCs to which the PUTs will be bound ('Tip' means that the species is already represented in the backbone phylogeny), and 'MDCC.rank' depicts the taxonomic rank of the groups.
+
+### 6. PUT binding {#example1sec6}
+
+The binding of PUTs in the selected MDDCs is carried out with the `rand_tip` function, which is fed with the output of `info2input` (*my.input*). Most arguments of `rand_tip` are used for defining simulation parameters (and thus they can be customized for individual PUTs via *info*) except for 'prune', 'forceultrametric' and 'verbose'.
+
+By default, `rand_tip` will output a phylogenetic tree including only the species in the user's list (n = 54 in our hypothetical example) unless 'prune' is set to FALSE, in which case the whole expanded backbone phylogeny will be outputted.
+
+In case the tree read from file is detected as non-ultrametric despite being genuinely ultrametric (as in our hypothetical example, see Ramos-Gutiérrez et al., 2023 for an extended discussion on this issue), the user can set the 'forceultrametric' argument to TRUE (default is FALSE) to force the tree to be ultrametric.
+
+Lastly, the argument 'verbose' allows the user to print the progress of the function on screen (default is TRUE). Here, we will use the function with default settings except for (1) forcing the backbone phylogeny to be ultrametric, and (2) outputting the whole expanded tree (rather than the tree pruned to the species in the user's list). This will enable us to better visualize the MDCCs that were selected to bind the PUTs (see Figure \ref{fig:newtree}):
+
+```{r run_randtip, results="hide"}
+new.tree <- rand_tip(my.input, back.tree,
+                     forceultrametric = TRUE,
+                     prune = FALSE)
+```
+
+### 7. Tree visualization {#example1sec7}
+
+We can visualize the result of the simulation using the `plot.phylo` function of 'ape' R package.
+
+To distinguish between phylogenetically placed species and PUTs, we can set the color pattern of phylogenetic tips using the auxiliary function `put_tip_col` before `plot.phylo`.
+
+Note that visualizing very large phylogenies may require specialized software such as Dendroscope.
+
+```{r newtree_plot, fig.show="hide"}
+my.tip.col <- put_tip_col(new.tree, back.tree,
+                          placed.col = "dark grey",
+                          put.col = "red")
+plot.phylo(new.tree, tip.color = my.tip.col)
+```
+
+Most of the PUTs were bound to a randomly selected branch below the crown node of their corresponding genus-level MDCCs.
+
+For example, the congenerics of the PUT *Sirenia merrowi* form a monophyletic group, and thus *Sirenia merrowi* is now placed below the crown node of the group (Figure \ref{fig:newtree}).
+
+Finally, *Grindylowia yorkii* was bound below the crown node of the order Aquatia, its less inclusive MDCC in the backbone phylogeny. Again, note that the monophyletic status of the groups within Aquatia (*Aspidochelonius*, *Macropolypus* and *Kraken*) was respected.
+
+Note that the PUT *Draco balerion* was bound to a branch placed below the MRCA of the species *Draco valyriensis* and *Draco daeneryi*, as we specifically instructed the software to use an infra-generic MDCC to bind this PUT (Figure \ref{fig:newtree}).
+
+## Example 2 - The 'taxon list' mode of randtip {#example2}
+
+Now that we are more familiar with the workflow of randtip, we will use the same species list of the previous example to expand the backbone tree using the 'taxon list' mode.
+
+On 'taxon list mode', randtip defines MDDCs on the sole basis of taxonomic information of the species provided in the user's list. This implies shorter execution times, because backbone phylogenies often include thousands of species for which no taxonomic information needs to be retrieved under this mode. However, supra-generic MDCCs may differ between both approaches, which may or may not have an impact on the final tree (remember that both modes of rantip will behave identically whenever the genera of the PUTs are minimally represented in the backbone phylogeny) [see Fig. 3 in Ramos-Gutiérrez et al., 2023].
+
+As in the previous example, the first step is building the *info* data frame.
+
+```{r build_info_ex2, results="hide"}
+my.info.noranks.list <- build_info(sp.list, tree = NULL,
+                                   find.ranks = FALSE,
+                                   mode = "list") 
+my.info.noranks.list # print the data frame info on screen
+```
+
+The outputted data frame ('my.info.noranks.list') is identical to that generated in the previous example ('my.info.noranks') with the exception that only the species included in the user's list are displayed. Again, we have instructed `build_info` not to retrieve taxonomic information from the web, and thus the only available information is that corresponding to genus rank. For the purpose of completing this tutorial, an alternative *info* data frame including taxonomic information for all the species in the list can be loaded into the working space.
+
+```{r load_info_ex2, results="hide"}
+my.info.list <- mythology$info.list
+my.info.list # print the data frame info on screen
+```
+
+Now we can use `check_info`:
+
+```{r check_info_ex2, results="hide"}
+my.check.list <- check_info(my.info.list, back.tree)
+```
+
+Again, we get the same warnings as in the \hyperlink{checkinfowarnings}{previous example} (except for that pertaining to the species that were duplicated in the backbone phylogeny, as we pruned one of them earlier).
+
+Besides, a closer look to the outputted data frame ('my.check.list') reveals that the phyletic status of some groups has changed. For example, the family Leviathanidae is now displayed as monophyletic instead of polyphyletic. This is because the data frame 'my.info.list' only includes taxonomic information for the species in the user's list, and thus any supra-generic taxonomic rank for the species that are represented in the backbone phylogeny but missing in the user's list remains undisclosed. In this case, the two species that conform the small phylogenetic cluster of Leviathanidae (*Aspidochelonius turtur* and *Aspidochelonius spinosus*) are not included in the user's list, the reason why the group is now identified as monophyletic (Figure \ref{fig:backboneex2}).
+
+
+Whether or not the different functioning of the 'backbone' and 'taxon list' modes of randtip for supra-generic MDCCs will have an impact in the expanded tree will depend on the specifics of each situation. For example, the PUT *Leviathanus cthulus* will always be bound below the crown node of the clade defined by genera Kraken and Macropolypus regardless of the mode of randtip (assuming default settings). This is because under 'backbone' mode, *Leviathanus cthulus* will be bound to the largest cluster of Leviathanidae (n = 3 species; Figure \ref{fig:newtree}), which is the only cluster of Leviathanidae that can be identified under 'taxon list' mode (because the two species in the small cluster of Leviathanidae are not included in the user's list; Figure \ref{fig:backboneex2}). However, it may have happened that Leviathanidae species not included in the user's list represented the largest cluster of the group in the backbone phylogeny (for example, if the genus *Aspidochelonius* would have been represented by four or more species in the tree), in which case *Leviathanus cthulus* would be bound to different clades under 'backbone' and 'taxon list' modes, respectively (if used with default settings).
+
+# Manual definition of candidate branches
+
+The clade-based approach of randtip should cover most real world situations for PUT binding. Yet, the auxiliary function `custom_branch` allows the user to manually define any subset of candidate branches to bind PUTs.
+
+For example, the phylogenetic place for the PUT of hybrid origin *Monoceros x alaricornus* could be any point along the branches subtending the parental species *Monoceros pegasus* and *Monoceros megacornus*, respectively, and such parameter space cannot be specified by one single clade.
+
+To solve this, the user can define the set of candidate branches as an *edges* data frame. The data frame *edges* must contain five columns, each row representing a different set of candidate branches for a given PUT. The first column must include the PUT to which the row refers to. The second and third columns are used to set the older node (MRCA of two given species) and the fourth and fifth ones refer to the younger one. Thus, all the branches traversed by the minimum spanning path connecting the older and younger nodes are selected as candidate branches (the user can add any number of rows as desired).
+
+To define a terminal node (phylogenetic tip) as the younger node, the user must fill in the corresponding slots of the fourth and fifth columns with the corresponding tip label. Inserting the same tip in the four slots will allow binding the PUT as sister to the species represented by the tip. Finally, in case the same pair of species is set for columns 2-3 and 4-5 within a row, the latter will define all branches below the MRCA of the two species as candidates.
+
+In order to ensure that candidate branches have been correctly encoded in *edges*, the user can use the auxiliary function `plot_custom_branch` to visually explore the selected space of branch lengths.
+
+
+And now we can further expand the phylogeny that was generated earlier.
+

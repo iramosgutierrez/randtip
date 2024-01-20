@@ -15,7 +15,8 @@ test_that("suffix in species", {
     info <- build_info(species, tree)
 
     expect_identical(info$taxon, c("Abies_sp.", "Rubus_sp.", "Pinus_sp2.", "Aa_sp3.",
-                                 "Rubus_albiflorus", "Pinus_sp.", "Aa_sp.", "Aa_sp2."))
+                                 "Rubus_albiflorus", "Rubus", "Pinus_sp.",
+                                 "Aa_sp.", "Aa_sp2."))
 })
 
 
@@ -24,11 +25,11 @@ test_that("genus TRUE for build.info", {
     # Test not genus in species list
     species <- c("Abies", "Rubus", "Pinus", "Aa_sp")
     tree$tip.label <- c("Abies", "Rubus", "Pinus")
-    expect_error(build_info(species, tree,  genus = TRUE), ".*only genera.*")
+    expect_error(build_info(species, tree,  genus = TRUE), ".*genera only.*")
     # Test not genus in tree tip label
     species <- c("Abies", "Rubus", "Pinus", "Aa")
     tree$tip.label <- c("Abies", "Rubus", "Pinus_sp")
-    expect_error(build_info(species, tree,  genus = TRUE), ".*only genera.*")
+    expect_error(build_info(species, tree,  genus = TRUE), ".*genera only.*")
 
 })
 
@@ -57,18 +58,18 @@ test_that("The following genera were detected as ambiguous or missing", {
                   "Panthera_tigris",
                   "Panthera_leo",
                   "Felis_silvestris")
-  
+
   expect_message(build_info(catspecies, cats), "ambiguous")
 })
 
 test_that("MDCC search", {
   input <- info2input(mythology$info.list, mythology$back.tree)
   expect_equal(input[input$taxon=="Grindylowia_yorkii","MDCC" ], "Aquatia")
-  
+
   info <- edit_info(mythology$info.list, "Grindylowia_yorkii", "order", NA )
   input <- info2input(info, mythology$back.tree)
   expect_equal(input[input$taxon=="Grindylowia_yorkii","MDCC" ], "Paradoxanimalia")
-  
+
 })
 
 

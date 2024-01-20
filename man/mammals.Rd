@@ -5,7 +5,7 @@
 \alias{mammals}
 \title{mammals}
 \format{
-a Phylo object
+A phylo object
 \describe{
 Phylogenetic tree comprising 5911 species of mammals.
 Data obtained from https://github.com/megatrees/mammal_20221117

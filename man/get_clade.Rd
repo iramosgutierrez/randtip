@@ -2,29 +2,27 @@
 % Please edit documentation in R/plotting.R
 \name{get_clade}
 \alias{get_clade}
-\title{Function to extract a subtree representing a specified group.}
+\title{Function to extract clades from the backbone phylogeny.}
 \usage{
 get_clade(info, tree, group)
 }
 \arguments{
-\item{info}{An 'info' (or 'input') object.}
+\item{info}{An 'info' (or 'input') data frame.}
 
-\item{tree}{The original backbone tree to be split.}
+\item{tree}{The backbone tree to be subsetted.}
 
-\item{group}{group to be extracted}
+\item{group}{Taxonomic group of species that defines the clade to extract.}
 }
 \value{
-A list of four objects which will be used for automatic plotting
-using \code{\link{plot_clade}} function.
-'Tree' will contain the splitted tree; 'info' will contain the handed info
-file; 'rank' will contain the taxonomic rank of the specified group,
-and 'group' will contain the group name.
+A list with four objects that will be used for automatic plotting
+with the \code{\link{plot_clade}} function.
+'Tree' is the subtree; 'info' is the handed info
+data frame; 'rank' is the taxonomic rank of the specified group,
+and 'clade' is the name of the clade. ## SAME AS ABOVE, SHOULD BE 'group'
 }
 \description{
-Obtain a phylogenetic tree representing a specified group split from an
-original backbone tree.
-Note that the tree splitting will be performed at the MRCA node of all the taxa included in the
-group in the 'info' object.
+This function serves to extract the clade in the backbone phylogeny that includes all the
+species in the specified group (as defined in the info data frame).
 }
 \examples{
 catspecies <- c("Lynx_lynx", "Panthera_uncia",

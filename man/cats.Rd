@@ -3,18 +3,18 @@
 \docType{data}
 \name{cats}
 \alias{cats}
-\title{cats phylogenetic tree}
+\title{Phylogeny of felids}
 \format{
 A phylogenetic tree with 14 tips and 13 internal nodes
 \describe{
-Phylogenetic tree regarding 14 species of felids (members of the Felidae family).
-This tree has been extracted from a complete mammal tree by Upham et al. (2019) for example purposes
+Phylogenetic tree with 14 species of felids (Felidae).
+This is a subtree extracted from the complete mammal phylogeny by Upham et al. (2019)
 }
 }
 \usage{
 cats
 }
 \description{
-Phylogenetic tree used for randtip package examples
+Example phylogeny for randtip package
 }
 \keyword{datasets}

@@ -5,10 +5,10 @@
 \alias{fish.info}
 \title{fish.info}
 \format{
-a 'info' data frame
+An info data frame
 \describe{
-Data frame with taxonomic information on the 31521 species of vascular fish
-included in 'fish' object. This object was created after The Fish Tree of Life taxonomy.
+Data frame with taxonomic information on the 31521 species of fishes
+included in 'fish' object. Taxonomic information was retrieved from The Fish Tree of Life website.
 
 }
 }
@@ -16,6 +16,6 @@ included in 'fish' object. This object was created after The Fish Tree of Life t
 fish.info
 }
 \description{
-randtip 'info' file created after fish phylogeny
+Info data frame with taxonomic information retrieved for the species in the fish phylogeny (Rabosky et al. 2018)
 }
 \keyword{datasets}

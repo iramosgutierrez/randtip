@@ -1,11 +1,11 @@
 #' Function to extract clades from the backbone phylogeny.
 #'
-#' This function serves to extract the clade in the backbone phylogeny that includes all the 
+#' This function serves to extract the clade in the backbone phylogeny that includes all the
 #' species in the specified group (as defined in the info data frame).
 #'
 #' @param info An 'info' (or 'input') data frame.
 #' @param tree The backbone tree to be subsetted.
-#' @param clade Taxonomic group of species that defines the clade to extract ## CREO QUE ES MÁS CORRECTO QUE EL ARGUMENTO SEA "GROUP", NO "CLADE", YA QUE LO QUE SE DEFINE ES UN GRUPO, QUE A SU VEZ DEFINE UN CLADO.
+#' @param group Taxonomic group of species that defines the clade to extract.
 #'
 #' @return A list with four objects that will be used for automatic plotting
 #'         with the \code{\link{plot_clade}} function.
@@ -62,7 +62,7 @@ get_clade<- function(info, tree, group){
 
 
 
-#' Function to plot clades extracted from the backbone phylogeny. 
+#' Function to plot clades extracted from the backbone phylogeny.
 #'
 
 #' @param get.clade.out Output of the \code{\link{get_clade}} function (a phylogenetic clade)
@@ -71,12 +71,12 @@ get_clade<- function(info, tree, group){
 #' @param unknown.col Color for the tips representing species without taxonomic information (default is grey).
 #' @param ... Further arguments to pass through \code{\link{plot.phylo}} function.
 #'
-#' @return Less inclusive clade that includes all the species in the specified taxonomic group. 
+#' @return Less inclusive clade that includes all the species in the specified taxonomic group.
 
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
-#' @examples
+#' @examplesIf interactive()
 #' catspecies <- c("Lynx_lynx", "Panthera_uncia",
 #' "Panthera_onca", "Felis_catus", "Puma_concolor",
 #' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
@@ -96,7 +96,7 @@ plot_clade<- function(get.clade.out, ppcr.col="#4a8a21",
                       nonppcr.col="#48bce0",unknown.col="#adadad", ...){
 
 
-    get.clade.names <- c("Tree", "info", "rank", "clade")
+    get.clade.names <- c("Tree", "info", "rank", "group")
     if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.clade.names))){
         stop("Please, feed this function with the output from  get_clade function")
     }
@@ -125,10 +125,10 @@ plot_clade<- function(get.clade.out, ppcr.col="#4a8a21",
 #' @param placed.col Color for phylogenetic tips that were already placed in the backbone tree (default is grey).
 #' @param put.col Color for phylogenetic tips representing PUTs in \code{new tree} (default is red).
 #' @return A vector of length equal to the number of tips in newtree that defines the argument \code{tip.color} in plot.phylo function.
-#'         
+#'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
-#' @examples
+#' @examplesIf interactive()
 #'
 #' catspecies <- c("Lynx_lynx", "Panthera_uncia",
 #' "Panthera_onca", "Felis_catus", "Puma_concolor",
