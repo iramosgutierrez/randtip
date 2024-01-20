@@ -4,13 +4,21 @@
 \alias{info2input}
 \title{Convert 'info' to 'input'.}
 \usage{
-info2input(info, tree, verbose = T)
+info2input(info, tree, parallelize = T, ncores = NULL, verbose = T)
 }
 \arguments{
 \item{info}{An 'info' data frame, including all the customized binding
 parameters.}
 
 \item{tree}{Backbone tree.}
+
+\item{parallelize}{Logical. If TRUE it allows the function to look for
+phyletic status using multiple processing
+cores.}
+
+\item{ncores}{Number of cores to use in parallelization. If no number
+is provided it defaults to all but one of system logical
+cores.}
 
 \item{verbose}{Logical. Should or not progress be printed.}
 }
@@ -22,6 +30,7 @@ alongside with a backbone tree to expand a tree.
 Convert an 'info' object into an 'input' one.
 }
 \examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 catspecies <- c("Lynx_lynx", "Panthera_uncia",
 "Panthera_onca", "Felis_catus", "Puma_concolor",
 "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
@@ -31,7 +40,7 @@ cats.info <- build_info(species=catspecies, tree= cats,
      find.ranks=TRUE, db="ncbi", mode="backbone")
 
 cats.input <- info2input(info=cats.info, tree=cats)
-
+\dontshow{\}) # examplesIf}
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

@@ -88,7 +88,8 @@ custom_branch <- function(tree, edges, rand.type="random",
             if(nrow(df)>1 & !prob){nd<-sample(df$parent, 1)}
         }
 
-        bp<-binding_position(new.tree, node = nd, insertion = rand.type)
+        bp<-binding_position(new.tree, node = nd, insertion = rand.type,
+                             ultrametric = ape::is.ultrametric(new.tree))
         new.tree<- phytools::bind.tip(new.tree, PUT, bp$length,
                                       bp$where, bp$position)
     }

@@ -49,6 +49,7 @@ A randtip 'info' data frame
 Function to create an 'info' object given a list of species.
 }
 \examples{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Create a list of species to include in the resulting tree
  catspecies <- c("Lynx_lynx",
 "Panthera_uncia",
@@ -63,6 +64,7 @@ Function to create an 'info' object given a list of species.
 #Create the 'info' file
 cats.info <- build_info(species=catspecies, tree= cats,
      find.ranks=TRUE, db="ncbi", mode="backbone")
+\dontshow{\}) # examplesIf}
 }
 \author{
 Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima

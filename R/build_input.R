@@ -326,7 +326,8 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
             cl <- parallel::makeCluster(ncores)
             parallel::clusterExport(cl, c("check_phyletic", "notNA",
                                           "MDCC_phyleticity", "phyleticity",
-                                          "first_word", "search_typos"))
+                                          "first_word", "search_typos"),
+                                    envir = environment())
             parallel::clusterEvalQ(cl, library(stringdist))
             DF_out <- parallel::parLapply(cl, PUTs,
                                           function(PUT_i, PUTs, putlength, DF, tree.taxa,
@@ -353,7 +354,8 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
             cl <- parallel::makeCluster(ncores)
             parallel::clusterExport(cl, c("check_phyletic", "notNA",
                                           "MDCC_phyleticity", "phyleticity",
-                                          "first_word"))
+                                          "first_word"),
+                                    envir = environment())
         }
         if(verbose & find.phyleticity){cat("Checking phyletic status in parallel.\n")}
         DF_out <- parallel::parLapply(cl, 1:length(ranks),
@@ -486,7 +488,8 @@ info2input<- function(info, tree, parallelize = T, ncores = NULL, verbose=T){
         cl <- parallel::makeCluster(ncores)
         parallel::clusterExport(cl, c("usingMDCCfinder", "correct_DF",
                                     "randtip_ranks", "first_word", 
-                                    "sp_genus_in_tree"))
+                                    "sp_genus_in_tree"),
+                                envir = environment())
 
         input_out <- parallel::parLapply(cl, taxon,
                                          function(taxon_i, input,tree, silent){
