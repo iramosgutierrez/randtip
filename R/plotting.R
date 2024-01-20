@@ -1,19 +1,18 @@
-#' Function to extract a subtree representing a specified group.
+#' Function to extract clades from the backbone phylogeny.
 #'
-#' Obtain a phylogenetic tree representing a specified group split from an
-#' original backbone tree.
-#' Note that the tree splitting will be performed at the MRCA node of all the taxa included in the
-#' group in the 'info' object.
+#' This function serves to extract the clade in the backbone phylogeny that includes all the 
+#' species in the specified group (as defined in the info data frame).
 #'
-#' @param info An 'info' (or 'input') object.
-#' @param tree The original backbone tree to be split.
-#' @param group group to be extracted
+#' @param info An 'info' (or 'input') data frame.
+#' @param tree The backbone tree to be subsetted.
+#' @param clade Taxonomic group of species that defines the clade to extract ## CREO QUE ES MÁS CORRECTO QUE EL ARGUMENTO SEA "GROUP", NO "CLADE", YA QUE LO QUE SE DEFINE ES UN GRUPO, QUE A SU VEZ DEFINE UN CLADO.
 #'
-#' @return A list of four objects which will be used for automatic plotting
-#'         using \code{\link{plot_clade}} function.
-#'  'Tree' will contain the splitted tree; 'info' will contain the handed info
-#'         file; 'rank' will contain the taxonomic rank of the specified group,
-#'         and 'group' will contain the group name.
+#' @return A list with four objects that will be used for automatic plotting
+#'         with the \code{\link{plot_clade}} function.
+#'  'Tree' is the subtree; 'info' is the handed info
+#'         data frame; 'rank' is the taxonomic rank of the specified group,
+#'         and 'clade' is the name of the clade. ## SAME AS ABOVE, SHOULD BE 'group'
+
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
@@ -37,10 +36,10 @@ get_clade<- function(info, tree, group){
     rankDF.withgroup<- as.vector(colSums(rankDF.withgroup, na.rm = T))
     ranks<- which(rankDF.withgroup>0)
     if(length(ranks)==0){
-        stop("Specified group is not reflected in the 'info' data frame")}
+        stop("Specified taxonomic group not found in 'info'")}
     if(length(ranks)> 1){
-        stop("Specified group reflect several ranks. ",
-            "Please correct your 'info' data frame!")
+        stop("Specified group is duplicated through the taxonomic hierarchy. ",
+            "Please, correct your 'info' data frame!")
     }
     rank<-names(rankDF)[ranks]
 
@@ -48,8 +47,9 @@ get_clade<- function(info, tree, group){
     genera<- unique(spss$genus)
 
     cut.list<- tree$tip.label[first_word(tree$tip.label)%in% genera]
-    if(length(cut.list)==0){stop("Specified group is not reflected in the tree!")}
-    if(length(cut.list)==1){stop("Specified group is represented by a single tip in the phylogeny!")}
+
+    if(length(cut.list)==0){stop("Specified taxonomic group not found in the tree!")}
+    if(length(cut.list)==1){stop("Specified taxonomic group is represented by one single tip in the phylogeny!")}
     cut.node<- ape::getMRCA(tree, tip = cut.list )
     if(cut.node==findRoot(tree)){
         return(list("Tree"=tree, "info"=info, "rank"=rank, "group"=group))
@@ -61,30 +61,22 @@ get_clade<- function(info, tree, group){
 }
 
 
-#' Function to plot a subtree representing a specified group.
+
+#' Function to plot clades extracted from the backbone phylogeny. 
 #'
-#' Plot a phylogenetic tree splitted from the backbone tree
-#' using \code{get_clade} function.
+
+#' @param get.clade.out Output of the \code{\link{get_clade}} function (a phylogenetic clade)
+#' @param ppcr.col Color for the tips representing species placed in the specified taxonomic group (default is green).
+#' @param nonppcr.col Color for the tips representing other species but those placed in the specified taxonomic groupnt clade (default is blue).
+#' @param unknown.col Color for the tips representing species without taxonomic information (default is grey).
+#' @param ... Further arguments to pass through \code{\link{plot.phylo}} function.
 #'
-#' @param get.clade.out Output from \code{\link{get_clade}} function.
-#' @param ppcr.col Color to represent tips included in the specified group.
-#'                 Default value is green.
-#' @param nonppcr.col Color to represent tips included in a different group
-#'                    from the specified one (at the same taxonomic rank).
-#'                    Default value is blue.
-#' @param unknown.col Color to represent tips without taxonomic information
-#'                    at the specifed group's taxonomic rank.
-#'                    Default value is grey
-#' @param ... Arguments to pass through \code{\link{plot.phylo}} function.
-#'
-#' @return A plot representing the group specified in \code{\link{get_clade}}
-#'         function using the selected colors.
+#' @return Less inclusive clade that includes all the species in the specified taxonomic group. 
+
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
-#' #First the group information must be obtained
-#'
 #' catspecies <- c("Lynx_lynx", "Panthera_uncia",
 #' "Panthera_onca", "Felis_catus", "Puma_concolor",
 #' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
@@ -96,7 +88,6 @@ get_clade<- function(info, tree, group){
 #' felinae.clade <- get_clade(info=cats.info,
 #' tree=cats, group="Felinae")
 #'
-#' #Then it can be plotted
 #' plot_clade(felinae.clade, ppcr.col="green",
 #' nonppcr.col="red",unknown.col="grey" )
 #'
@@ -104,10 +95,10 @@ get_clade<- function(info, tree, group){
 plot_clade<- function(get.clade.out, ppcr.col="#4a8a21",
                       nonppcr.col="#48bce0",unknown.col="#adadad", ...){
 
-    get.group.names <- c("Tree", "info", "rank", "group")
-    if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.group.names))){
-        stop("Please feed this function with the returned object from ",
-            "get_clade function")
+
+    get.clade.names <- c("Tree", "info", "rank", "clade")
+    if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.clade.names))){
+        stop("Please, feed this function with the output from  get_clade function")
     }
 
     tipcol <- clade_col(get.clade.out, ppcr.col=ppcr.col,
@@ -126,21 +117,19 @@ plot_clade<- function(get.clade.out, ppcr.col="#4a8a21",
 
 #' Get PUT or placed color pattern
 #'
-#' Set color pattern to distinguish between phylogenetically placed taxa and PUTs when plotting trees
-#' with the \code{plot.phylo} function of ‘ape’ R package using the \code{tip.color} argument
+#' Set a color pattern to distinguish between phylogenetically placed taxa and PUTs when plotting expanded trees
+#' with the \code{plot.phylo} function of ‘ape’ R package
 #'
 #' @param newtree An expanded phylogenetic tree.
-#' @param oldtree The original backbone tree where the PUTs have been bound.
-#' @param placed.col Color to plot phylogenetic tips which were already placed in the original backbone tree.
-#'                   Default value is grey.
-#' @param put.col Color to plot bound PUTs in \code{new tree}. Default value is red.
-#' @return A vector of length equal to the number of tips in newtree, to be used after \code{tip.color}
-#'         in plot.phylo function.
-#'
+#' @param oldtree The original backbone tree.
+#' @param placed.col Color for phylogenetic tips that were already placed in the backbone tree (default is grey).
+#' @param put.col Color for phylogenetic tips representing PUTs in \code{new tree} (default is red).
+#' @return A vector of length equal to the number of tips in newtree that defines the argument \code{tip.color} in plot.phylo function.
+#'         
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examples
-#' #Perform a tree expansion
+#'
 #' catspecies <- c("Lynx_lynx", "Panthera_uncia",
 #' "Panthera_onca", "Felis_catus", "Puma_concolor",
 #' "Lynx_canadensis", "Panthera_tigris", "Panthera_leo",
@@ -155,11 +144,10 @@ plot_clade<- function(get.clade.out, ppcr.col="#4a8a21",
 #'  tree=cats, rand.type = "polytomy",
 #'  forceultrametric = TRUE)
 #'
-#' #Set the colours for original tips and bound PUTs
+#' #Set color pattern for original tips and PUTs, respectively
 #' cats.tip.cols <- put_tip_col(newtree = expanded.cats,
 #'  oldtree = cats, placed.col="black", put.col="red")
 #'
-#' #Plot the resulting tree visualizing original tips and PUTs
 #' plot.phylo(expanded.cats, tip.color = cats.tip.cols)
 #'
 #' @export
@@ -173,10 +161,10 @@ put_tip_col<- function(newtree, oldtree, placed.col="#adadad", put.col="#C23B23"
 clade_col <- function(get.clade.out, ppcr.col="#4a8a21",
                       nonppcr.col="#48bce0",unknown.col="#adadad"){
 
-    get.group.names <- c("Tree", "info", "rank", "group")
-    if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.group.names))){
-        stop("Please feed this function with the returned object from ",
-            "get_clade function")
+
+    get.clade.names <- c("Tree", "info", "rank", "clade")
+    if(!(is.list(get.clade.out)|all(names(get.clade.out)==get.clade.names))){
+        stop("Please, feed this function with the output from get_clade function")
     }
 
     group.tree<-get.clade.out$Tree

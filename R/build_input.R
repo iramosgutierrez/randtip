@@ -1,43 +1,44 @@
 
 #' Create a 'info' data frame.
 #'
-#' Function to create an 'info' object given a list of species.
+#' This function creates an 'info' object for a given list of species.
 #'
 #' @usage my.info <- build_info(species = species.list, tree = tree, db="gbif",
 #'                    mode="list", find.ranks = TRUE, interactive =FALSE,
 #'                    genus = FALSE, prior.info = NULL, verbose = TRUE)
 #'
-#' @param species A character vector or a single-column data frame including
+#' @param species Character vector or a single-column data frame including
 #'                the species of interest. Word breakers must be blanks (" ")
 #'                or underscores ("_").
-#' @param tree A 'phylo' object backbone tree. It can be set to NULL if
-#'             \code{mode} is set to "list".
-#' @param find.ranks Logical. If TRUE, taxonomic information will be retrieved to
-#'                   identify supra-generic MDCCs for the PUTs.
-#' @param db Taxonomic data base to search into if \code{find.ranks} is
-#'           set to TRUE. Accepted values are 'ncbi' (default),
-#'           'itis', 'gbif' and 'bold'.
-#' @param mode If mode is set to "list", the info file will be created
-#'             using only the species given in the \code{species} argument.
-#'             If "backbone" mode is specified, 'info' will also include all
-#'             the tips included in the backbone tree.
+#' @param tree A 'phylo' object with the backbone tree (set to NULL if
+#'             \code{mode} is "list").
+#' @param find.ranks Logical. If TRUE, taxonomic information will be retrieved 
+#'                   from the specified taxonomic repository to identify
+#'                   supra-generic MDCCs for the PUTs.
+#' @param db Taxonomic repository to query if \code{find.ranks} is
+#'           set to TRUE. One of 'ncbi' (default), 'itis', 'gbif'
+#'           or 'bold'.
+#' @param mode If mode is "list", the info data frame will be filled with 
+#'             the species provided in the \code{species} argument. If mode
+#'             is "backbone", the info data frame will also include all the
+#'             tips in the backbone tree.
 #' @param interactive Logical. Whether or not ambiguous species names will
-#'                    be resolved manually by the user or filled in
-#'                    automatically with 'NA' when retrieving taxonomic
-#'                    information.
-#' @param genus Logical. Whether or not a genus-level backbone tree is to
-#'              be expanded. If set to TRUE, all tips in the backbone tree
-#'              and taxa in the species vector must represent genera.
-#' @param prior.info A previously created 'info' file used to fill blanks
-#'                  previously to the taxonomic database search.
-#' @param verbose Logical. Should or not progress be printed.
+#'                    be resolved manually as they appear when retrieving 
+#'                    taxonomic information. If FALSE, NAs will be returned 
+#'                    in the corresponding row of info.          
+#' @param genus Logical. Whether or not the backbone tree is resolved to the
+#'              genus level. If TRUE, all the taxa in the tips of the phylogeny  
+#'              and the species vector must represent genera.
+#' @param prior.info A previously created info data frame that is recycled to
+#'                   build the new info.
+#' @param verbose Logical. Whether or not to print the progress.
 #'
-#' @return A randtip 'info' data frame
+#' @return An 'info' data frame
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
 #' @examplesIf interactive()
-#' # Create a list of species to include in the resulting tree
+#' # Create a list of species to include in the phylogeny
 #'  catspecies <- c("Lynx_lynx",
 #' "Panthera_uncia",
 #' "Panthera_onca",
@@ -48,7 +49,7 @@
 #' "Panthera_leo",
 #' "Felis_silvestris")
 #'
-#' #Create the 'info' file
+#' #Create the 'info' data frame
 #' cats.info <- build_info(species=catspecies, tree= cats,
 #'      find.ranks=TRUE, db="ncbi", mode="backbone")
 #' @export
@@ -59,12 +60,12 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
     if(is.data.frame(species)){
         if(ncol(species)!=1){
             stop("Species must be provided as a character vector ",
-                 "or single-column dataframe.")
+                 "or single-column data frame.")
         }else{species <- species[,1]}
     }
     if(!(is.vector(species))){
         stop("Species must be provided as a character vector ",
-             "or single-column dataframe.")
+             "or single-column data frame.")
     }
     species <- remove_spaces(species)
     duplicated_sp <-  species[duplicated(species)]
@@ -84,7 +85,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
         stop("Parameter 'mode' must be 'list' or 'backbone' ")
     }
     if(!(db %in% c("ncbi", "itis", "gbif", "bold"))){
-        stop(paste0(db, " is not one of the allowed databases."))
+        stop(paste0(db, " is not a supported taxonomic repository."))
     }
 
     tree$tip.label <- gsub("_x_|_X_", "_x-", tree$tip.label)
@@ -115,7 +116,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
     only.genus<- !grepl("_", species)
     if(isTRUE(genus)){
         if(!all(only.genus)){
-            stop("Taxa and tree tips must specify only genera for \"genus\" mode")
+            stop("Taxa and phylogenetic tips must represent genera only for \"genus\" mode")
         }
     }
     # Put suffix _sp in taxa with only the genus
@@ -131,10 +132,9 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
 
     if(!is.null(prior.info)){
       if(!all(names(info)==names(prior.info))){
-        stop("Column names of prior.info object do not match an 'info' file
-             column names. Please correct this issue.")
+        stop("Invalid column names for prior.info. They should match column names of an info data frame.")
+             
         }else{
-
 
           spp.in.prior <- species[species%in%prior.info$taxon]
 
@@ -158,7 +158,7 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
             info <- info[c(ord1,ord2),]
 
             }
-            #fill in taxonomic information with that included in prior.info
+            #fill in taxonomic information with that included in prior.info  #  REMOVE THIS
 
           if(length(genera.in.prior)>0){for(gen in genera.in.prior){
             gen.sp <- spp.gen.in.prior[first_word(spp.gen.in.prior)==gen]
@@ -169,21 +169,21 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
             }
 
 
-          }} #fill information of included genera species, only if information is always equal
+          }} #fill information of included genera species, only if information is always equal  #  REMOVE THIS
 
 
 
 
         }
 
-    }#include information from prior.info
+    }#include information from prior.info  #  REMOVE THIS
 
     info$genus<- first_word(info$taxon)
     genera <- unique(info$genus)
     if(!is.null(prior.info)){
       unmatched <- info[which(rowSums(is.na(info[,3:9]))==7),]
       genera <- unique(first_word(unmatched$taxon))
-    }#search only for unmatched genera
+    }#search only for unmatched genera  #  REMOVE THIS
 
     cols.select <- c("taxon1", "taxon2","rand.type", "polyphyly.scheme",
                     "use.paraphyletic", "use.singleton",
@@ -279,11 +279,11 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
     if(parallelize){
         if(is.null(ncores)){
             cat("\nncores argument was not provided.",
-                "Using all but one of system cores.\n\n")
+                "Using all system cores minus one.\n\n")
             ncores <- parallel::detectCores(logical = TRUE) - 1
         }else if(ncores > (parallel::detectCores(logical = TRUE) - 1)){
             cat("\nNumber of cores not availble.",
-                "Using all system cores but one.\n\n")
+                "Using all system cores minus one.\n\n")
             ncores <- parallel::detectCores(logical = TRUE) - 1
         }
     }
@@ -296,8 +296,8 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
     info <- correct_DF(info)
     info$keep.tip[is.na(info$keep.tip)] <- "1"
     if(all(info$keep.tip != "1")){
-        stop("No species in info with keep.tip equal to '1'.",
-             " Please set keep.tip equal to '1' for every species to ",
+        stop("No species in info with keep.tip equal to '1'.",            # THIS IS WEIRD. THE USER SHOULD NOT EDIT THAT COLUMN. I WOULD SIMPLY SAY SOMETHING LIKE "Cannot drop all species from the tree. At least some of them must have keep.tip = 1 status"
+             " Please set keep.tip to '1' for every species to ", #
             "keep in the final tree.")
     }
 
@@ -385,7 +385,7 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
     }
 
     if(length(DF$Typo[DF$Typo==TRUE])>0){
-        message("There may be misspelling errors in ",
+        message("There might be misspelling errors in ",
                 "the species list or the phylogenetic tips. ",
                 "Please, check the TYPO column in the outputted data frame.\n")
     }
@@ -430,10 +430,9 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
 
 #' Convert 'info' to 'input'.
 #'
-#' Convert an 'info' object into an 'input' one.
+#' Convert an 'info' data frame into an 'input' object.
 #'
-#' @param info An 'info' data frame, including all the customized binding
-#'             parameters.
+#' @param info A definitive info data frame.
 #' @param tree Backbone tree.
 #' @param parallelize Logical. If TRUE it allows the function to look for
 #'                             phyletic status using multiple processing
@@ -441,10 +440,9 @@ check_info<- function(info, tree, sim=0.85, find.phyleticity=TRUE,search.typos =
 #' @param ncores Number of cores to use in parallelization. If no number
 #'                is provided it defaults to all but one of system logical
 #'                cores.
-#' @param verbose Logical. Should or not progress be printed.
+#' @param verbose Logical. Whether or not to print the progress.
 #'
-#' @return An 'input' data frame which can be fed to \code{rand_tip} function
-#'         alongside with a backbone tree to expand a tree.
+#' @return An input data frame to feed the \code{rand_tip} function.
 #'
 #' @author Ignacio Ramos-Gutierrez, Rafael Molina-Venegas, Herlander Lima
 #'
@@ -580,8 +578,8 @@ search_taxize <- function(info, genera, interactive, db, verbose=T){
 
 }
 
-# Provides the input to MDCC finder and facilitates unit testing of
-# usingMDCCfinder function in utils source file.
+# Creates an input for MDCC finder and facilitates unit testing of the
+# usingMDCCfinder function (utils.R source file)
 input_to_MDCCfinder <- function(info, tree){
 
     input<-info

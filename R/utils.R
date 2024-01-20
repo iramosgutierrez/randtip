@@ -122,7 +122,7 @@ correct_DF<- function(df){
   return(as.data.frame(df_corrected))
 }
 
-# Return a vector of all species in the tree that match a given genus
+# Return a vector including all the species in the tree within the given genus
 sp_genus_in_tree <- function(tree, genus){
     sp <- tree$tip.label
     taxa.vector <- sp[first_word(sp) %in% genus]
@@ -452,7 +452,7 @@ sharingtaxa_descs<-function(tree, nodes, MDCC.genera){
     return(table)
 }
 
-#given the group and specifications, which nodes can be selected to bind a tip over
+#given the group and specifications, identify suitable nodes
 get_permitted_nodes <- function (tree, input, MDCC, rank, MDCC.type,
                                  polyphyly.scheme, use.paraphyletic, use.singleton, use.stem){
 
@@ -622,11 +622,11 @@ get_permitted_nodes <- function (tree, input, MDCC, rank, MDCC.type,
     return(nodes)
 }
 
-#given a set of nodes with get.permitted.nodes, must some of them should not be considered?
+#given a set of nodes after get.permitted.nodes, evaluates if all of them must be considered
 get_forbidden_nodes <- function(tree,input, MDCC, rank, perm.nodes, respect.mono, respect.para){
 
     forbidden.nodes<- vector("numeric")
-    #groups which must not be forbid
+    #groups which must not be forbidden
     perm.groups<- input[input[,rank]==MDCC,randtip_ranks()[(which(randtip_ranks()==rank)):8]]
     perm.groups<- notNA(unique(as.vector(unlist(perm.groups))))
 
