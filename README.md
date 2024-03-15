@@ -1,6 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+[![HitCount](https://hits.dwyl.com/iramosgutierrez/randtip.svg?style=flat-square)](https://hits.dwyl.com/iramosgutierrez/randtip)
+[![HitCount](https://hits.dwyl.com/iramosgutierrez/randtip.svg?style=flat-square&show=unique)](https://hits.dwyl.com/iramosgutierrez/randtip)
+
 # Introduction
 
 This tutorial aims to provide a step-by-step user guide to expand
