@@ -69,6 +69,8 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
     }
     species <- remove_spaces(species)
     duplicated_sp <-  species[duplicated(species)]
+    species <- gsub("_x_|_X_", "_x-", species)
+
     if(length(duplicated_sp)>=1){
         stop("Taxa ", paste0(duplicated_sp, collapse=", ")," are duplicated.")
     }
@@ -143,6 +145,9 @@ build_info<- function(species, tree=NULL, find.ranks=TRUE, db="ncbi",mode="backb
         stop("Invalid column names for prior.info. They should match column names of an info data frame.")
 
         }else{
+
+          #species in prior must be changed to be same
+          prior.info$taxon <- remove_spaces(prior.info$taxon)
 
           spp.in.prior <- info$taxon[info$taxon %in% prior.info$taxon]
 
