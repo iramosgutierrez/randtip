@@ -17,6 +17,9 @@ knitr::opts_chunk$set(
 )
 ```
 
+[![HitCount](https://hits.dwyl.com/iramosgutierrez/randtip.svg?style=flat-square)](https://hits.dwyl.com/iramosgutierrez/randtip)
+[![HitCount](https://hits.dwyl.com/iramosgutierrez/randtip.svg?style=flat-square&show=unique)](https://hits.dwyl.com/iramosgutierrez/randtip)
+
 
 # Introduction
 
