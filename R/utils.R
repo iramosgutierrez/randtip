@@ -522,7 +522,7 @@ get_permitted_nodes <- function (tree, input, MDCC, rank, MDCC.type,
 
         if(polyphyly.scheme == "frequentist"){
             MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
-            nodes <- getDescendants2(tree, MDCC.mrca, curr=NULL)
+            nodes <- getdescs.ape(tree, MDCC.mrca, curr=NULL)
 
             if(use.stem){nodes <- c(MDCC.mrca,nodes)}
 
@@ -965,8 +965,9 @@ phyleticity<- function(tree, genus){
     }
 
     mrca <- phytools::findMRCA(tree = tree, tips = taxa.vector)
-    descend <- getDescendants2(tree, mrca)
-    desc.tips <- notNA(sp[descend])
+    # descend <- getDescendants2(tree, mrca)
+    # desc.tips <- notNA(sp[descend])
+    desc.tips <- ape::extract.clade(tree, mrca)$tip.label
     desc.genera <- first_word(desc.tips)
 
     if(length(unique(desc.genera)) == 1){
@@ -980,9 +981,11 @@ phyleticity<- function(tree, genus){
     }else{
         intruder.mrca <- phytools::findMRCA(tree = tree, tips = intruder.tips)
         # if there are more than one intruder...
-        desc.intruder.mrca <- getDescendants2(tree, intruder.mrca)
-        desc.intruder.tips <- sp[desc.intruder.mrca]
-        desc.intruder.tips <- notNA(desc.intruder.tips)
+        # desc.intruder.mrca <- getDescendants2(tree, intruder.mrca)
+        # desc.intruder.tips <- sp[desc.intruder.mrca]
+        # desc.intruder.tips <- notNA(desc.intruder.tips)
+        desc.intruder.tips <- ape::extract.clade(tree, intruder.mrca)$tip.label
+
         #intruders grouped: paraphyletic group by monophyletic intruder
         suppressWarnings({
             grouped.intruders <- all(sort(desc.intruder.tips) == sort(intruder.tips))
@@ -1032,8 +1035,9 @@ MDCC_phyleticity<-function(input, tree, MDCC.info=list("rank"=NA, "MDCC"=NA),
     }
 
     sp.mrca<- phytools::findMRCA(tree, tips = spp.in.tree)
-    descs.num<- getDescendants2(tree,sp.mrca)
-    descs.name<-notNA(tree$tip.label[descs.num])
+    # descs.num<- getDescendants2(tree,sp.mrca)
+    # descs.name<-notNA(tree$tip.label[descs.num])
+    descs.name <- ape::extract.clade(tree,sp.mrca)$tip.label
 
     if(all(first_word(descs.name)%in%MDCC.genera)){
         MDCC.type<-"Monophyletic"
@@ -1046,8 +1050,9 @@ MDCC_phyleticity<-function(input, tree, MDCC.info=list("rank"=NA, "MDCC"=NA),
         }
 
         intruders.mrca<- ape::getMRCA(phy = tree, tip = intruders)
-        intruders.descs.num<- getDescendants2(tree,intruders.mrca)
-        intruders.descs.name<-notNA(tree$tip.label[intruders.descs.num])
+        # intruders.descs.num<- getDescendants2(tree,intruders.mrca)
+        # intruders.descs.name<-notNA(tree$tip.label[intruders.descs.num])
+        intruders.descs.name<- ape::extract.clade(tree,intruders.mrca)$tip.label
 
         if(!any(first_word(intruders.descs.name)%in%MDCC.genera)){
             MDCC.type<-"Paraphyletic"
@@ -1127,25 +1132,41 @@ bind.tip2 <- function(tree,
 
 
 
-getDescendants2 <- function(tree, node, curr = NULL) {
-  daughters <- tree$edge[tree$edge[, 1] == node, 2]
-  curr <- c(curr, daughters)
-  ntip <- length(tree$tip.label)
-  if (length(curr) == 0 && node <= ntip) {
-    return(node)
-  }
-  w <- which(daughters > ntip)
-  n <- length(w)
-  if (n > 0) {
-    for (i in 1:n) {
-      curr <- getDescendants2(tree,
-                             daughters[w[i]],
-                             curr)
-    }
-  }
-  return(curr)
-}
+# getDescendants2 <- function(tree, node, curr = NULL) {
+#   daughters <- tree$edge[tree$edge[, 1] == node, 2]
+#   curr <- c(curr, daughters)
+#   ntip <- length(tree$tip.label)
+#   if (length(curr) == 0 && node <= ntip) {
+#     return(node)
+#   }
+#   w <- which(daughters > ntip)
+#   n <- length(w)
+#   if (n > 0) {
+#     for (i in 1:n) {
+#       curr <- getDescendants2(tree,
+#                              daughters[w[i]],
+#                              curr)
+#     }
+#   }
+#   return(curr)
+# }
 
+getDescendants2 <- function(tree, node, curr = NULL){ #curr = NULL mantained to avoid breaking code
+  subtree <- tree
+
+  ntip <- ape::Ntip(subtree)
+  nnode <- ape::Nnode(subtree)
+
+  subtree$tip.label  <- 1:ntip
+  subtree$node.label <-  (ntip+1):(ntip+nnode)
+
+  subtree <- ape::extract.clade(subtree, node)
+
+  nds <-  c(subtree$tip.label, subtree$node.label)
+
+  nds <- nds[nds != node]
+  return(nds)
+}
 
 getDescendants3 <- function(x, node, ntip, curr = NULL) {
   daughters <- min(x[x[, 1] == node, 2])
