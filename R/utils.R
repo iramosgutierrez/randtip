@@ -463,7 +463,7 @@ get_permitted_nodes <- function (tree, input, MDCC, rank, MDCC.type,
 
     if(MDCC.type=="Monophyletic"){
         MDCC.mrca<- ape::getMRCA(tree, MDCC.intree)
-        nodes <- getDescendants2(tree, MDCC.mrca, curr=NULL)
+        nodes <- getDescendants2(tree, node = MDCC.mrca, curr=NULL)
         if(use.stem){nodes <- c(MDCC.mrca,nodes)}
     }
 
@@ -529,36 +529,38 @@ get_permitted_nodes <- function (tree, input, MDCC, rank, MDCC.type,
             table<- data.frame("node"=as.numeric(nodes), "descs"=NA, "total.descs"=NA,
                               "sharing.descs"=NA, "eligible"=NA)
             for(i in seq_along(table$node)){
-                node<- table$node[i]
-                if(is_tip(tree,node)){
-                    table$descs[i] <- NA
-                    table$total.descs[i]<-1
-                    if(tree$tip.label[node] %in% input[input[,rank]==MDCC,"taxon"]){
-                        table$sharing.descs[i]<-1;table$eligible[i]<- "TRUE"
-                    }else{
-                            table$sharing.descs[i]<-0;table$eligible[i]<- "FALSE"
-                    }
+              node<- table$node[i]
+              if(is_tip(tree,node)){
+                table$descs[i]   <- node
+                table$total.descs[i]<-1
+                if(tree$tip.label[node]%in% input[input[,rank]==MDCC,"taxon"]){
+                  table$sharing.descs[i]<-1
+                  table$eligible[i]<- "TRUE"
+                }else{
+                  table$sharing.descs[i]<-0
+                  table$eligible[i]<- "FALSE"
                 }
-                if(is_node(tree,node)){
-                    descs<- getDescendants2(tree, node, curr=NULL)
-                    table$descs[i] <- paste0(descs, collapse = ",")
-                    descs<-notNA(tree$tip.label[descs])
-                    table$total.descs[i]   <- length(descs)
-                    table$sharing.descs[i] <- length(descs[descs %in% input[input[,rank]==MDCC,"taxon"]])
-                    if(length(descs[descs %in% input[input[,rank]!=MDCC,"taxon"]])>0){
-                        table$eligible[i]<-"FALSE"
-                    }else{
-                        table$eligible[i]<-"TRUE"
-                    }
+              }
+              if(is_node(tree,node)){
+                descs<- c(node, getDescendants2(tree, node, curr=NULL))
+                table$descs[i] <- paste0(node, collapse = ",")
+                descs<-notNA(tree$tip.label[descs])
+                table$total.descs[i]   <- length(descs)
+                table$sharing.descs[i] <- length(descs[descs %in% input[input[,rank]==MDCC,"taxon"]])
+                if(length(descs[descs %in% input[input[,rank]!=MDCC,"taxon"]])>0){
+                  table$eligible[i]<-"FALSE"
+                }else{
+                  table$eligible[i]<-"TRUE"
                 }
+              }
             }
 
-            table<- table[table$eligible=="TRUE",]
-            for(i in seq_along(table$node)){
-                node<- table$node[i]
-                descs<- unique(unlist(strsplit(table$descs, split=",")))
-                if(as.character(node)%in%descs ){table$eligible[i]<- "FALSE"}
-            }
+            # table<- table[table$eligible=="TRUE",]
+            # for(i in seq_along(table$node)){
+            #     node<- table$node[i]
+            #     descs<- unique(unlist(strsplit(table$descs, split=",")))
+            #     if(as.character(node)%in%descs ){table$eligible[i]<- "FALSE"}
+            # }
 
             table<- table[table$eligible=="TRUE",]
             if(use.stem){table$descs<- paste0(table$node,",", table$descs)}
@@ -582,17 +584,19 @@ get_permitted_nodes <- function (tree, input, MDCC, rank, MDCC.type,
             for(i in seq_along(table$node)){
                 node<- table$node[i]
                 if(is_tip(tree,node)){
-                    table$descs[i]   <- NA
+                    table$descs[i]   <- node
                     table$total.descs[i]<-1
                     if(tree$tip.label[node]%in% input[input[,rank]==MDCC,"taxon"]){
-                        table$sharing.descs[i]<-1;table$eligible[i]<- "TRUE"
+                        table$sharing.descs[i]<-1
+                        table$eligible[i]<- "TRUE"
                     }else{
-                        table$sharing.descs[i]<-0;table$eligible[i]<- "FALSE"
+                        table$sharing.descs[i]<-0
+                        table$eligible[i]<- "FALSE"
                     }
                 }
                 if(is_node(tree,node)){
-                    descs<- getDescendants2(tree, node, curr=NULL)
-                    table$descs[i] <- paste0(descs, collapse = ",")
+                    descs<- c(node, getDescendants2(tree, node, curr=NULL))
+                    table$descs[i] <- paste0(node, collapse = ",")
                     descs<-notNA(tree$tip.label[descs])
                     table$total.descs[i]   <- length(descs)
                     table$sharing.descs[i] <- length(descs[descs %in% input[input[,rank]==MDCC,"taxon"]])
@@ -603,14 +607,14 @@ get_permitted_nodes <- function (tree, input, MDCC, rank, MDCC.type,
                     }
                 }
             }
-            table<- table[table$eligible=="TRUE",]
-            for(i in seq_along(table$node)){
-                node<- table$node[i]
-                descs<- unique(unlist(strsplit(table$descs, split=",")))
-                if(node%in%descs ){table$eligible[i]<- "FALSE"}
-            }
-            table<- table[table$eligible=="TRUE",]
-            table<-table[table$sharing.descs== max(table$sharing.descs),]
+            # table<- table[table$eligible=="TRUE",]
+            # for(i in seq_along(table$node)){
+            #     node<- table$node[i]
+            #     descs<- unique(unlist(strsplit(table$descs, split=",")))
+            #     if(node%in%descs ){table$eligible[i]<- "FALSE"}
+            # }
+            table <- table[table$eligible=="TRUE",]
+            table <- table[table$sharing.descs == max(table$sharing.descs),]
             if(use.stem){table$descs<- paste0(table$node,",", table$descs)}
             table$descs<- gsub(",NA", "", table$descs)
             if(nrow(table)>1){table<-table[sample(1:nrow(table), size=1),]}
@@ -1152,17 +1156,21 @@ bind.tip2 <- function(tree,
 # }
 
 getDescendants2 <- function(tree, node, curr = NULL){ #curr = NULL mantained to avoid breaking code
+  if(is_tip(tree, node)){
+    return(node)
+  }
   subtree <- tree
 
   ntip <- ape::Ntip(subtree)
   nnode <- ape::Nnode(subtree)
 
-  subtree$tip.label  <- 1:ntip
-  subtree$node.label <-  (ntip+1):(ntip+nnode)
+  subtree$tip.label  <- paste0("N_", 1:ntip)
+  subtree$node.label <-  paste0("N_", (ntip+1):(ntip+nnode))
 
   subtree <- ape::extract.clade(subtree, node)
 
   nds <-  c(subtree$tip.label, subtree$node.label)
+  nds <- as.numeric(gsub("N_", "", nds))
 
   nds <- nds[nds != node]
   return(nds)
