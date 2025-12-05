@@ -2,7 +2,7 @@ Package: randtip
 Title: A generalized framework to expand incomplete phylogenies with taxonomic information
 Version: 0.1.0
 Authors@R: c(
-    person("Ignacio", "Ramos-Gutiérrez", , "ignacio.ramosgutierrez@uam.es", role = c("aut", "cre")),
+    person("Ignacio", "Ramos-Gutierrez", , "ignacio.ramosgutierrez@uam.es", role = c("aut", "cre")),
     person("Herlander", "Lima", role = "aut"),
     person("Rafael", "Molina-Venegas", role = "aut"),
     person("Bruno", "Vilela", role = "ctb")
