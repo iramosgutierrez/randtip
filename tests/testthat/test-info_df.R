@@ -63,11 +63,11 @@ test_that("The following genera were detected as ambiguous or missing", {
 })
 
 test_that("MDCC search", {
-  input <- info2input(mythology$info.list, mythology$back.tree)
+  input <- info2input(mythology$info.list, mythology$back.tree, parallelize = F)
   expect_equal(input[input$taxon=="Grindylowia_yorkii","MDCC" ], "Aquatia")
 
   info <- edit_info(mythology$info.list, "Grindylowia_yorkii", "order", NA )
-  input <- info2input(info, mythology$back.tree)
+  input <- info2input(info, mythology$back.tree, parallelize = F)
   expect_equal(input[input$taxon=="Grindylowia_yorkii","MDCC" ], "Paradoxanimalia")
 
 })

@@ -1,8 +1,8 @@
 
 
 test_that("Randtip functioning", {
-  
-input <- info2input(mythology$info.list, mythology$back.tree)
+
+input <- info2input(mythology$info.list, mythology$back.tree, parallelize = F)
 expect_message(rand_tip(input, mythology$back.tree)  , "not ultrametric")
 
 seed <- sample(1:999999, 1)
@@ -20,17 +20,17 @@ expect_equal(tree1, tree2)
 
 
 test_that("Randtip functioning", {
-  
-  input <- info2input(mythology$info.list, mythology$back.tree)
+
+  input <- info2input(mythology$info.list, mythology$back.tree, parallelize = F)
 
   seed <- sample(1:999999, 1)
-  
+
   set.seed(seed)
   tree1 <- rand_tip(input, mythology$back.tree, forceultrametric = T, rand.type = "polytomy")
-  
+
   set.seed(seed)
   tree2 <- rand_tip(input, mythology$back.tree, forceultrametric = T, rand.type = "polytomy")
-  
-  
+
+
   expect_equal(tree1, tree2)
 })
