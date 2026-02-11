@@ -939,7 +939,7 @@ add_to_singleton <- function(tree, singleton, new.tips, use.singleton=F){
 
   pos<- binding_position(new.tree, node = nodes, insertion = "random",
                          prob = T, ultrametric = ultrametric)
-  new.tree <- bind.tip2(new.tree,
+  new.tree <- phytools::bind.tip(new.tree, #ex bind.tip2(), erased 11/02/226
                                  new.tips,
                                  edge.length = pos$length,
                                  where = pos$where,
@@ -1073,65 +1073,68 @@ MDCC_phyleticity<-function(input, tree, MDCC.info=list("rank"=NA, "MDCC"=NA),
 # Bind.tips custom
 
 
-bind.tip2 <- function(tree,
-                      tip.label,
-                      edge.length = NULL,
-                      where,
-                      position) {
-  ntips <- length(tree$tip.label)
-  if (where == ntips + 1 |
-      position == 0) {
-    return(phytools::bind.tip(tree,
-                              tip.label,
-                              edge.length = NULL,
-                              where,
-                              position))
-  }
-  n <- nrow(tree$edge)
-  x <- matrix(ncol = 2, nrow = n  + 2)
-  x[1:n,] <- tree$edge
-  pos1 <- which(where == x[, 2])
-  node_pos <- which(x[, 2] > ntips)
-  x[node_pos, 2] <- x[node_pos, 2] + 1
-  x[, 1] <- x[, 1] + 1
-  newnode <- x[pos1, 1] + 1
-  x <- ifelse(x >= newnode, x + 1, x)
-  x[pos1, 1] <- newnode
-  n1 <- n + 1
-  n2 <- n + 2
-  x[n1,] <- c(x[pos1, 1] - 1, x[pos1, 1])
-  ntips <- ntips + 1
-  x[n2,] <- c(x[pos1, 1], ntips)
-  x_edgel <- c(tree$edge.length, NA, NA)
-  x_edgel[n1] <- x_edgel[pos1] - position
-  x_edgel[pos1] <- position
-  if (x[n1, 2] > ntips) {
-    x_edgel[n2] <- sum(x_edgel[x[, 2] %in%
-                                 getDescendants3(x[-n2,],
-                                                 node = x[n1, 2],
-                                                 ntips)])
-  } else {
-    x_edgel[n2] <- position
-  }
-  if (!is.null(edge.length)) {
-    x_edgel[n2] <- edge.length
-  }
-
-  tree_new <-
-    list(
-      "edge" = x,
-      "tip.label" = c(tree$tip.label, tip.label),
-      "edge.length" = x_edgel,
-      "Nnode" = ntips
-    )
-  class(tree_new) <- "Phyllo"
-  attributes(tree_new) <-
-    list(names = c("edge", "tip.label", "edge.length",
-                   "Nnode"),
-         class = "phylo")
-  tree_new <- ape::reorder.phylo(tree_new, order = "cladewise")
-  tree_new
-}
+ # ·IRG, 11/02/2026
+ #  I have erased this function as it was creating trees with same number of nodes as tips
+ #  I do not know where this comes from, but sticking to phytools function!
+# bind.tip2 <- function(tree,
+#                       tip.label,
+#                       edge.length = NULL,
+#                       where,
+#                       position) {
+#   ntips <- length(tree$tip.label)
+#   if (where == ntips + 1 |
+#       position == 0) {
+#     return(phytools::bind.tip(tree,
+#                               tip.label,
+#                               edge.length = NULL,
+#                               where,
+#                               position))
+#   }
+#   n <- nrow(tree$edge)
+#   x <- matrix(ncol = 2, nrow = n  + 2)
+#   x[1:n,] <- tree$edge
+#   pos1 <- which(where == x[, 2])
+#   node_pos <- which(x[, 2] > ntips)
+#   x[node_pos, 2] <- x[node_pos, 2] + 1
+#   x[, 1] <- x[, 1] + 1
+#   newnode <- x[pos1, 1] + 1
+#   x <- ifelse(x >= newnode, x + 1, x)
+#   x[pos1, 1] <- newnode
+#   n1 <- n + 1
+#   n2 <- n + 2
+#   x[n1,] <- c(x[pos1, 1] - 1, x[pos1, 1])
+#   ntips <- ntips + 1
+#   x[n2,] <- c(x[pos1, 1], ntips)
+#   x_edgel <- c(tree$edge.length, NA, NA)
+#   x_edgel[n1] <- x_edgel[pos1] - position
+#   x_edgel[pos1] <- position
+#   if (x[n1, 2] > ntips) {
+#     x_edgel[n2] <- sum(x_edgel[x[, 2] %in%
+#                                  getDescendants3(x[-n2,],
+#                                                  node = x[n1, 2],
+#                                                  ntips)])
+#   } else {
+#     x_edgel[n2] <- position
+#   }
+#   if (!is.null(edge.length)) {
+#     x_edgel[n2] <- edge.length
+#   }
+#
+#   tree_new <-
+#     list(
+#       "edge" = x,
+#       "tip.label" = c(tree$tip.label, tip.label),
+#       "edge.length" = x_edgel,
+#       "Nnode" = ntips
+#     )
+#   class(tree_new) <- "Phyllo"
+#   attributes(tree_new) <-
+#     list(names = c("edge", "tip.label", "edge.length",
+#                    "Nnode"),
+#          class = "phylo")
+#   tree_new <- ape::reorder.phylo(tree_new, order = "cladewise")
+#   tree_new
+# }
 
 
 

@@ -431,7 +431,7 @@ rand_tip <- function(input, tree,rand.type = "random",
         bind.pos<- binding_position(new.tree, node,  insertion = "random",
                                     prob, ultrametric = ultrametric)
 
-        new.tree.tmp <- bind.tip2(new.tree, PUT, edge.length = bind.pos$length,
+        new.tree.tmp <- phytools::bind.tip(new.tree, PUT, edge.length = bind.pos$length,    # ex bind.tip2(); erased on 11/02/2026
                                            where = bind.pos$where , position = bind.pos$position )
 
 
@@ -455,7 +455,7 @@ rand_tip <- function(input, tree,rand.type = "random",
         bind.pos<- binding_position(new.tree, node,  insertion = "polytomy",
                                     prob, ultrametric = ultrametric)
 
-        new.tree.tmp <- bind.tip2(new.tree, PUT, edge.length = bind.pos$length,
+        new.tree.tmp <- phytools::bind.tip(new.tree, PUT, edge.length = bind.pos$length, #ex bind.tip2(), erased on 11/02/2026
                                            where = bind.pos$where , position = bind.pos$position )
 
         # addnodelabel<-addnodelabel+1
